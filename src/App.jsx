@@ -27,14 +27,21 @@ export default function App() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-200 flex justify-center items-center font-['Manrope']">
-            <div className="w-full max-w-md bg-[#F7F9FA] min-h-screen relative overflow-hidden md:rounded-[3rem] md:h-[90vh] md:min-h-[800px] md:shadow-2xl ring-1 ring-slate-900/5">
+        <div className="min-h-screen bg-slate-900 flex justify-center items-center font-['Manrope'] overflow-hidden">
+            {/* Background elements for premium look */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-teal-500/10 blur-[100px] rounded-full"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 blur-[100px] rounded-full"></div>
+            </div>
 
+            <div className="w-full max-w-md bg-[#F7F9FA] min-h-screen relative overflow-hidden md:rounded-[3rem] md:h-[90vh] md:min-h-[800px] md:shadow-[0_20px_50px_rgba(0,0,0,0.3)] ring-1 ring-white/10 flex flex-col">
+                
                 {!isAuthenticated && (
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[50%] bg-gradient-to-b from-[#e0f2f1] to-transparent rounded-b-full opacity-50 pointer-events-none"></div>
+                    <div className="absolute top-0 left-0 w-full h-[40%] bg-gradient-to-b from-teal-50 to-transparent pointer-events-none"></div>
                 )}
 
                 <AnimatePresence mode="wait">
+
                     {!isAuthenticated ? (
                         <motion.div
                             key={authView}
