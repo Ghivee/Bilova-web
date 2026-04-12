@@ -11,10 +11,12 @@
     "push-deploy": "git pull origin main --rebase && git add . && git commit -m \"fix: pathing and UI improvements\" && git push origin main && npm run deploy"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.103.0",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.8.0",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.14.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

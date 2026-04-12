@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Data Pasien - Clinical Serenity</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#006c4a",
+                        "error": "#ba1a1a",
+                        "on-background": "#191c1e",
+                        "on-tertiary-fixed-variant": "#7f2928",
+                        "background": "#f7f9fb",
+                        "tertiary-fixed-dim": "#ffb3ae",
+                        "tertiary-container": "#ba5551",
+                        "on-primary-container": "#f5fff7",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed": "#85f8c4",
+                        "secondary-fixed-dim": "#80d5cb",
+                        "surface-container-highest": "#e0e3e5",
+                        "outline-variant": "#bccac0",
+                        "secondary-fixed": "#9cf2e8",
+                        "secondary-container": "#99efe5",
+                        "on-error": "#ffffff",
+                        "on-surface": "#191c1e",
+                        "on-primary": "#ffffff",
+                        "primary-fixed-dim": "#68dba9",
+                        "on-secondary-container": "#006f67",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#eceef0",
+                        "primary": "#006948",
+                        "on-tertiary-fixed": "#410004",
+                        "on-surface-variant": "#3d4a42",
+                        "on-secondary-fixed-variant": "#00504a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#fffbff",
+                        "on-primary-fixed": "#002114",
+                        "surface-dim": "#d8dadc",
+                        "secondary": "#006a63",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f7f9fb",
+                        "error-container": "#ffdad6",
+                        "outline": "#6d7a72",
+                        "tertiary-fixed": "#ffdad7",
+                        "inverse-surface": "#2d3133",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-bright": "#f7f9fb",
+                        "tertiary": "#9b3e3b",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container-high": "#e6e8ea",
+                        "on-secondary-fixed": "#00201d",
+                        "inverse-primary": "#68dba9",
+                        "surface-variant": "#e0e3e5",
+                        "on-primary-fixed-variant": "#005137",
+                        "primary-container": "#00855d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-headline {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .signature-gradient {
+            background: linear-gradient(135deg, #006948 0%, #00855d 100%);
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-on-surface antialiased">
+    <!-- SideNavBar Shell -->
+    <aside
+        class="w-72 h-screen fixed left-0 top-0 overflow-y-auto bg-[#f7f9fb] dark:bg-slate-900 flex flex-col py-8 px-6 font-['Manrope'] antialiased z-40">
+        <div class="mb-10 px-2">
+            <h1 class="text-xl font-bold tracking-tight text-emerald-800 dark:text-emerald-200">Clinical Serenity</h1>
+            <p class="text-xs text-slate-500 font-medium tracking-wide">Antibiotic Control System</p>
+        </div>
+        <nav class="flex-1 space-y-2">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 font-medium hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-colors duration-200"
+                href="#">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span>Dashboard</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-emerald-900 dark:text-emerald-50 font-bold border-r-4 border-emerald-600 dark:border-emerald-400 bg-emerald-50/50 dark:bg-emerald-900/20 transition-colors duration-200"
+                href="#">
+                <span class="material-symbols-outlined">person</span>
+                <span>Data Pasien</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 font-medium hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-colors duration-200"
+                href="#">
+                <span class="material-symbols-outlined">event_upcoming</span>
+                <span>Kepatuhan &amp; Monitoring</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 font-medium hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-colors duration-200"
+                href="#">
+                <span class="material-symbols-outlined">query_stats</span>
+                <span>Analytics</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 font-medium hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-colors duration-200"
+                href="#">
+                <span class="material-symbols-outlined">enhanced_encryption</span>
+                <span>Medical Vault</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 font-medium hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-colors duration-200"
+                href="#">
+                <span class="material-symbols-outlined">support_agent</span>
+                <span>Dukungan</span>
+            </a>
+        </nav>
+        <div class="mt-auto pt-8 border-t border-surface-container">
+            <div class="flex items-center gap-3 px-2">
+                <div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-highest">
+                    <img alt="Medical Admin Avatar" class="w-full h-full object-cover"
+                        data-alt="professional portrait of a medical administrator in a clinical setting with soft natural lighting"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnvwG6Emt8uFSi3K2c9z-Xpl8rLBqnLNGYHLfHfOWgDCeEvZwfJ5jy1zE4bi8w0nMcuvkMf4UoyZTbnBaihIkrkg34u4afU-F778O4HNxksOw71AF4EBhPOM2eIc30JvJD0-x9Zz2_EuqJBfgo300pQamprq1d9B-G384slHkeGcX1ySdD7uFGaBxAE8s80PIzIJTYHplV7ptUpkTZCzvwYkMXwk_v1e59_gJQmdnDletzlPb_SdZwUzMwtcn7w_D_S1-o-KzwIVI8" />
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-on-surface">Dr. Aris Setiawan</p>
+                    <p class="text-[10px] text-slate-500 font-semibold uppercase tracking-widest">Kepala Admin</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+    <!-- TopNavBar Shell -->
+    <header
+        class="fixed top-0 right-0 w-[calc(100%-18rem)] z-30 bg-[#f7f9fb]/80 dark:bg-slate-900/80 backdrop-blur-xl flex justify-between items-center px-12 py-4 ml-72">
+        <div class="flex items-center bg-surface-container-low px-4 py-2 rounded-xl w-96">
+            <span class="material-symbols-outlined text-slate-400 mr-2">search</span>
+            <input class="bg-transparent border-none focus:ring-0 text-sm w-full font-body text-on-surface-variant"
+                placeholder="Cari ID atau nama pasien..." type="text" />
+        </div>
+        <div class="flex items-center gap-6">
+            <button
+                class="relative text-slate-600 dark:text-slate-300 hover:text-emerald-700 transition-opacity active:opacity-80">
+                <span class="material-symbols-outlined">notifications</span>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-error rounded-full"></span>
+            </button>
+            <button
+                class="text-slate-600 dark:text-slate-300 hover:text-emerald-700 transition-opacity active:opacity-80">
+                <span class="material-symbols-outlined">settings</span>
+            </button>
+            <div class="h-8 w-[1px] bg-outline-variant opacity-30"></div>
+            <p class="font-headline text-sm font-bold text-emerald-800">Antibiotic Admin</p>
+        </div>
+    </header>
+    <!-- Main Content Canvas -->
+    <main class="ml-72 pt-24 pb-12 px-12 min-h-screen">
+        <!-- Header Section -->
+        <section class="mb-10">
+            <div class="flex justify-between items-end">
+                <div>
+                    <h2 class="text-4xl font-extrabold tracking-tight text-on-surface font-headline mb-2">Data Pasien
+                    </h2>
+                    <p class="text-on-surface-variant max-w-lg leading-relaxed">Kelola dan pantau seluruh basis data
+                        pasien dengan sistem pemantauan antibiotik terpadu.</p>
+                </div>
+                <div class="flex gap-4">
+                    <button
+                        class="flex items-center gap-2 px-6 py-3 bg-surface-container-high text-primary font-bold rounded-xl hover:bg-surface-container-highest transition-colors">
+                        <span class="material-symbols-outlined text-xl">file_download</span>
+                        Export Data
+                    </button>
+                    <button
+                        class="flex items-center gap-2 px-6 py-3 signature-gradient text-white font-bold rounded-xl shadow-lg shadow-emerald-900/10 hover:opacity-90 transition-opacity">
+                        <span class="material-symbols-outlined text-xl">person_add</span>
+                        Tambah Pasien
+                    </button>
+                </div>
+            </div>
+        </section>
+        <!-- Stats Bento Grid -->
+        <section class="grid grid-cols-4 gap-6 mb-10">
+            <div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col justify-between h-32">
+                <span class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Total Pasien</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-bold font-headline">1,284</span>
+                    <span class="text-xs text-emerald-600 font-bold">+12% bln ini</span>
+                </div>
+            </div>
+            <div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col justify-between h-32">
+                <span class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Kepatuhan Tinggi</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-bold font-headline text-secondary">86%</span>
+                    <span class="text-xs text-slate-400 font-medium">942 Pasien</span>
+                </div>
+            </div>
+            <div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col justify-between h-32">
+                <span class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Kepatuhan Rendah</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-bold font-headline text-error">4.2%</span>
+                    <span class="text-xs text-slate-400 font-medium">54 Pasien</span>
+                </div>
+            </div>
+            <div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col justify-between h-32">
+                <span class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Aktif Monitoring</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-bold font-headline text-primary">312</span>
+                    <span class="text-xs text-slate-400 font-medium">Sedang Berjalan</span>
+                </div>
+            </div>
+        </section>
+        <!-- Search & Filter Bar -->
+        <section class="bg-surface-container-lowest p-4 rounded-xl mb-6 flex flex-wrap gap-4 items-center">
+            <div class="flex-1 min-w-[300px] relative">
+                <span
+                    class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                <input
+                    class="w-full bg-surface-container-low border-none rounded-lg pl-12 py-3 focus:ring-2 focus:ring-primary/20 transition-all text-sm"
+                    placeholder="Cari berdasarkan nama, ID, atau diagnosis..." type="text" />
+            </div>
+            <div class="flex items-center gap-3">
+                <select
+                    class="bg-surface-container-low border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 font-medium">
+                    <option>Semua Status</option>
+                    <option>Patuh</option>
+                    <option>Kurang Patuh</option>
+                    <option>Tidak Patuh</option>
+                </select>
+                <select
+                    class="bg-surface-container-low border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 font-medium">
+                    <option>Rentang Usia</option>
+                    <option>0 - 18th</option>
+                    <option>19 - 45th</option>
+                    <option>46+ th</option>
+                </select>
+                <button
+                    class="p-3 bg-surface-container-low text-slate-600 rounded-lg hover:bg-surface-container-high transition-colors">
+                    <span class="material-symbols-outlined">filter_list</span>
+                </button>
+            </div>
+        </section>
+        <!-- Comprehensive Patient Table -->
+        <section class="bg-surface-container-lowest rounded-xl overflow-hidden">
+            <table class="w-full border-collapse">
+                <thead>
+                    <tr class="bg-surface-container-low/50">
+                        <th class="px-8 py-5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+                            Nama Pasien</th>
+                        <th class="px-6 py-5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+                            ID Pasien</th>
+                        <th class="px-6 py-5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+                            Usia</th>
+                        <th class="px-6 py-5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+                            Diagnosis Terakhir</th>
+                        <th class="px-6 py-5 text-left text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+                            Status Kepatuhan</th>
+                        <th class="px-8 py-5 text-right text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+                            Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-surface-container-low">
+                    <!-- Row 1 -->
+                    <tr class="hover:bg-surface-container-low/30 transition-colors group">
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full overflow-hidden bg-slate-100">
+                                    <img alt="Patient Avatar" class="w-full h-full object-cover"
+                                        data-alt="close-up portrait of an elderly man with silver hair and gentle features in a medical consultation setting"
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuChwA-paRtIAjglwQl8WqT2MVmrhSnqSW1kDbU0Gi5K5u_Jl0aRsPrTuCrDgdS9Aep1nfhsDIb5ZWW3vMmYitEOyhCHBg9TfGsrlIZuoUzk9QGWVCBDHrKpzIa7X9LQyYmXqFJAtQhwii7vNHwsDUmdfPZ2EfGMwgooYb1Dk0QhrgWHuMROUPL2KqwS0qHRUVFEacDFmp52Lzn0_kXSQHB2vFFFriEP6ji2Gf6n3tgyPPOMBFn32WB6uuOQTZond76qLg162IjBTvo6" />
+                                </div>
+                                <div>
+                                    <p class="font-bold text-on-surface group-hover:text-primary transition-colors">Budi
+                                        Santoso</p>
+                                    <p class="text-xs text-slate-500">Laki-laki</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="font-mono text-sm font-semibold text-slate-600">#CS-2904-A</span>
+                        </td>
+                        <td class="px-6 py-5 text-sm font-medium">54 Tahun</td>
+                        <td class="px-6 py-5 text-sm text-slate-600 italic">Pneumonia Komunitas</td>
+                        <td class="px-6 py-5">
+                            <span
+                                class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[11px] font-extrabold uppercase tracking-wider inline-flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                Sangat Patuh
+                            </span>
+                        </td>
+                        <td class="px-8 py-5 text-right">
+                            <button class="text-primary font-bold text-sm hover:underline underline-offset-4">Lihat
+                                Detail</button>
+                        </td>
+                    </tr>
+                    <!-- Row 2 -->
+                    <tr class="hover:bg-surface-container-low/30 transition-colors group">
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full overflow-hidden bg-slate-100">
+                                    <img alt="Patient Avatar" class="w-full h-full object-cover"
+                                        data-alt="portrait of a professional woman with a calm expression in a clinic setting with soft background blur"
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFAVTx28YfdF5hivW3a3MEXHCm9P0pUCaPANH06srtybGn1UStX-hRwihE3yLNBUr9lLuC6ihXG_fFaqZkUoPNElt6jFHaSQlHS0KLAxGGafrg3QujnEybc6oo4WXCszMXYmhjwIKFd6uA3P9hnZnbo0_8zqlKZLcC3YPK8P8_oHiUPIyb6g-YjZNAgPYGkub3ozY-Ug2CzP86wX29KChzHZSNydArhy3kokE1uv7QDdPnsuQM6tHSfJMmhKATOmfvhcIcNIwzRctY" />
+                                </div>
+                                <div>
+                                    <p class="font-bold text-on-surface group-hover:text-primary transition-colors">Siti
+                                        Aminah</p>
+                                    <p class="text-xs text-slate-500">Perempuan</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="font-mono text-sm font-semibold text-slate-600">#CS-3112-B</span>
+                        </td>
+                        <td class="px-6 py-5 text-sm font-medium">29 Tahun</td>
+                        <td class="px-6 py-5 text-sm text-slate-600 italic">Infeksi Saluran Kemih</td>
+                        <td class="px-6 py-5">
+                            <span
+                                class="px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-full text-[11px] font-extrabold uppercase tracking-wider inline-flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+                                Monitoring Ketat
+                            </span>
+                        </td>
+                        <td class="px-8 py-5 text-right">
+                            <button class="text-primary font-bold text-sm hover:underline underline-offset-4">Lihat
+                                Detail</button>
+                        </td>
+                    </tr>
+                    <!-- Row 3 -->
+                    <tr class="hover:bg-surface-container-low/30 transition-colors group">
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full overflow-hidden bg-slate-100">
+                                    <img alt="Patient Avatar" class="w-full h-full object-cover"
+                                        data-alt="headshot of a middle-aged woman with glasses and a friendly smile in a bright hospital room"
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuXFH9X9h2rqJtQmqyDmdCi-VttZXHrEkS5j7nkWeb42K3YI-x8YLfbyXB3WviQ1NLKruf4vjQc3BsXgEPb78vOxvQdeFNxhd5i57sjDOTddVh9StYX3sQimcXe8OLv427o-3aL4SCQfBZMjS8Mx3fbqoamg0tMaS7v1lPbpC8YyUcNY5YECnpXNAFfxV1MKBcV1dlsUxuxA9vnWhpsXstQztV6LVSJfCJlZO4Ty-Pz5wyVsD4Vhc7izyjEsAQutMUs4SXF7b0tKcz" />
+                                </div>
+                                <div>
+                                    <p class="font-bold text-on-surface group-hover:text-primary transition-colors">Dian
+                                        Pratama</p>
+                                    <p class="text-xs text-slate-500">Perempuan</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="font-mono text-sm font-semibold text-slate-600">#CS-1088-C</span>
+                        </td>
+                        <td class="px-6 py-5 text-sm font-medium">42 Tahun</td>
+                        <td class="px-6 py-5 text-sm text-slate-600 italic">Sinusitis Bakterial</td>
+                        <td class="px-6 py-5">
+                            <span
+                                class="px-3 py-1 bg-error-container text-on-error-container rounded-full text-[11px] font-extrabold uppercase tracking-wider inline-flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+                                Tidak Patuh
+                            </span>
+                        </td>
+                        <td class="px-8 py-5 text-right">
+                            <button class="text-primary font-bold text-sm hover:underline underline-offset-4">Lihat
+                                Detail</button>
+                        </td>
+                    </tr>
+                    <!-- Row 4 -->
+                    <tr class="hover:bg-surface-container-low/30 transition-colors group">
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full overflow-hidden bg-slate-100">
+                                    <img alt="Patient Avatar" class="w-full h-full object-cover"
+                                        data-alt="professional portrait of a young adult male with a neutral expression in a light-filled office"
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDCBy0VMSkzFjDwtxDMOvWPtId4h2e1RsUQvUlIUyMO3JlgiI_DZFhh2QHLg4uyGvQcuWqMGIn0dTic-hX3Ejq0dnqzATX0vlgaAD2WGEV4C3bfpUYrVKeumhZh_NySVY1i1ZdYPOrM_A3sN88fIUH75N96k4VBuoYOUYNIj8IB4FP4rXxsbtUq2ESTKRIgdKuIqiM5QktJF-uTsiwXzaJS_jkMcyzND0S-Qkol-ZKfUH_7brZIdl_CUloilwMj5-OiMPlHOGmYFdL" />
+                                </div>
+                                <div>
+                                    <p class="font-bold text-on-surface group-hover:text-primary transition-colors">Andi
+                                        Wijaya</p>
+                                    <p class="text-xs text-slate-500">Laki-laki</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="font-mono text-sm font-semibold text-slate-600">#CS-5541-D</span>
+                        </td>
+                        <td class="px-6 py-5 text-sm font-medium">35 Tahun</td>
+                        <td class="px-6 py-5 text-sm text-slate-600 italic">Pasca Operasi Orthopedi</td>
+                        <td class="px-6 py-5">
+                            <span
+                                class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[11px] font-extrabold uppercase tracking-wider inline-flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                Sangat Patuh
+                            </span>
+                        </td>
+                        <td class="px-8 py-5 text-right">
+                            <button class="text-primary font-bold text-sm hover:underline underline-offset-4">Lihat
+                                Detail</button>
+                        </td>
+                    </tr>
+                    <!-- Row 5 -->
+                    <tr class="hover:bg-surface-container-low/30 transition-colors group">
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full overflow-hidden bg-slate-100">
+                                    <img alt="Patient Avatar" class="w-full h-full object-cover"
+                                        data-alt="portrait of a young man with a serious but calm expression in a clean clinic environment"
+                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcB538mbCH4IwhpbAtF8FhE7pEEhCozbKESa68xnThrJ6Gh3rahpYDXKYYUFwR6vjHp0OOxZCyzQclrPNCcj8Cmxkz4g71KIrGDqVS3OTtjJSLaxoYmCMey6weg9ubhz9FcQZgXzX90YcVbD_c1iMJRhxBIdnqkitY-kcn-HA-lEGBORBYhd0UgTNN2Diciws02fDqBH4tGeck1aKDgc3e1_4hbCRIHtAIPp0HFDWVlfOgW7Bl02Cu236Y6cAI_H1bb5SIbOL5DTnr" />
+                                </div>
+                                <div>
+                                    <p class="font-bold text-on-surface group-hover:text-primary transition-colors">Eko
+                                        Prasetyo</p>
+                                    <p class="text-xs text-slate-500">Laki-laki</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="font-mono text-sm font-semibold text-slate-600">#CS-2210-E</span>
+                        </td>
+                        <td class="px-6 py-5 text-sm font-medium">22 Tahun</td>
+                        <td class="px-6 py-5 text-sm text-slate-600 italic">Demam Tifoid</td>
+                        <td class="px-6 py-5">
+                            <span
+                                class="px-3 py-1 bg-surface-container-highest text-slate-600 rounded-full text-[11px] font-extrabold uppercase tracking-wider inline-flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                Sedang Evaluasi
+                            </span>
+                        </td>
+                        <td class="px-8 py-5 text-right">
+                            <button class="text-primary font-bold text-sm hover:underline underline-offset-4">Lihat
+                                Detail</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- Table Pagination -->
+            <div
+                class="bg-surface-container-low/30 px-8 py-4 flex justify-between items-center border-t border-surface-container">
+                <p class="text-sm text-slate-500 font-medium">Menampilkan 1 - 5 dari 1,284 pasien</p>
+                <div class="flex gap-2">
+                    <button
+                        class="p-2 bg-surface-container-low rounded-lg hover:bg-surface-container-high transition-colors disabled:opacity-50">
+                        <span class="material-symbols-outlined text-xl">chevron_left</span>
+                    </button>
+                    <div class="flex gap-1">
+                        <button class="w-10 h-10 bg-primary text-white font-bold rounded-lg text-sm">1</button>
+                        <button
+                            class="w-10 h-10 hover:bg-surface-container-high font-bold rounded-lg text-sm transition-colors">2</button>
+                        <button
+                            class="w-10 h-10 hover:bg-surface-container-high font-bold rounded-lg text-sm transition-colors">3</button>
+                        <span class="w-10 h-10 flex items-center justify-center font-bold">...</span>
+                        <button
+                            class="w-10 h-10 hover:bg-surface-container-high font-bold rounded-lg text-sm transition-colors">257</button>
+                    </div>
+                    <button
+                        class="p-2 bg-surface-container-low rounded-lg hover:bg-surface-container-high transition-colors">
+                        <span class="material-symbols-outlined text-xl">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+        <!-- Footer / System Info -->
+        <footer class="mt-12 flex justify-between items-center border-t border-surface-container pt-8">
+            <p class="text-xs text-slate-400 font-medium tracking-wide">© 2024 Clinical Serenity - Antibiotic Control
+                &amp; Management System</p>
+            <div class="flex gap-6">
+                <a class="text-xs text-slate-400 font-bold hover:text-primary transition-colors" href="#">Pusat
+                    Bantuan</a>
+                <a class="text-xs text-slate-400 font-bold hover:text-primary transition-colors" href="#">Keamanan
+                    Data</a>
+                <a class="text-xs text-slate-400 font-bold hover:text-primary transition-colors" href="#">Kebijakan
+                    Privasi</a>
+            </div>
+        </footer>
+    </main>
+</body>
+
+</html>

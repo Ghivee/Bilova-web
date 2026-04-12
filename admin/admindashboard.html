@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+
+
+
+<html class="light" lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+
+    <title>BILOVA Clinical Admin Dashboard</title>
+
+    <!-- Fonts -->
+
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@700;800&amp;display=swap"
+        rel="stylesheet" />
+
+    <!-- Icons -->
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+
+    <!-- Tailwind -->
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <script id="tailwind-config">
+
+        tailwind.config = {
+
+            darkMode: "class",
+
+            theme: {
+
+                extend: {
+
+                    "colors": {
+
+                        "on-surface-variant": "#3d4a42",
+
+                        "surface-variant": "#e0e3e5",
+
+                        "tertiary": "#9b3e3b",
+
+                        "on-primary-fixed-variant": "#005137",
+
+                        "secondary": "#006a63",
+
+                        "on-secondary-fixed-variant": "#00504a",
+
+                        "surface-container-lowest": "#ffffff",
+
+                        "primary-container": "#00855d",
+
+                        "on-error-container": "#93000a",
+
+                        "primary-fixed": "#85f8c4",
+
+                        "error": "#ba1a1a",
+
+                        "tertiary-fixed": "#ffdad7",
+
+                        "surface-bright": "#f7f9fb",
+
+                        "inverse-primary": "#68dba9",
+
+                        "secondary-container": "#99efe5",
+
+                        "tertiary-fixed-dim": "#ffb3ae",
+
+                        "surface-dim": "#d8dadc",
+
+                        "surface-container-highest": "#e0e3e5",
+
+                        "surface-tint": "#006c4a",
+
+                        "on-surface": "#191c1e",
+
+                        "on-primary-container": "#f5fff7",
+
+                        "on-primary-fixed": "#002114",
+
+                        "on-primary": "#ffffff",
+
+                        "error-container": "#ffdad6",
+
+                        "on-secondary-container": "#006f67",
+
+                        "on-secondary-fixed": "#00201d",
+
+                        "on-secondary": "#ffffff",
+
+                        "primary-fixed-dim": "#68dba9",
+
+                        "on-tertiary-fixed-variant": "#7f2928",
+
+                        "tertiary-container": "#ba5551",
+
+                        "primary": "#006948",
+
+                        "on-error": "#ffffff",
+
+                        "outline": "#6d7a72",
+
+                        "background": "#f7f9fb",
+
+                        "secondary-fixed": "#9cf2e8",
+
+                        "secondary-fixed-dim": "#80d5cb",
+
+                        "outline-variant": "#bccac0",
+
+                        "on-tertiary": "#ffffff",
+
+                        "surface-container-high": "#e6e8ea",
+
+                        "inverse-surface": "#2d3133",
+
+                        "on-tertiary-fixed": "#410004",
+
+                        "surface-container-low": "#f2f4f6",
+
+                        "on-tertiary-container": "#fffbff",
+
+                        "inverse-on-surface": "#eff1f3",
+
+                        "on-background": "#191c1e",
+
+                        "surface-container": "#eceef0",
+
+                        "surface": "#f7f9fb"
+
+                    },
+
+                    "borderRadius": {
+
+                        "DEFAULT": "0.25rem",
+
+                        "lg": "0.5rem",
+
+                        "xl": "0.75rem",
+
+                        "full": "9999px"
+
+                    },
+
+                    "fontFamily": {
+
+                        "headline": ["Manrope"],
+
+                        "body": ["Inter"],
+
+                        "label": ["Inter"]
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    </script>
+
+    <style>
+        .material-symbols-outlined {
+
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+
+        }
+
+        .bento-grid {
+
+            display: grid;
+
+            grid-template-columns: repeat(12, 1fr);
+
+            gap: 1.5rem;
+
+        }
+    </style>
+
+</head>
+
+<body class="bg-surface font-body text-on-surface">
+
+    <!-- SideNavBar (Authority Source: JSON) -->
+
+    <aside
+        class="hidden md:flex h-screen w-64 fixed left-0 top-0 bg-emerald-50 dark:bg-slate-950 flex flex-col py-8 z-50">
+
+        <div class="px-8 mb-10">
+
+            <h1
+                class="text-lg font-black text-emerald-900 dark:text-emerald-50 font-headline uppercase tracking-widest">
+                BILOVA</h1>
+
+            <p class="text-[10px] text-emerald-800/60 font-bold uppercase tracking-tighter">Clinical Admin</p>
+
+        </div>
+
+        <nav class="flex-grow">
+
+            <ul class="space-y-1">
+
+                <!-- Overview is Active for this Dashboard -->
+
+                <li
+                    class="bg-white dark:bg-slate-900 text-emerald-900 dark:text-emerald-400 rounded-l-full ml-4 pl-4 py-3 flex items-center gap-3">
+
+                    <span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+
+                    <span class="font-manrope text-sm font-medium">Overview</span>
+
+                </li>
+
+                <li
+                    class="text-emerald-700 dark:text-slate-500 px-8 py-3 flex items-center gap-3 hover:bg-emerald-100/50 dark:hover:bg-slate-900/50 transition-all cursor-pointer">
+
+                    <span class="material-symbols-outlined" data-icon="personal_injury">personal_injury</span>
+
+                    <span class="font-manrope text-sm font-medium">Patient Records</span>
+
+                </li>
+
+                <li
+                    class="text-emerald-700 dark:text-slate-500 px-8 py-3 flex items-center gap-3 hover:bg-emerald-100/50 dark:hover:bg-slate-900/50 transition-all cursor-pointer">
+
+                    <span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+
+                    <span class="font-manrope text-sm font-medium">Compliance</span>
+
+                </li>
+
+                <li
+                    class="text-emerald-700 dark:text-slate-500 px-8 py-3 flex items-center gap-3 hover:bg-emerald-100/50 dark:hover:bg-slate-900/50 transition-all cursor-pointer">
+
+                    <span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+
+                    <span class="font-manrope text-sm font-medium">Analytics</span>
+
+                </li>
+
+                <li
+                    class="text-emerald-700 dark:text-slate-500 px-8 py-3 flex items-center gap-3 hover:bg-emerald-100/50 dark:hover:bg-slate-900/50 transition-all cursor-pointer">
+
+                    <span class="material-symbols-outlined" data-icon="lock_person">lock_person</span>
+
+                    <span class="font-manrope text-sm font-medium">Medical Vault</span>
+
+                </li>
+
+                <li
+                    class="text-emerald-700 dark:text-slate-500 px-8 py-3 flex items-center gap-3 hover:bg-emerald-100/50 dark:hover:bg-slate-900/50 transition-all cursor-pointer">
+
+                    <span class="material-symbols-outlined" data-icon="help_center">help_center</span>
+
+                    <span class="font-manrope text-sm font-medium">Support</span>
+
+                </li>
+
+            </ul>
+
+        </nav>
+
+        <div class="px-6 mb-6">
+
+            <button
+                class="w-full bg-gradient-to-br from-primary to-primary-container text-white py-3 rounded-xl font-semibold shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
+
+                <span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+
+                New Entry
+
+            </button>
+
+        </div>
+
+        <div class="border-t border-emerald-100/50 pt-6">
+
+            <ul class="space-y-1">
+
+                <li
+                    class="text-emerald-700 dark:text-slate-500 px-8 py-3 flex items-center gap-3 hover:bg-emerald-100/50 dark:hover:bg-slate-900/50 transition-all cursor-pointer">
+
+                    <span class="material-symbols-outlined" data-icon="settings">settings</span>
+
+                    <span class="font-manrope text-sm font-medium">Settings</span>
+
+                </li>
+
+                <li
+                    class="text-emerald-700 dark:text-slate-500 px-8 py-3 flex items-center gap-3 hover:bg-emerald-100/50 dark:hover:bg-slate-900/50 transition-all cursor-pointer">
+
+                    <span class="material-symbols-outlined" data-icon="logout">logout</span>
+
+                    <span class="font-manrope text-sm font-medium">Sign Out</span>
+
+                </li>
+
+            </ul>
+
+        </div>
+
+    </aside>
+
+    <!-- Main Content Area -->
+
+    <main class="md:ml-64 min-h-screen pb-24 md:pb-12">
+
+        <!-- TopNavBar (Authority Source: JSON) -->
+
+        <header
+            class="fixed top-0 right-0 left-0 md:left-64 z-40 bg-emerald-50/80 dark:bg-slate-900/80 backdrop-blur-md flex justify-between items-center px-6 py-3">
+
+            <div class="flex items-center gap-6">
+
+                <h2 class="text-xl font-bold text-emerald-900 dark:text-emerald-50 font-manrope tracking-tight">Clinical
+                    Serenity</h2>
+
+                <div class="hidden lg:flex items-center gap-8">
+
+                    <a class="text-emerald-900 dark:text-emerald-400 border-b-2 border-emerald-900 dark:border-emerald-400 pb-1 font-manrope tracking-tight"
+                        href="#">Dashboard</a>
+
+                    <a class="text-emerald-700/70 dark:text-slate-400 hover:text-emerald-900 dark:hover:text-emerald-50 transition-colors font-manrope tracking-tight"
+                        href="#">Patients</a>
+
+                    <a class="text-emerald-700/70 dark:text-slate-400 hover:text-emerald-900 dark:hover:text-emerald-50 transition-colors font-manrope tracking-tight"
+                        href="#">Reports</a>
+
+                </div>
+
+            </div>
+
+            <div class="flex items-center gap-4">
+
+                <div class="relative hidden sm:block">
+
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline"
+                        data-icon="search">search</span>
+
+                    <input
+                        class="pl-10 pr-4 py-2 bg-surface-container-highest border-none rounded-full text-sm focus:ring-2 focus:ring-primary/40 w-64"
+                        placeholder="Search data..." type="text" />
+
+                </div>
+
+                <div class="flex items-center gap-2">
+
+                    <button
+                        class="p-2 text-emerald-900 dark:text-emerald-400 hover:bg-emerald-100/50 rounded-full transition-colors">
+
+                        <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+
+                    </button>
+
+                    <button
+                        class="p-2 text-emerald-900 dark:text-emerald-400 hover:bg-emerald-100/50 rounded-full transition-colors">
+
+                        <span class="material-symbols-outlined" data-icon="settings">settings</span>
+
+                    </button>
+
+                    <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-primary/20">
+
+                        <img alt="Provider profile picture" class="w-full h-full object-cover"
+                            data-alt="professional medical doctor headshot in clinical setting with soft natural lighting and warm smile"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKMh0w_1-TwrVkJW3z_MbEIaMk2g3AmIXWm3XY1H19K9SVArBzShAyFQ1oy4kWFjMN_ockGnn9ob2BD0I9srVjN5jl76b7Q4Z2TYvZEqVSgo7X_CyB-9pRnGWfZqhZWh8ajRuksViKS5glaYp-28Nt52jet0W1kmRQDTJ5UEGQA9dythVLMkT7gyd8VY1koG7-iGFSK0Zb1eFYLOYTtNPBn81_xY2F1JOWCTGuZ1bHyQuLU-yS8jIYCzEnDBYXXGmDUfBlGA-iyBRR" />
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- Canvas -->
+
+        <div class="pt-24 px-6 md:px-10 max-w-7xl mx-auto">
+
+            <!-- Hero Heading -->
+
+            <div class="mb-10">
+
+                <h3 class="text-4xl font-extrabold font-headline text-on-surface tracking-tight mb-2">Sistem Kontrol
+                    Klinis</h3>
+
+                <p class="text-on-surface-variant font-body">Selamat datang kembali, Admin. Berikut ringkasan status
+                    kesehatan sistem hari ini.</p>
+
+            </div>
+
+            <!-- Metrics Bento Grid -->
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+
+                <!-- Metric 1: Active Users -->
+
+                <div
+                    class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/10 relative overflow-hidden">
+
+                    <div class="absolute -right-4 -bottom-4 opacity-5">
+
+                        <span class="material-symbols-outlined text-9xl" data-icon="group">group</span>
+
+                    </div>
+
+                    <div class="flex items-center gap-3 mb-4">
+
+                        <div
+                            class="w-10 h-10 rounded-lg bg-primary-fixed-dim/20 flex items-center justify-center text-primary">
+
+                            <span class="material-symbols-outlined" data-icon="group">group</span>
+
+                        </div>
+
+                        <span class="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Total
+                            Pengguna Aktif</span>
+
+                    </div>
+
+                    <div class="flex items-baseline gap-2">
+
+                        <span class="text-5xl font-black text-on-surface font-headline">1.240</span>
+
+                        <span class="text-secondary font-bold text-sm flex items-center">+4.2%</span>
+
+                    </div>
+
+                </div>
+
+                <!-- Metric 2: Compliance -->
+
+                <div
+                    class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/10 relative overflow-hidden">
+
+                    <div class="absolute -right-4 -bottom-4 opacity-5">
+
+                        <span class="material-symbols-outlined text-9xl" data-icon="verified">verified</span>
+
+                    </div>
+
+                    <div class="flex items-center gap-3 mb-4">
+
+                        <div
+                            class="w-10 h-10 rounded-lg bg-secondary-container/30 flex items-center justify-center text-secondary">
+
+                            <span class="material-symbols-outlined" data-icon="verified">verified</span>
+
+                        </div>
+
+                        <span class="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Rata-rata
+                            Kepatuhan</span>
+
+                    </div>
+
+                    <div class="flex items-baseline gap-2">
+
+                        <span class="text-5xl font-black text-on-surface font-headline">88%</span>
+
+                        <div
+                            class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-bold">
+                            OPTIMAL</div>
+
+                    </div>
+
+                </div>
+
+                <!-- Metric 3: Alerts (Red Flags) -->
+
+                <div
+                    class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/10 relative overflow-hidden">
+
+                    <div class="absolute -right-4 -bottom-4 opacity-5">
+
+                        <span class="material-symbols-outlined text-9xl" data-icon="emergency">emergency</span>
+
+                    </div>
+
+                    <div class="flex items-center gap-3 mb-4">
+
+                        <div
+                            class="w-10 h-10 rounded-lg bg-error-container/40 flex items-center justify-center text-error">
+
+                            <span class="material-symbols-outlined" data-icon="emergency">emergency</span>
+
+                        </div>
+
+                        <span class="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Alert
+                            Gejala Berat</span>
+
+                    </div>
+
+                    <div class="flex items-baseline gap-2">
+
+                        <span class="text-5xl font-black text-error font-headline">12</span>
+
+                        <span class="text-error font-bold text-sm">Tindakan Segera</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Content Area: Dual Column Layout -->
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <!-- Main Table Section (Wide Left) -->
+
+                <div class="lg:col-span-2 space-y-6">
+
+                    <div class="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
+
+                        <div class="flex justify-between items-center mb-8">
+
+                            <h4 class="text-xl font-bold font-headline text-on-surface">Daftar Pengguna</h4>
+
+                            <button
+                                class="text-primary font-semibold text-sm flex items-center gap-1 hover:underline underline-offset-4">
+
+                                <span class="material-symbols-outlined text-lg"
+                                    data-icon="filter_list">filter_list</span>
+
+                                Filter Data
+
+                            </button>
+
+                        </div>
+
+                        <div class="overflow-x-auto">
+
+                            <table class="w-full text-left">
+
+                                <thead>
+
+                                    <tr
+                                        class="bg-surface-container-low text-on-surface-variant text-[10px] uppercase tracking-widest font-bold">
+
+                                        <th class="px-6 py-4 rounded-l-lg">Nama Lengkap</th>
+
+                                        <th class="px-6 py-4">ID Pasien</th>
+
+                                        <th class="px-6 py-4">Usia</th>
+
+                                        <th class="px-6 py-4">Status</th>
+
+                                        <th class="px-6 py-4 rounded-r-lg text-right">Aksi</th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody class="text-sm">
+
+                                    <tr
+                                        class="border-b border-outline-variant/5 hover:bg-surface-container-low transition-colors">
+
+                                        <td class="px-6 py-5 flex items-center gap-3">
+
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs">
+                                                AA</div>
+
+                                            <span class="font-semibold">Aditya Arisandy</span>
+
+                                        </td>
+
+                                        <td class="px-6 py-5 text-on-surface-variant">#BLV-9021</td>
+
+                                        <td class="px-6 py-5 text-on-surface-variant">28 Thn</td>
+
+                                        <td class="px-6 py-5">
+
+                                            <span
+                                                class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold">STABIL</span>
+
+                                        </td>
+
+                                        <td class="px-6 py-5 text-right">
+
+                                            <button class="p-2 text-primary hover:bg-primary/5 rounded-full"><span
+                                                    class="material-symbols-outlined"
+                                                    data-icon="chevron_right">chevron_right</span></button>
+
+                                        </td>
+
+                                    </tr>
+
+                                    <tr
+                                        class="border-b border-outline-variant/5 hover:bg-surface-container-low transition-colors">
+
+                                        <td class="px-6 py-5 flex items-center gap-3">
+
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">
+                                                BR</div>
+
+                                            <span class="font-semibold">Bambang Raharjo</span>
+
+                                        </td>
+
+                                        <td class="px-6 py-5 text-on-surface-variant">#BLV-4412</td>
+
+                                        <td class="px-6 py-5 text-on-surface-variant">54 Thn</td>
+
+                                        <td class="px-6 py-5">
+
+                                            <span
+                                                class="px-3 py-1 bg-error-container text-on-error-container rounded-full text-[10px] font-bold uppercase">Red
+                                                Flag</span>
+
+                                        </td>
+
+                                        <td class="px-6 py-5 text-right">
+
+                                            <button class="p-2 text-primary hover:bg-primary/5 rounded-full"><span
+                                                    class="material-symbols-outlined"
+                                                    data-icon="chevron_right">chevron_right</span></button>
+
+                                        </td>
+
+                                    </tr>
+
+                                    <tr
+                                        class="border-b border-outline-variant/5 hover:bg-surface-container-low transition-colors">
+
+                                        <td class="px-6 py-5 flex items-center gap-3">
+
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-xs">
+                                                CS</div>
+
+                                            <span class="font-semibold">Citra Sasmita</span>
+
+                                        </td>
+
+                                        <td class="px-6 py-5 text-on-surface-variant">#BLV-0023</td>
+
+                                        <td class="px-6 py-5 text-on-surface-variant">31 Thn</td>
+
+                                        <td class="px-6 py-5">
+
+                                            <span
+                                                class="px-3 py-1 bg-surface-container-high text-on-surface-variant rounded-full text-[10px] font-bold">PEMULIHAN</span>
+
+                                        </td>
+
+                                        <td class="px-6 py-5 text-right">
+
+                                            <button class="p-2 text-primary hover:bg-primary/5 rounded-full"><span
+                                                    class="material-symbols-outlined"
+                                                    data-icon="chevron_right">chevron_right</span></button>
+
+                                        </td>
+
+                                    </tr>
+
+                                    <tr class="hover:bg-surface-container-low transition-colors">
+
+                                        <td class="px-6 py-5 flex items-center gap-3">
+
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-xs">
+                                                DH</div>
+
+                                            <span class="font-semibold">Dian Hapsari</span>
+
+                                        </td>
+
+                                        <td class="px-6 py-5 text-on-surface-variant">#BLV-8819</td>
+
+                                        <td class="px-6 py-5 text-on-surface-variant">42 Thn</td>
+
+                                        <td class="px-6 py-5">
+
+                                            <span
+                                                class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold">STABIL</span>
+
+                                        </td>
+
+                                        <td class="px-6 py-5 text-right">
+
+                                            <button class="p-2 text-primary hover:bg-primary/5 rounded-full"><span
+                                                    class="material-symbols-outlined"
+                                                    data-icon="chevron_right">chevron_right</span></button>
+
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                        <div class="mt-8 flex justify-between items-center text-xs text-on-surface-variant font-medium">
+
+                            <p>Menampilkan 4 dari 1,240 pengguna aktif</p>
+
+                            <div class="flex gap-2">
+
+                                <button class="px-4 py-2 bg-surface-container rounded-lg">Sebelumnya</button>
+
+                                <button class="px-4 py-2 bg-primary text-white rounded-lg">Selanjutnya</button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Insights Section (Narrow Right) -->
+
+                <div class="space-y-6">
+
+                    <div
+                        class="bg-gradient-to-br from-primary to-primary-container text-white p-8 rounded-xl relative overflow-hidden shadow-xl shadow-primary/30">
+
+                        <div class="relative z-10">
+
+                            <h5 class="text-lg font-bold mb-2">Kesehatan Sistem</h5>
+
+                            <p class="text-sm text-on-primary-container/80 leading-relaxed mb-6">Infrastruktur cloud
+                                BILOVA beroperasi dengan latensi rendah (24ms). Semua sinkronisasi data real-time aktif.
+                            </p>
+
+                            <div class="flex items-center gap-2">
+
+                                <span class="relative flex h-3 w-3">
+
+                                    <span
+                                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary-container opacity-75"></span>
+
+                                    <span
+                                        class="relative inline-flex rounded-full h-3 w-3 bg-secondary-container"></span>
+
+                                </span>
+
+                                <span class="text-xs font-bold tracking-widest uppercase">Live Status: OK</span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="absolute -right-8 -top-8 opacity-20 transform rotate-12">
+
+                            <span class="material-symbols-outlined text-[160px]"
+                                data-icon="cloud_done">cloud_done</span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10">
+
+                        <h5 class="text-sm font-black text-on-surface uppercase tracking-widest mb-6">Wawasan Strategis
+                        </h5>
+
+                        <ul class="space-y-6">
+
+                            <li class="flex gap-4">
+
+                                <div
+                                    class="shrink-0 w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-800">
+
+                                    <span class="material-symbols-outlined text-sm"
+                                        data-icon="trending_up">trending_up</span>
+
+                                </div>
+
+                                <div>
+
+                                    <p class="text-xs font-bold text-on-surface mb-1">Adopsi Mobile Meningkat</p>
+
+                                    <p class="text-[11px] text-on-surface-variant leading-tight">Penggunaan aplikasi
+                                        seluler meningkat 15% pada kuartal ini.</p>
+
+                                </div>
+
+                            </li>
+
+                            <li class="flex gap-4">
+
+                                <div
+                                    class="shrink-0 w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-800">
+
+                                    <span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span>
+
+                                </div>
+
+                                <div>
+
+                                    <p class="text-xs font-bold text-on-surface mb-1">Waktu Respons Rata-rata</p>
+
+                                    <p class="text-[11px] text-on-surface-variant leading-tight">Dokter merespons red
+                                        flags dalam rata-rata 14 menit.</p>
+
+                                </div>
+
+                            </li>
+
+                            <li class="flex gap-4">
+
+                                <div
+                                    class="shrink-0 w-8 h-8 rounded-full bg-primary-fixed-dim/40 flex items-center justify-center text-primary">
+
+                                    <span class="material-symbols-outlined text-sm"
+                                        data-icon="psychology">psychology</span>
+
+                                </div>
+
+                                <div>
+
+                                    <p class="text-xs font-bold text-on-surface mb-1">Analisis AI Mendatang</p>
+
+                                    <p class="text-[11px] text-on-surface-variant leading-tight">Predictive modeling
+                                        untuk risiko relaps siap dalam 48 jam.</p>
+
+                                </div>
+
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- BottomNavBar (Authority Source: JSON) - Mobile Only -->
+
+    <nav
+        class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-emerald-100 dark:border-slate-800 shadow-2xl">
+
+        <div
+            class="flex flex-col items-center justify-center bg-emerald-100 dark:bg-emerald-900/40 text-emerald-900 dark:text-emerald-100 rounded-2xl px-6 py-2 transition-transform active:scale-95 duration-200">
+
+            <span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+
+            <span class="font-manrope text-[10px] font-semibold">Health</span>
+
+        </div>
+
+        <div
+            class="flex flex-col items-center justify-center text-emerald-600/60 dark:text-slate-500 px-6 py-2 transition-transform hover:scale-105 active:scale-95 duration-200">
+
+            <span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+
+            <span class="font-manrope text-[10px] font-semibold">Medications</span>
+
+        </div>
+
+        <div
+            class="flex flex-col items-center justify-center text-emerald-600/60 dark:text-slate-500 px-6 py-2 transition-transform hover:scale-105 active:scale-95 duration-200">
+
+            <span class="material-symbols-outlined" data-icon="emergency">emergency</span>
+
+            <span class="font-manrope text-[10px] font-semibold">Alerts</span>
+
+        </div>
+
+        <div
+            class="flex flex-col items-center justify-center text-emerald-600/60 dark:text-slate-500 px-6 py-2 transition-transform hover:scale-105 active:scale-95 duration-200">
+
+            <span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+
+            <span class="font-manrope text-[10px] font-semibold">Profile</span>
+
+        </div>
+
+    </nav>
+
+</body>
+
+</html>
