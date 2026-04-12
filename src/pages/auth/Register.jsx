@@ -10,8 +10,20 @@ const RegisterScreen = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [dots, setDots] = useState('');
     const { signUp } = useAuth();
     const navigate = useNavigate();
+
+    React.useEffect(() => {
+        if (loading) {
+            const interval = setInterval(() => {
+                setDots(prev => prev.length >= 3 ? '' : prev + '.');
+            }, 400);
+            return () => clearInterval(interval);
+        } else {
+            setDots('');
+        }
+    }, [loading]);
 
     const handleChange = (e) => {
         setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -40,10 +52,21 @@ const RegisterScreen = () => {
 
         setLoading(true);
         try {
-            await signUp(form.email, form.password, form.fullName);
+            // Gunakan Promise.race untuk cegah hang permanen saat koneksi tidak stabil
+            const signUpPromise = signUp(form.email, form.password, form.fullName);
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('timeout')), 15000)
+            );
+
+            await Promise.race([signUpPromise, timeoutPromise]);
             setSuccess(true);
         } catch (err) {
-            setError(err.message);
+            console.error('Register error:', err);
+            if (err.message === 'timeout') {
+                setError('Proses pendaftaran memakan waktu terlalu lama. Silakan cek email Anda atau coba masuk langsung, kemungkinan akun sudah berhasil dibuat.');
+            } else {
+                setError(err.message);
+            }
         } finally {
             setLoading(false);
         }
@@ -112,7 +135,7 @@ const RegisterScreen = () => {
             </div>
 
             <Button type="submit" disabled={loading} className="mb-8">
-                {loading ? 'Mendaftar...' : <><span>Daftar Sekarang</span> <ArrowRight size={20} /></>}
+                {loading ? `Mendaftar${dots}` : <><span>Daftar Sekarang</span> <ArrowRight size={20} /></>}
             </Button>
             <p className="text-center font-medium text-slate-600 mb-8">
                 Sudah memiliki akun?{' '}

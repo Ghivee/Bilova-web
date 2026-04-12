@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId) => {
+    if (!userId) return null;
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -23,15 +24,21 @@ export const AuthProvider = ({ children }) => {
         .single();
       
       if (error) {
-        // Jika profile belum ada (delay trigger), buat profile secara manual
-        console.warn('Profile not found, trigger might be slow:', error);
+        if (error.code === 'PGRST116') {
+           console.log('Profile not found for:', userId);
+        } else {
+           console.error('Fetch profile error:', error);
+        }
+        setLoading(false);
         return null;
       }
       
       setProfile(data);
+      setLoading(false);
       return data;
     } catch (err) {
       console.error('Error fetching profile:', err);
+      setLoading(false);
       return null;
     }
   };
@@ -59,15 +66,16 @@ export const AuthProvider = ({ children }) => {
     }, 500);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (session?.user) {
           setUser(session.user);
-          await fetchProfile(session.user.id);
+          // Jangan gunakan await di sini agar tidak memblokir event auth
+          fetchProfile(session.user.id);
         } else {
           setUser(null);
           setProfile(null);
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
@@ -99,10 +107,16 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-    setUser(null);
-    setProfile(null);
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error('Error during signOut:', err);
+    } finally {
+      setUser(null);
+      setProfile(null);
+      // Clear persistence if any
+      localStorage.removeItem('sb-' + import.meta.env.VITE_SUPABASE_URL + '-auth-token');
+    }
   };
 
   const resetPassword = async (email) => {
@@ -133,7 +147,7 @@ export const AuthProvider = ({ children }) => {
     resetPassword,
     updateProfile,
     fetchProfile,
-    isAdmin: profile?.role === 'admin',
+    isAdmin: profile?.role?.toLowerCase() === 'admin' || profile?.role?.toLowerCase() === 'superadmin',
     isAuthenticated: !!user
   };
 
