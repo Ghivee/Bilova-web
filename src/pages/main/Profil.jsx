@@ -94,8 +94,21 @@ const Profil = () => {
     };
 
     const handleConfirmLogout = async () => {
-        await signOut();
-        navigate('/login');
+        try {
+            await signOut();
+            // Gunakan replace: true agar tidak bisa kembali dengan tombol back
+            navigate('/login', { replace: true });
+            // Fallback: paksa reload ke halaman login jika router tidak merespon instan
+            setTimeout(() => {
+                if (window.location.pathname.includes('/profil')) {
+                   window.location.href = '/Bilova-web/login';
+                }
+            }, 500);
+        } catch (err) {
+            console.error('Logout error:', err);
+            // Tetap paksa ke login jika error sekalipun
+            window.location.href = '/Bilova-web/login';
+        }
     };
 
     return (

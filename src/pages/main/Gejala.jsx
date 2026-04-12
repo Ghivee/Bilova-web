@@ -17,10 +17,10 @@ const Gejala = () => {
     const [history, setHistory] = useState([]);
 
     const symptoms = [
-        { id: 'sakit_kepala', label: 'Sakit Kepala', icon: Activity },
+        { id: 'sakit_kepala', label: 'Sakit Kepala', icon: Brain },
         { id: 'mual', label: 'Mual', icon: AlertTriangle },
         { id: 'diare', label: 'Diare', icon: Activity },
-        { id: 'lelah', label: 'Kelelahan', icon: ShieldAlert, isSevere: true },
+        { id: 'lelah', label: 'Kelelahan', icon: ShieldAlert },
         { id: 'ruam', label: 'Ruam Kulit', icon: Activity },
         { id: 'pusing', label: 'Pusing', icon: Activity },
     ];
@@ -122,11 +122,10 @@ const Gejala = () => {
                     <h3 className="font-bold text-lg text-slate-800 mb-4">Efek Samping yang Dirasakan</h3>
                     <div className="grid grid-cols-2 gap-3">
                         {symptoms.map((symp) => (
-                            <button key={symp.id} onClick={() => toggleSymptom(symp.id)} className={`text-left p-4 rounded-2xl border-2 transition-all ${
-                                selectedSymptoms.includes(symp.id)
-                                    ? (symp.isSevere ? 'bg-red-50 border-red-200 shadow-sm' : 'bg-white border-[#138476] shadow-md shadow-teal-500/10')
-                                    : 'bg-slate-50 border-transparent hover:bg-slate-100'
-                            }`}>
+                            <button key={symp.id} onClick={() => toggleSymptom(symp.id)} className={`text-left p-4 rounded-2xl border-2 transition-all ${selectedSymptoms.includes(symp.id)
+                                ? (symp.isSevere ? 'bg-red-50 border-red-200 shadow-sm' : 'bg-white border-[#138476] shadow-md shadow-teal-500/10')
+                                : 'bg-slate-50 border-transparent hover:bg-slate-100'
+                                }`}>
                                 <symp.icon size={22} className={`mb-2 ${selectedSymptoms.includes(symp.id) ? (symp.isSevere ? 'text-red-500' : 'text-[#138476]') : 'text-slate-400'}`} />
                                 <h4 className={`font-bold text-sm ${selectedSymptoms.includes(symp.id) ? (symp.isSevere ? 'text-red-700' : 'text-slate-800') : 'text-slate-700'}`}>{symp.label}</h4>
                             </button>
@@ -134,15 +133,7 @@ const Gejala = () => {
                     </div>
                 </div>
 
-                {/* Peringatan Gejala Berat */}
-                <AnimatePresence>
-                    {hasSevere && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="bg-[#FEE2E2] border border-red-200 rounded-3xl p-5">
-                            <div className="flex gap-3 mb-2"><AlertTriangle className="text-red-600 mt-0.5" size={20} /><h4 className="font-bold text-red-800">Peringatan Gejala Berat</h4></div>
-                            <p className="text-sm text-red-700 font-medium pl-8">Segera hubungi dokter Anda. Gejala ini memerlukan perhatian medis segera.</p>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+
 
                 {/* Catatan Tambahan */}
                 <div>

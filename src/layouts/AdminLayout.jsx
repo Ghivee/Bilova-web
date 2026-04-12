@@ -19,8 +19,18 @@ const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/login');
+    try {
+        await signOut();
+        navigate('/login', { replace: true });
+        // Fallback: paksa reload ke halaman login jika router tidak merespon instan
+        setTimeout(() => {
+            if (window.location.pathname.includes('/admin')) {
+               window.location.href = '/Bilova-web/login';
+            }
+        }, 500);
+    } catch (err) {
+        window.location.href = '/Bilova-web/login';
+    }
   };
 
   return (

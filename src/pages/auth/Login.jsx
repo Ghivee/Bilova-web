@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Activity, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Button, InputField } from '../../components/UIComponents';
 import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 const LoginScreen = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -10,8 +11,20 @@ const LoginScreen = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [dots, setDots] = useState('');
     const { signIn } = useAuth();
     const navigate = useNavigate();
+
+    React.useEffect(() => {
+        if (loading) {
+            const interval = setInterval(() => {
+                setDots(prev => prev.length >= 3 ? '' : prev + '.');
+            }, 400);
+            return () => clearInterval(interval);
+        } else {
+            setDots('');
+        }
+    }, [loading]);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -23,24 +36,54 @@ const LoginScreen = () => {
         setLoading(true);
         try {
             const { user } = await signIn(email, password);
+            if (!user) throw new Error('Pengguna tidak ditemukan.');
             
-            // Ambil profile untuk menentukan arah redirect
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', user.id)
-                .single();
+            // Prioritas 1: Gunakan metadata (Sangat cepat & tidak bergantung pada tabel profiles)
+            const metaRole = user.user_metadata?.role?.toLowerCase();
+            console.log('Role from metadata:', metaRole);
 
-            if (profile?.role === 'admin') {
+            // Jika metadata sudah ada role admin, langsung gaskeun
+            if (metaRole === 'admin' || metaRole === 'superadmin') {
                 navigate('/admin');
-            } else {
-                navigate('/');
+                return;
+            }
+
+            // Prioritas 2: Ambil dari DB dengan timeout 5 detik (Backup jika metadata kosong)
+            try {
+                const profilePromise = supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', user.id)
+                    .single();
+
+                // Balapan dengan timeout
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('timeout')), 5000)
+                );
+
+                const { data: profile } = await Promise.race([profilePromise, timeoutPromise]);
+                
+                const userRole = profile?.role?.toLowerCase();
+                if (userRole === 'admin' || userRole === 'superadmin') {
+                    navigate('/admin');
+                } else {
+                    navigate('/');
+                }
+            } catch (dbErr) {
+                console.warn('Profile fetch handled (timeout or error):', dbErr.message);
+                // Fallback terakhir: default ke user dashboard atau email check
+                if (user.email.includes('admin@')) {
+                    navigate('/admin');
+                } else {
+                    navigate('/');
+                }
             }
         } catch (err) {
             console.error('Login error:', err);
             let msg = 'Terjadi kesalahan saat masuk.';
             if (err.message === 'Invalid login credentials') msg = 'Email atau password salah.';
             else if (err.message.includes('Email not confirmed')) msg = 'Silakan verifikasi email Anda.';
+            else if (err.message.includes('supabase')) msg = 'Kesalahan sistem (Supabase tidak terhubung).';
             setError(msg);
         } finally {
             setLoading(false);
@@ -98,7 +141,7 @@ const LoginScreen = () => {
                 </div>
                 <div className="mt-8">
                     <Button type="submit" disabled={loading}>
-                        {loading ? 'Memproses...' : 'Masuk'}
+                        {loading ? `Memproses${dots}` : 'Masuk'}
                     </Button>
                 </div>
                 <div className="flex items-center gap-4 my-8">
