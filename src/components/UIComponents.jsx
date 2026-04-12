@@ -91,3 +91,21 @@ export const Notification = ({ type = 'info', message, onClose }) => {
     </motion.div>
   );
 };
+
+export const Modal = ({ isOpen, onClose, title, children, footer }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 px-4 md:px-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} onClick={onClose} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl relative z-10">
+                <div className="p-8 text-center pt-10">
+                    <h3 className="text-xl font-bold text-slate-800 mb-4">{title}</h3>
+                    <div className="text-slate-600 mb-8 font-medium leading-relaxed text-sm">{children}</div>
+                    <div className="flex gap-3">
+                        {footer}
+                    </div>
+                </div>
+            </motion.div>
+        </div>
+    );
+};
