@@ -1,231 +1,283 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, History, LogOut, ChevronRight, Edit3, Save, X, User } from 'lucide-react';
-import { Header, CircularProgress, Button, InputField, Modal } from '../../components/UIComponents';
+import { LogOut, ChevronRight, Edit3, Save, X, Phone, LayoutDashboard, History, HelpCircle, Info, UserCircle2, Calendar, AlertTriangle } from 'lucide-react';
+import { Header, CircularProgress, Button, InputField, Modal, Alert } from '../../components/UIComponents';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 
+const WHATSAPP_SUPPORT = '628123456789';
+
 const Profil = () => {
-    const { profile, signOut, updateProfile } = useAuth();
-    const navigate = useNavigate();
-    const [editing, setEditing] = useState(false);
-    const [form, setForm] = useState({
-        full_name: '',
-        phone: '',
-        gender: '',
-        allergy_info: '',
-    });
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
-    const [complianceStats, setComplianceStats] = useState({ total: 0, taken: 0, percentage: 0 });
-    const [recentLogs, setRecentLogs] = useState([]);
-    const [showLogoutModal, setShowLogoutModal] = useState(false);
-    const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const { profile, signOut, updateProfile, isAdmin } = useAuth();
+  const navigate = useNavigate();
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({ full_name: '', phone: '', gender: '', allergy_info: '', date_of_birth: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+  const [compliance, setCompliance] = useState({ percentage: 0, taken: 0, total: 0, streak: 0 });
+  const [recentLogs, setRecentLogs] = useState([]);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showAboutModal, setShowAboutModal] = useState(false);
 
-    useEffect(() => {
-        if (profile) {
-            setForm({
-                full_name: profile.full_name || '',
-                phone: profile.phone || '',
-                gender: profile.gender || '',
-                allergy_info: profile.allergy_info || '',
-            });
-            fetchComplianceStats();
-            fetchRecentLogs();
-        }
-    }, [profile]);
+  useEffect(() => {
+    if (profile) {
+      setForm({
+        full_name: profile.full_name || '',
+        phone: profile.phone || '',
+        gender: profile.gender || '',
+        allergy_info: profile.allergy_info || '',
+        date_of_birth: profile.date_of_birth || '',
+      });
+      fetchStats();
+      fetchLogs();
+    }
+  }, [profile]);
 
-    const fetchComplianceStats = async () => {
-        if (!profile) return;
-        try {
-            const { data: meds } = await supabase.from('medications').select('id').eq('user_id', profile.id).eq('is_active', true);
-            const startOfMonth = new Date();
-            startOfMonth.setDate(1);
-            startOfMonth.setHours(0, 0, 0, 0);
-            const { data: logs } = await supabase
-                .from('compliance_logs')
-                .select('id')
-                .eq('user_id', profile.id)
-                .eq('status', 'taken')
-                .gte('taken_at', startOfMonth.toISOString());
+  const fetchStats = async () => {
+    if (!profile?.id) return;
+    try {
+      const startOfMonth = new Date(); startOfMonth.setDate(1); startOfMonth.setHours(0, 0, 0, 0);
+      const dayOfMonth = new Date().getDate();
 
-            const totalExpected = (meds?.length || 0) * new Date().getDate(); 
-            const taken = logs?.length || 0;
-            const percentage = totalExpected > 0 ? Math.min(Math.round((taken / totalExpected) * 100), 100) : 0;
-            setComplianceStats({ total: totalExpected, taken, percentage });
-        } catch (err) {
-            console.error('Error fetching compliance:', err);
-        }
-    };
+      const [medsRes, logsRes] = await Promise.all([
+        supabase.from('medications').select('id').eq('user_id', profile.id).eq('is_active', true),
+        supabase.from('compliance_logs').select('taken_at').eq('user_id', profile.id).eq('status', 'taken').gte('taken_at', startOfMonth.toISOString())
+      ]);
+      const totalMeds = medsRes.data?.length || 0;
+      const taken = logsRes.data?.length || 0;
+      const totalExpected = totalMeds * dayOfMonth;
+      const pct = totalExpected > 0 ? Math.min(Math.round((taken / totalExpected) * 100), 100) : 0;
 
-    const fetchRecentLogs = async () => {
-        if (!profile) return;
-        try {
-            const { data } = await supabase
-                .from('compliance_logs')
-                .select('*, medications(name, dosage)')
-                .eq('user_id', profile.id)
-                .order('taken_at', { ascending: false })
-                .limit(10);
-            if (data) setRecentLogs(data);
-        } catch (err) {
-            console.error('Error fetching logs:', err);
-        }
-    };
+      // Streak: count consecutive days with at least 1 log
+      let streak = 0;
+      if (logsRes.data?.length > 0) {
+        const dateSet = new Set(logsRes.data.map(l => new Date(l.taken_at).toDateString()));
+        const d = new Date();
+        while (dateSet.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
+      }
+      setCompliance({ percentage: pct, taken, total: totalExpected, streak });
+    } catch (err) { console.error('Fetch stats error:', err); }
+  };
 
-    const handleChange = (e) => {
-        setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
-    };
+  const fetchLogs = async () => {
+    if (!profile?.id) return;
+    try {
+      const { data } = await supabase
+        .from('compliance_logs').select('*, medications(name, dosage)')
+        .eq('user_id', profile.id).order('taken_at', { ascending: false }).limit(15);
+      if (data) setRecentLogs(data);
+    } catch (err) { console.error(err); }
+  };
 
-    const handleSave = async () => {
-        setLoading(true);
-        setError('');
-        try {
-            await updateProfile(form);
-            setSuccess('Profil berhasil diperbarui!');
-            setEditing(false);
-            setTimeout(() => setSuccess(''), 3000);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const handleSave = async () => {
+    if (!form.full_name.trim()) { setError('Nama tidak boleh kosong.'); return; }
+    setLoading(true); setError('');
+    try {
+      await updateProfile({ ...form, is_profile_complete: true });
+      setSuccessMsg('Profil berhasil diperbarui!');
+      setEditing(false);
+      setTimeout(() => setSuccessMsg(''), 3000);
+    } catch (err) { setError(err.message); } finally { setLoading(false); }
+  };
 
-    const handleConfirmLogout = async () => {
-        try {
-            await signOut();
-            // Gunakan replace: true agar tidak bisa kembali dengan tombol back
-            navigate('/login', { replace: true });
-            // Fallback: paksa reload ke halaman login jika router tidak merespon instan
-            setTimeout(() => {
-                if (window.location.pathname.includes('/profil')) {
-                   window.location.href = '/Bilova-web/login';
-                }
-            }, 500);
-        } catch (err) {
-            console.error('Logout error:', err);
-            // Tetap paksa ke login jika error sekalipun
-            window.location.href = '/Bilova-web/login';
-        }
-    };
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/login', { replace: true });
+    } catch { window.location.href = '/Bilova-web/login'; }
+  };
 
-    return (
-        <div className="pb-24">
-            <Header title="Profil" />
+  const handleWA = () => {
+    const msg = `Halo Admin BiLova, saya membutuhkan bantuan terkait aplikasi BiLova. Nama: ${profile?.full_name || '-'}`;
+    window.open(`https://wa.me/${WHATSAPP_SUPPORT}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
 
-            <div className="flex flex-col items-center mt-4 px-6 relative z-10">
-                <div className="relative mb-4">
-                    <div className="w-28 h-28 rounded-full bg-[#DFF0EE] flex items-center justify-center border-4 border-[#138476] shadow-lg">
-                        <User size={48} className="text-[#138476]" />
-                    </div>
-                </div>
-                <h2 className="text-2xl font-extrabold text-slate-800">{profile?.full_name || 'Pengguna'}</h2>
-                <p className="text-sm text-slate-500 font-medium">{profile?.email}</p>
+  const initials = profile?.full_name?.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || '?';
+  const compColor = compliance.percentage >= 80 ? '#8B2C8C' : compliance.percentage >= 50 ? '#D97706' : '#DC2626';
 
-                {profile?.allergy_info && (
-                    <div className="mt-4 bg-[#FEE2E2] text-red-700 px-5 py-3 rounded-xl flex items-center gap-2 border border-red-200 w-full max-w-sm justify-center">
-                        <AlertTriangle size={18} />
-                        <span className="font-extrabold text-sm uppercase">Alergi: {profile.allergy_info}</span>
-                    </div>
-                )}
+  return (
+    <div>
+      <Header title="Profil" />
+      <div className="px-5 pb-10 space-y-4">
+        {/* Avatar */}
+        <div className="flex flex-col items-center py-5">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#8B2C8C] to-[#C85CA0] flex items-center justify-center text-white text-3xl font-black shadow-bilova mb-3">
+            {initials}
+          </div>
+          <h2 className="text-xl font-black text-[#2D1B3D]">{profile?.full_name || 'Pengguna'}</h2>
+          <p className="text-sm text-[#B090C0] font-bold">{profile?.email}</p>
+          {profile?.allergy_info && (
+            <div className="mt-2 bg-red-50 border border-red-200 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+              <AlertTriangle size={12} className="text-red-500" />
+              <span className="text-xs font-bold text-red-700">Alergi: {profile.allergy_info}</span>
             </div>
+          )}
 
-            <div className="px-6 mt-8 space-y-6">
-                {success && (
-                    <div className="bg-[#DFF0EE] border border-[#138476]/20 text-[#138476] px-4 py-3 rounded-xl text-sm font-bold text-center">
-                        {success}
-                    </div>
-                )}
-                {error && (
-                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-medium">
-                        {error}
-                    </div>
-                )}
-
-                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
-                    <div className="w-1/2">
-                        <h3 className="font-extrabold text-lg text-slate-800 mb-2">Rapor Kepatuhan</h3>
-                        <p className="text-sm text-slate-500 font-medium">{complianceStats.taken} dosis dimonum bulan ini</p>
-                        <p className="text-xs text-slate-400 mt-1">
-                            {complianceStats.percentage >= 80 ? '🌟 Sangat Baik!' :
-                             complianceStats.percentage >= 50 ? '👍 Cukup Baik' : '⚠️ Perlu Ditingkatkan'}
-                        </p>
-                    </div>
-                    <div className="w-1/2 flex justify-end">
-                        <CircularProgress percentage={complianceStats.percentage} size={110} strokeWidth={12} />
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-extrabold text-lg text-slate-800">Data Pribadi</h3>
-                        <button onClick={() => setEditing(!editing)} className="flex items-center gap-1 text-[#138476] font-bold text-sm">
-                            {editing ? <><X size={14} /> Batal</> : <><Edit3 size={14} /> Edit</>}
-                        </button>
-                    </div>
-
-                    {editing ? (
-                        <div className="space-y-4">
-                            <InputField name="full_name" value={form.full_name} onChange={handleChange} placeholder="Nama lengkap" />
-                            <InputField name="phone" value={form.phone} onChange={handleChange} placeholder="08xxxxxxxxx" type="tel" />
-                            <select name="gender" value={form.gender} onChange={handleChange} className="w-full bg-slate-50/80 border border-slate-100 rounded-2xl px-4 py-4 text-slate-800 font-medium">
-                                <option value="">-- Jenis Kelamin --</option>
-                                <option value="Laki-laki">Laki-laki</option>
-                                <option value="Perempuan">Perempuan</option>
-                            </select>
-                            <InputField name="allergy_info" value={form.allergy_info} onChange={handleChange} placeholder="Info Alergi" />
-                            <Button onClick={handleSave} disabled={loading}>{loading ? 'Menyimpan...' : 'Simpan'}</Button>
-                        </div>
-                    ) : (
-                        <div className="space-y-3">
-                            <div className="flex justify-between py-2 border-b border-slate-50">
-                                <span className="text-sm text-slate-500 font-medium">Nama</span>
-                                <span className="text-sm text-slate-800 font-semibold">{profile?.full_name || '-'}</span>
-                            </div>
-                            <div className="flex justify-between py-2 border-b border-slate-50">
-                                <span className="text-sm text-slate-500 font-medium">Alergi</span>
-                                <span className="text-sm text-slate-800 font-semibold text-red-600">{profile?.allergy_info || '-'}</span>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                <div className="space-y-3">
-                    <button onClick={() => setShowHistoryModal(true)} className="w-full bg-white rounded-2xl p-5 flex items-center justify-between border border-slate-100">
-                        <div className="flex items-center gap-4 text-slate-800 font-bold">
-                            <div className="bg-slate-50 p-2 rounded-xl border border-slate-100"><History size={20} /></div>
-                            Riwayat Medis
-                        </div>
-                        <ChevronRight size={20} className="text-slate-400" />
-                    </button>
-                    <button onClick={() => setShowLogoutModal(true)} className="w-full bg-[#FEE2E2]/50 rounded-2xl p-5 flex items-center justify-between border border-red-100">
-                        <div className="flex items-center gap-4 text-red-700 font-bold">
-                            <div className="bg-white p-2 rounded-xl border border-red-100"><LogOut size={20} /></div>
-                            Keluar Akun
-                        </div>
-                        <ChevronRight size={20} className="text-red-400" />
-                    </button>
-                </div>
+          {/* Streak badge */}
+          {compliance.streak > 0 && (
+            <div className="mt-2 bg-[#EDD9F5] border border-[#D4A8E0] px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+              <span className="text-sm">🔥</span>
+              <span className="text-xs font-black text-[#8B2C8C]">{compliance.streak} hari berturut-turut!</span>
             </div>
-
-            <Modal isOpen={showLogoutModal} onClose={() => setShowLogoutModal(false)} title="Konfirmasi Keluar" footer={<><Button variant="secondary" onClick={() => setShowLogoutModal(false)}>Batal</Button><Button variant="danger" onClick={handleConfirmLogout}>Keluar</Button></>}>
-                Apakah Anda yakin ingin keluar dari akun BILOVA Anda?
-            </Modal>
-
-            <Modal isOpen={showHistoryModal} onClose={() => setShowHistoryModal(false)} title="Riwayat Pengobatan" footer={<Button onClick={() => setShowHistoryModal(false)}>Tutup</Button>}>
-                <div className="text-left max-h-[40vh] overflow-y-auto space-y-3">
-                    {recentLogs.length > 0 ? recentLogs.map(log => (
-                        <div key={log.id} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-sm">
-                             <p className="font-bold text-slate-800">{log.medications?.name} {log.medications?.dosage}</p>
-                             <p className="text-slate-500 mt-1">{new Date(log.taken_at).toLocaleString('id-ID')}</p>
-                        </div>
-                    )) : <p className="text-center py-4 text-slate-400">Belum ada riwayat.</p>}
-                </div>
-            </Modal>
+          )}
         </div>
-    );
+
+        {successMsg && <Alert type="success" message={successMsg} />}
+        {error && <Alert type="error" message={error} />}
+
+        {/* Compliance card */}
+        <div className="bg-white rounded-3xl p-5 border border-[#EDD9F5] shadow-card flex items-center gap-5">
+          <CircularProgress percentage={compliance.percentage} size={96} strokeWidth={9} color={compColor} />
+          <div className="flex-1">
+            <p className="font-black text-[#2D1B3D] text-base mb-1">Rapor Kepatuhan</p>
+            <p className="text-xs text-[#B090C0] font-semibold">{compliance.taken}/{compliance.total} dosis bulan ini</p>
+            <p className="text-xs font-black mt-1" style={{ color: compColor }}>
+              {compliance.percentage >= 80 ? '🌟 Luar Biasa!' : compliance.percentage >= 50 ? '👍 Cukup Baik' : '⚠️ Perlu Ditingkatkan'}
+            </p>
+            {compliance.streak > 1 && (
+              <p className="text-[10px] text-[#8B2C8C] font-black mt-0.5">🔥 {compliance.streak} hari beruntun</p>
+            )}
+          </div>
+        </div>
+
+        {/* Data pribadi */}
+        <div className="bg-white rounded-3xl p-5 border border-[#EDD9F5] shadow-card">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-black text-[#2D1B3D]">Data Pribadi</h3>
+            <button onClick={() => { setEditing(!editing); setError(''); setSuccessMsg(''); }}
+              className="flex items-center gap-1 text-[#8B2C8C] font-bold text-sm">
+              {editing ? <><X size={14} />Batal</> : <><Edit3 size={14} />Edit</>}
+            </button>
+          </div>
+
+          {editing ? (
+            <div className="space-y-3">
+              {[
+                { label: 'Nama Lengkap', name: 'full_name', icon: UserCircle2, placeholder: 'Nama lengkap' },
+                { label: 'Telepon', name: 'phone', icon: Phone, placeholder: '08xxx', type: 'tel' },
+                { label: 'Info Alergi', name: 'allergy_info', icon: AlertTriangle, placeholder: 'Misal: Penisilin' },
+              ].map(f => (
+                <div key={f.name}>
+                  <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-1.5 block">{f.label}</label>
+                  <InputField icon={f.icon} name={f.name} placeholder={f.placeholder} type={f.type || 'text'}
+                    value={form[f.name] || ''} onChange={e => setForm(p => ({ ...p, [f.name]: e.target.value }))} />
+                </div>
+              ))}
+              <div>
+                <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-1.5 block">Jenis Kelamin</label>
+                <select value={form.gender} onChange={e => setForm(p => ({ ...p, gender: e.target.value }))}
+                  className="w-full bg-white border-2 border-[#EDD9F5] rounded-2xl px-4 py-3 text-[#2D1B3D] font-semibold text-sm focus:outline-none focus:border-[#8B2C8C]">
+                  <option value="">-- Pilih</option>
+                  <option value="Laki-laki">Laki-laki</option>
+                  <option value="Perempuan">Perempuan</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-1.5 block">Tanggal Lahir</label>
+                <input type="date" value={form.date_of_birth || ''} onChange={e => setForm(p => ({ ...p, date_of_birth: e.target.value }))}
+                  className="w-full bg-white border-2 border-[#EDD9F5] rounded-2xl px-4 py-3 text-[#2D1B3D] font-semibold text-sm focus:outline-none focus:border-[#8B2C8C]" />
+              </div>
+              <Button onClick={handleSave} disabled={loading}>
+                {loading ? <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Menyimpan...</>
+                  : <><Save size={14} />Simpan Perubahan</>}
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3 divide-y divide-[#EDD9F5]">
+              {[
+                { label: 'Nama', value: profile?.full_name || '-', icon: UserCircle2 },
+                { label: 'Telepon', value: profile?.phone || '-', icon: Phone },
+                { label: 'Jenis Kelamin', value: profile?.gender || '-', icon: UserCircle2 },
+                { label: 'Tanggal Lahir', value: profile?.date_of_birth ? new Date(profile.date_of_birth).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-', icon: Calendar },
+                { label: 'Alergi', value: profile?.allergy_info || '-', icon: AlertTriangle, danger: !!profile?.allergy_info },
+              ].map(item => (
+                <div key={item.label} className="flex items-center justify-between py-2.5">
+                  <div className="flex items-center gap-2 text-[#B090C0] text-sm"><item.icon size={14} /><span className="font-bold">{item.label}</span></div>
+                  <span className={`text-sm font-bold ${item.danger ? 'text-red-600' : 'text-[#2D1B3D]'}`}>{item.value}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Action menu */}
+        <div className="space-y-3">
+          {isAdmin && (
+            <button onClick={() => navigate('/admin')}
+              className="w-full bg-gradient-to-r from-[#8B2C8C] to-[#C85CA0] rounded-2xl p-5 flex items-center justify-between shadow-bilova text-white">
+              <div className="flex items-center gap-3 font-black">
+                <div className="bg-white/20 p-2 rounded-xl"><LayoutDashboard size={18} /></div> Panel Administrasi
+              </div>
+              <ChevronRight size={18} />
+            </button>
+          )}
+
+          {[
+            { icon: History, label: 'Riwayat Pengobatan', action: () => setShowHistoryModal(true), color: false },
+            { icon: HelpCircle, label: 'Butuh Bantuan?', desc: 'Chat WhatsApp Support', action: handleWA, color: false, extra: '💬' },
+            { icon: Info, label: 'Tentang BiLova', desc: 'Versi 1.0.0', action: () => setShowAboutModal(true), color: false },
+          ].map(item => (
+            <button key={item.label} onClick={item.action}
+              className="w-full bg-white rounded-2xl p-5 flex items-center justify-between border border-[#EDD9F5] shadow-card hover:bg-[#EDD9F5]/30 transition">
+              <div className="flex items-center gap-3">
+                <div className="bg-[#EDD9F5] p-2.5 rounded-xl"><item.icon size={18} className="text-[#8B2C8C]" /></div>
+                <div className="text-left">
+                  <p className="font-black text-[#2D1B3D] text-sm">{item.label}</p>
+                  {item.desc && <p className="text-xs text-[#B090C0] font-semibold">{item.desc}</p>}
+                </div>
+              </div>
+              <ChevronRight size={16} className="text-[#D4A8E0]" />
+            </button>
+          ))}
+
+          <button onClick={() => setShowLogoutModal(true)}
+            className="w-full bg-red-50 rounded-2xl p-5 flex items-center justify-between border border-red-100 hover:bg-red-100/60 transition">
+            <div className="flex items-center gap-3">
+              <div className="bg-white p-2.5 rounded-xl border border-red-100"><LogOut size={18} className="text-red-600" /></div>
+              <span className="font-black text-red-700">Keluar Akun</span>
+            </div>
+            <ChevronRight size={16} className="text-red-300" />
+          </button>
+        </div>
+      </div>
+
+      {/* Logout modal */}
+      <Modal isOpen={showLogoutModal} onClose={() => setShowLogoutModal(false)} title="Konfirmasi Keluar"
+        footer={<><Button variant="secondary" onClick={() => setShowLogoutModal(false)}>Batal</Button><Button variant="danger" onClick={handleLogout}>Keluar</Button></>}>
+        Apakah Anda yakin ingin keluar dari akun BiLova Anda?
+      </Modal>
+
+      {/* History modal */}
+      <Modal isOpen={showHistoryModal} onClose={() => setShowHistoryModal(false)} title="Riwayat Pengobatan"
+        footer={<Button onClick={() => setShowHistoryModal(false)}>Tutup</Button>}>
+        <div className="text-left max-h-64 overflow-y-auto space-y-2 scroll-area">
+          {recentLogs.length > 0 ? recentLogs.map(log => (
+            <div key={log.id} className="bg-[#EDD9F5]/50 rounded-2xl p-3 border border-[#EDD9F5]">
+              <p className="font-black text-[#2D1B3D] text-sm">{log.medications?.name} {log.medications?.dosage}</p>
+              <p className="text-xs text-[#B090C0] font-semibold mt-0.5">{new Date(log.taken_at).toLocaleString('id-ID')}</p>
+            </div>
+          )) : <p className="text-center py-6 text-[#B090C0] text-sm">Belum ada riwayat pengobatan.</p>}
+        </div>
+      </Modal>
+
+      {/* About modal */}
+      <Modal isOpen={showAboutModal} onClose={() => setShowAboutModal(false)} title="Tentang BiLova"
+        footer={<Button onClick={() => setShowAboutModal(false)}>Tutup</Button>}>
+        <div className="text-center">
+          <div className="text-5xl mb-3">💊</div>
+          <p className="font-bold text-[#6B4B7B] leading-relaxed text-sm">
+            <strong>BiLova</strong> adalah aplikasi pengingat antibiotik cerdas yang membantu pasien minum obat tepat waktu dan mendukung dokter dalam memantau kepatuhan pengobatan.
+          </p>
+          <div className="mt-4 bg-[#EDD9F5]/50 rounded-2xl p-3">
+            <p className="text-xs text-[#B090C0] font-bold">Versi 1.0.0 · © 2025 BiLova</p>
+            <p className="text-xs text-[#B090C0] font-semibold">Dikembangkan untuk edukasi resistansi antibiotik (AMR)</p>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
 };
 
 export default Profil;
