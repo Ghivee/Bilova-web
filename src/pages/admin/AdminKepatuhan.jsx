@@ -1,234 +1,184 @@
-import React, { useState, useEffect } from 'react';
-import { ClipboardCheck, Search, Filter, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Search, TrendingUp, TrendingDown, Minus, Clock, BarChart2, AlertTriangle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { Alert, Badge, CircularProgress } from '../../components/UIComponents';
 
 const AdminKepatuhan = () => {
-    const [patients, setPatients] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [filterStatus, setFilterStatus] = useState('all');
-    const [sortDirection, setSortDirection] = useState('desc');
-    const [stats, setStats] = useState({ high: 0, medium: 0, low: 0 });
+  const [patients, setPatients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [error, setError] = useState('');
+  const [stats, setStats] = useState({ high: 0, medium: 0, low: 0, avgOverall: 0 });
+  const [sortBy, setSortBy] = useState('compliance'); // 'compliance' | 'name'
+  const [sortAsc, setSortAsc] = useState(false);
 
-    useEffect(() => {
-        fetchComplianceData();
-    }, []);
+  const fetchData = useCallback(async () => {
+    setError('');
+    try {
+      const startMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+      const daysIn = new Date().getDate();
 
-    const fetchComplianceData = async () => {
-        try {
-            // Ambil semua user
-            const { data: users } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('role', 'user');
+      const [profilesRes, medsRes, logsRes] = await Promise.all([
+        supabase.from('profiles').select('id, full_name, email, phone').eq('role', 'user').order('full_name'),
+        supabase.from('medications').select('user_id').eq('is_active', true),
+        supabase.from('compliance_logs').select('user_id, taken_at, medication_id').eq('status', 'taken').gte('taken_at', startMonth)
+      ]);
 
-            if (!users) return;
+      if (profilesRes.error) throw new Error('Gagal memuat data: ' + profilesRes.error.message);
 
-            // Untuk tiap user, hitung compliance
-            const patientsWithCompliance = await Promise.all(
-                users.map(async (user) => {
-                    const { data: logs } = await supabase
-                        .from('compliance_logs')
-                        .select('*')
-                        .eq('user_id', user.id)
-                        .eq('status', 'taken');
+      const users = profilesRes.data || [];
+      const meds = medsRes.data || [];
+      const logs = logsRes.data || [];
 
-                    const { data: meds } = await supabase
-                        .from('medications')
-                        .select('*')
-                        .eq('user_id', user.id)
-                        .eq('is_active', true);
+      // Build per-user stats
+      const enriched = users.map(u => {
+        const uMeds = meds.filter(m => m.user_id === u.id).length;
+        const uLogs = logs.filter(l => l.user_id === u.id).length;
+        const expected = uMeds * daysIn;
+        const compliance = expected > 0 ? Math.min(Math.round((uLogs / expected) * 100), 100) : 0;
+        return { ...u, compliance, taken: uLogs, expected, activeMeds: uMeds };
+      });
 
-                    const totalExpected = (meds?.length || 0) * 7; // simplifikasi 7 hari
-                    const taken = logs?.length || 0;
-                    const percentage = totalExpected > 0 ? Math.min(Math.round((taken / totalExpected) * 100), 100) : 0;
+      // Sort
+      enriched.sort((a, b) => {
+        if (sortBy === 'compliance') return sortAsc ? a.compliance - b.compliance : b.compliance - a.compliance;
+        return sortAsc ? a.full_name?.localeCompare(b.full_name) : b.full_name?.localeCompare(a.full_name);
+      });
 
-                    let status = 'low';
-                    if (percentage >= 80) status = 'high';
-                    else if (percentage >= 50) status = 'medium';
+      setPatients(enriched);
 
-                    return {
-                        ...user,
-                        compliance: percentage,
-                        totalDoses: totalExpected,
-                        takenDoses: taken,
-                        status,
-                        activeMeds: meds?.length || 0
-                    };
-                })
-            );
+      // Summary stats
+      const high = enriched.filter(p => p.compliance >= 80).length;
+      const medium = enriched.filter(p => p.compliance >= 50 && p.compliance < 80).length;
+      const low = enriched.filter(p => p.compliance < 50).length;
+      const avgOverall = enriched.length > 0 ? Math.round(enriched.reduce((s, p) => s + p.compliance, 0) / enriched.length) : 0;
+      setStats({ high, medium, low, avgOverall });
+    } catch (err) { setError(err.message); } finally { setLoading(false); }
+  }, [sortBy, sortAsc]);
 
-            setPatients(patientsWithCompliance);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-            // Stats
-            const high = patientsWithCompliance.filter(p => p.status === 'high').length;
-            const medium = patientsWithCompliance.filter(p => p.status === 'medium').length;
-            const low = patientsWithCompliance.filter(p => p.status === 'low').length;
-            setStats({ high, medium, low });
-        } catch (err) {
-            console.error('Error fetching compliance:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const filtered = patients.filter(p =>
+    !search || p.full_name?.toLowerCase().includes(search.toLowerCase()) || p.email?.toLowerCase().includes(search.toLowerCase())
+  );
 
-    // Filter & search
-    const filteredPatients = patients
-        .filter(p => filterStatus === 'all' || p.status === filterStatus)
-        .filter(p => p.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) || p.email?.toLowerCase().includes(searchTerm.toLowerCase()))
-        .sort((a, b) => sortDirection === 'desc' ? b.compliance - a.compliance : a.compliance - b.compliance);
+  const compCategory = v => v >= 80 ? { label: 'Tinggi', color: 'green', trend: TrendingUp, tc: 'text-green-600' }
+    : v >= 50 ? { label: 'Sedang', color: 'amber', trend: Minus, tc: 'text-amber-600' }
+    : { label: 'Rendah', color: 'red', trend: TrendingDown, tc: 'text-red-600' };
 
-    const getStatusBadge = (status) => {
-        const styles = {
-            high: 'bg-emerald-100 text-emerald-700',
-            medium: 'bg-amber-100 text-amber-700',
-            low: 'bg-red-100 text-red-700'
-        };
-        const labels = { high: 'Sangat Patuh', medium: 'Kurang Patuh', low: 'Tidak Patuh' };
-        return <span className={`px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider inline-flex items-center gap-1 ${styles[status]}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${status === 'high' ? 'bg-emerald-500' : status === 'medium' ? 'bg-amber-500' : 'bg-red-500'}`} />
-            {labels[status]}
-        </span>;
-    };
+  if (loading) return (
+    <div className="flex items-center justify-center py-20">
+      <div className="w-10 h-10 border-4 border-[#EDD9F5] border-t-[#8B2C8C] rounded-full animate-spin" />
+    </div>
+  );
 
-    const getInitials = (name) => name?.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || '?';
+  return (
+    <div>
+      <div className="bg-gradient-to-br from-[#EDD9F5] to-[#D4A8E0]/40 rounded-2xl p-8 mb-6 border border-[#EDD9F5]">
+        <h3 className="text-3xl font-black text-[#8B2C8C] tracking-tight mb-1">Kepatuhan & Monitoring</h3>
+        <p className="text-[#6B4B7B] font-semibold text-sm">Data kepatuhan dihitung dari log konfirmasi obat bulan ini dibanding jadwal aktif.</p>
+      </div>
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <div className="w-10 h-10 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin" />
-            </div>
-        );
-    }
+      {error && <div className="mb-4"><Alert type="error" message={error} /></div>}
 
-    return (
-        <div>
-            {/* Header — Soft Green, consistent with dashboard */}
-            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-8 mb-8 border border-emerald-100/50">
-                <h3 className="text-3xl font-extrabold text-emerald-900 tracking-tight mb-2">Kepatuhan & Monitoring</h3>
-                <p className="text-emerald-700/70 text-base">
-                    Pantau dan evaluasi tingkat kepatuhan seluruh pasien terhadap pengobatan antibiotik.
-                </p>
-            </div>
+      {/* Summary stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        {[
+          { label: 'Kepatuhan Tinggi', value: stats.high, sub: '≥ 80%', color: 'bg-[#EDD9F5]', val: 'text-[#8B2C8C]' },
+          { label: 'Kepatuhan Sedang', value: stats.medium, sub: '50–79%', color: 'bg-amber-100', val: 'text-amber-700' },
+          { label: 'Kepatuhan Rendah', value: stats.low, sub: '< 50%', color: 'bg-red-100', val: 'text-red-700' },
+          { label: 'Rata-rata', value: `${stats.avgOverall}%`, sub: 'Semua pasien', color: 'bg-[#EDD9F5]', val: 'text-[#8B2C8C]' },
+        ].map(s => (
+          <div key={s.label} className={`${s.color} rounded-2xl p-4 text-center border border-white/50`}>
+            <p className={`text-3xl font-black ${s.val}`}>{s.value}</p>
+            <p className="font-black text-[#2D1B3D] text-xs mt-0.5">{s.label}</p>
+            <p className="text-[10px] text-[#B090C0] font-semibold">{s.sub}</p>
+          </div>
+        ))}
+      </div>
 
-            {/* Stats Summary */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-                <div className="bg-white p-5 rounded-2xl border border-slate-100 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-                        <ClipboardCheck size={22} className="text-emerald-600" />
-                    </div>
-                    <div>
-                        <p className="text-2xl font-black text-emerald-700">{stats.high}</p>
-                        <p className="text-xs text-slate-500 font-semibold uppercase">Kepatuhan Tinggi</p>
-                    </div>
-                </div>
-                <div className="bg-white p-5 rounded-2xl border border-slate-100 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
-                        <ClipboardCheck size={22} className="text-amber-600" />
-                    </div>
-                    <div>
-                        <p className="text-2xl font-black text-amber-700">{stats.medium}</p>
-                        <p className="text-xs text-slate-500 font-semibold uppercase">Kepatuhan Sedang</p>
-                    </div>
-                </div>
-                <div className="bg-white p-5 rounded-2xl border border-slate-100 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
-                        <ClipboardCheck size={22} className="text-red-600" />
-                    </div>
-                    <div>
-                        <p className="text-2xl font-black text-red-700">{stats.low}</p>
-                        <p className="text-xs text-slate-500 font-semibold uppercase">Kepatuhan Rendah</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Filter Bar */}
-            <div className="bg-white p-4 rounded-2xl mb-6 flex flex-wrap gap-4 items-center border border-slate-100">
-                <div className="flex-1 min-w-[200px] relative">
-                    <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-slate-50 border-none rounded-xl pl-11 py-3 focus:ring-2 focus:ring-emerald-200 transition-all text-sm outline-none"
-                        placeholder="Cari nama atau email pasien..."
-                    />
-                </div>
-                <select
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                    className="bg-slate-50 border-none rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-emerald-200 outline-none"
-                >
-                    <option value="all">Semua Status</option>
-                    <option value="high">Sangat Patuh</option>
-                    <option value="medium">Kurang Patuh</option>
-                    <option value="low">Tidak Patuh</option>
-                </select>
-                <button
-                    onClick={() => setSortDirection(d => d === 'desc' ? 'asc' : 'desc')}
-                    className="p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors flex items-center gap-1 text-sm font-medium text-slate-600"
-                >
-                    {sortDirection === 'desc' ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-                    Sort
-                </button>
-            </div>
-
-            {/* Table */}
-            <div className="bg-white rounded-2xl overflow-hidden border border-slate-100">
-                <table className="w-full border-collapse">
-                    <thead>
-                        <tr className="bg-slate-50/70">
-                            <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nama Pasien</th>
-                            <th className="px-4 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Obat Aktif</th>
-                            <th className="px-4 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Dosis Diminum</th>
-                            <th className="px-4 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Kepatuhan</th>
-                            <th className="px-6 py-4 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50">
-                        {filteredPatients.map((patient) => (
-                            <tr key={patient.id} className="hover:bg-slate-50/50 transition-colors">
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs">
-                                            {getInitials(patient.full_name)}
-                                        </div>
-                                        <div>
-                                            <p className="font-semibold text-slate-800 text-sm">{patient.full_name || '-'}</p>
-                                            <p className="text-xs text-slate-400">{patient.email}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className="px-4 py-4 text-sm text-slate-600 font-medium">{patient.activeMeds}</td>
-                                <td className="px-4 py-4 text-sm text-slate-600 font-medium">{patient.takenDoses}/{patient.totalDoses}</td>
-                                <td className="px-4 py-4">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-20 h-2 bg-slate-100 rounded-full overflow-hidden">
-                                            <div
-                                                className={`h-full rounded-full transition-all ${
-                                                    patient.compliance >= 80 ? 'bg-emerald-500' :
-                                                    patient.compliance >= 50 ? 'bg-amber-500' : 'bg-red-500'
-                                                }`}
-                                                style={{ width: `${patient.compliance}%` }}
-                                            />
-                                        </div>
-                                        <span className="text-xs font-bold text-slate-700">{patient.compliance}%</span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 text-right">{getStatusBadge(patient.status)}</td>
-                            </tr>
-                        ))}
-                        {filteredPatients.length === 0 && (
-                            <tr>
-                                <td colSpan={5} className="text-center py-12 text-slate-400">
-                                    {searchTerm || filterStatus !== 'all' ? 'Tidak ditemukan hasil yang cocok' : 'Belum ada data kepatuhan'}
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+      {/* Search + sort */}
+      <div className="flex gap-3 mb-4">
+        <div className="relative flex-1">
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#B090C0]" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cari pasien..."
+            className="w-full bg-white border-2 border-[#EDD9F5] rounded-2xl pl-10 pr-4 py-2.5 text-[#2D1B3D] font-semibold text-sm focus:outline-none focus:border-[#8B2C8C]" />
         </div>
-    );
+        <button onClick={() => { if (sortBy === 'compliance') setSortAsc(!sortAsc); else { setSortBy('compliance'); setSortAsc(false); } }}
+          className={`px-4 py-2.5 rounded-2xl font-bold text-sm border-2 transition-all ${sortBy === 'compliance' ? 'bg-[#8B2C8C] text-white border-[#8B2C8C]' : 'bg-white text-[#8B2C8C] border-[#EDD9F5]'}`}>
+          <BarChart2 size={14} className="inline mr-1" />Kepatuhan
+        </button>
+      </div>
+
+      {/* Warning banner if low compliance patients exist */}
+      {stats.low > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-4 flex items-start gap-3">
+          <AlertTriangle size={18} className="text-red-500 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-black text-red-700 text-sm">{stats.low} pasien dengan kepatuhan rendah</p>
+            <p className="text-red-600 text-xs font-semibold">Pertimbangkan untuk menghubungi mereka langsung.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Table */}
+      <div className="bg-white rounded-2xl border border-[#EDD9F5] overflow-hidden shadow-card">
+        <table className="w-full">
+          <thead className="bg-[#EDD9F5]/40">
+            <tr>
+              {['Pasien', 'Resep Aktif', 'Dosis Diminum', 'Kepatuhan', 'Status'].map(h => (
+                <th key={h} className="text-left px-5 py-3.5 text-[10px] font-black text-[#B090C0] uppercase tracking-widest">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#EDD9F5]">
+            {filtered.length === 0 ? (
+              <tr><td colSpan={5} className="px-5 py-10 text-center text-[#B090C0] font-bold">{search ? 'Tidak ada hasil.' : 'Belum ada pasien.'}</td></tr>
+            ) : filtered.map(p => {
+              const cat = compCategory(p.compliance);
+              const TrendIcon = cat.trend;
+              return (
+                <tr key={p.id} className="hover:bg-[#EDD9F5]/20 transition">
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-[#EDD9F5] flex items-center justify-center text-[#8B2C8C] font-black text-xs shrink-0">
+                        {p.full_name?.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || '?'}
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#2D1B3D] text-sm">{p.full_name || '-'}</p>
+                        <p className="text-xs text-[#B090C0] font-semibold">{p.email}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-5 py-4 text-center">
+                    <span className="font-black text-[#2D1B3D]">{p.activeMeds}</span>
+                  </td>
+                  <td className="px-5 py-4 text-center">
+                    <span className="font-black text-[#2D1B3D]">{p.taken}</span>
+                    <span className="text-xs text-[#B090C0] font-semibold">/{p.expected}</span>
+                  </td>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 h-2 bg-[#EDD9F5] rounded-full overflow-hidden">
+                        <div className="h-full rounded-full transition-all" style={{ width: `${p.compliance}%`, background: p.compliance >= 80 ? '#8B2C8C' : p.compliance >= 50 ? '#D97706' : '#DC2626' }} />
+                      </div>
+                      <span className={`font-black text-sm ${cat.tc}`}>{p.compliance}%</span>
+                    </div>
+                  </td>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-1">
+                      <TrendIcon size={14} className={cat.tc} />
+                      <Badge color={cat.color}>{cat.label}</Badge>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 };
 
 export default AdminKepatuhan;

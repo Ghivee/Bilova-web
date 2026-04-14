@@ -1,179 +1,163 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Activity, Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { Button, InputField } from '../../components/UIComponents';
+import { Link, useNavigate } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Button, InputField, Alert, FloatingPills } from '../../components/UIComponents';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
+import logoSrc from '../../assets/Bilova_Logo.png';
+
+/* ─── Desktop Left Panel ─── */
+const AuthLeftPanel = () => (
+  <div className="auth-left-panel hidden lg:flex">
+    {/* Pills floating background */}
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[
+        { top: '10%', left: '8%', rot: 20, w: 60, h: 28 },
+        { top: '22%', right: '12%', rot: -15, w: 44, h: 20 },
+        { top: '55%', left: '5%', rot: 45, w: 36, h: 36, round: true },
+        { bottom: '20%', right: '8%', rot: 60, w: 50, h: 24 },
+        { bottom: '8%', left: '20%', rot: -30, w: 40, h: 18 },
+        { top: '38%', right: '5%', rot: 10, w: 55, h: 25 },
+      ].map((p, i) => (
+        <div key={i} style={{ position: 'absolute', ...p, transform: `rotate(${p.rot}deg)`, opacity: 0.3 }}>
+          {p.round
+            ? <div style={{ width: p.w, height: p.h, borderRadius: '50%', background: 'rgba(237,217,245,0.6)' }} />
+            : <div style={{ width: p.w, height: p.h, borderRadius: p.h / 2, background: 'rgba(237,217,245,0.5)' }} />
+          }
+        </div>
+      ))}
+    </div>
+    <div className="relative z-10 text-white text-center max-w-md">
+      <img src={logoSrc} alt="BiLova" className="w-36 h-auto object-contain mx-auto mb-6 brightness-0 invert" />
+      <h1 className="text-4xl font-black mb-3 tracking-tight">Selamat Datang di<br />BiLova</h1>
+      <p className="text-white/80 text-base font-medium leading-relaxed mb-8">
+        Asisten pintar pengingat antibiotik Anda.<br />
+        Minum tepat waktu, sembuh sempurna.
+      </p>
+      {/* Feature highlights */}
+      <div className="space-y-3">
+        {[
+          { icon: '💊', text: 'Jadwal minum obat otomatis & pengingat' },
+          { icon: '📊', text: 'Pantau kepatuhan pengobatan harian' },
+          { icon: '🏥', text: 'Laporkan gejala langsung ke dokter' },
+          { icon: '📚', text: 'Edukasi resistansi antibiotik (AMR)' },
+        ].map(f => (
+          <div key={f.text} className="flex items-center gap-3 bg-white/10 rounded-2xl px-4 py-2.5 backdrop-blur-sm">
+            <span className="text-xl">{f.icon}</span>
+            <span className="text-sm font-semibold text-white/90">{f.text}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 const LoginScreen = () => {
-    const [showPassword, setShowPassword] = useState(false);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [dots, setDots] = useState('');
-    const { signIn } = useAuth();
-    const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
 
-    React.useEffect(() => {
-        if (loading) {
-            const interval = setInterval(() => {
-                setDots(prev => prev.length >= 3 ? '' : prev + '.');
-            }, 400);
-            return () => clearInterval(interval);
-        } else {
-            setDots('');
-        }
-    }, [loading]);
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (!email.trim()) { setError('Email wajib diisi.'); return; }
+    if (!password) { setError('Password wajib diisi.'); return; }
+    if (!email.includes('@')) { setError('Format email tidak valid.'); return; }
+    setError(''); setLoading(true);
+    try {
+      const { user } = await signIn(email.trim(), password);
+      if (!user) throw new Error('Pengguna tidak ditemukan.');
+      // Prioritize JWT metadata for role (fast, no DB call)
+      const metaRole = user.user_metadata?.role?.toLowerCase();
+      if (metaRole === 'admin' || metaRole === 'superadmin') {
+        navigate('/admin'); return;
+      }
+      // DB fallback with timeout
+      try {
+        const result = await Promise.race([
+          supabase.from('profiles').select('role').eq('id', user.id).single(),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))
+        ]);
+        const role = result?.data?.role?.toLowerCase();
+        navigate(role === 'admin' ? '/admin' : '/');
+      } catch { navigate('/'); }
+    } catch (err) {
+      setError(err.message);
+    } finally { setLoading(false); }
+  };
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        if (!email || !password) {
-            setError('Silakan isi email dan password.');
-            return;
-        }
-        setError('');
-        setLoading(true);
-        try {
-            const { user } = await signIn(email, password);
-            if (!user) throw new Error('Pengguna tidak ditemukan.');
-            
-            // Prioritas 1: Gunakan metadata (Sangat cepat & tidak bergantung pada tabel profiles)
-            const metaRole = user.user_metadata?.role?.toLowerCase();
-            console.log('Role from metadata:', metaRole);
+  return (
+    <div className="auth-outer">
+      <AuthLeftPanel />
+      {/* Right panel / full screen on mobile */}
+      <div className="auth-card">
+        <div className="flex flex-col min-h-full px-7 py-8 lg:py-10 relative">
+          <FloatingPills />
+          {/* Logo */}
+          <div className="flex justify-center mb-6 mt-2">
+            <img src={logoSrc} alt="BiLova" className="h-16 w-auto object-contain" />
+          </div>
 
-            // Jika metadata sudah ada role admin, langsung gaskeun
-            if (metaRole === 'admin' || metaRole === 'superadmin') {
-                navigate('/admin');
-                return;
-            }
+          <h2 className="text-2xl font-black text-[#2D1B3D] mb-1">Masuk ke Akun</h2>
+          <p className="text-sm text-[#B090C0] font-semibold mb-6">Lanjutkan perjalanan sehat Anda bersama BiLova</p>
 
-            // Prioritas 2: Ambil dari DB dengan timeout 5 detik (Backup jika metadata kosong)
-            try {
-                const profilePromise = supabase
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', user.id)
-                    .single();
+          {error && <div className="mb-4"><Alert type="error" message={error} /></div>}
 
-                // Balapan dengan timeout
-                const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('timeout')), 5000)
-                );
-
-                const { data: profile } = await Promise.race([profilePromise, timeoutPromise]);
-                
-                const userRole = profile?.role?.toLowerCase();
-                if (userRole === 'admin' || userRole === 'superadmin') {
-                    navigate('/admin');
-                } else {
-                    navigate('/');
-                }
-            } catch (dbErr) {
-                console.warn('Profile fetch handled (timeout or error):', dbErr.message);
-                // Fallback terakhir: default ke user dashboard atau email check
-                if (user.email.includes('admin@')) {
-                    navigate('/admin');
-                } else {
-                    navigate('/');
-                }
-            }
-        } catch (err) {
-            console.error('Login error:', err);
-            let msg = 'Terjadi kesalahan saat masuk.';
-            if (err.message === 'Invalid login credentials') msg = 'Email atau password salah.';
-            else if (err.message.includes('Email not confirmed')) msg = 'Silakan verifikasi email Anda.';
-            else if (err.message.includes('supabase')) msg = 'Kesalahan sistem (Supabase tidak terhubung).';
-            setError(msg);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div className="flex flex-col min-h-full px-6 py-8 relative z-10">
-            <div className="flex justify-center mb-8 mt-12">
-                <div className="bg-[#138476] p-4 rounded-3xl shadow-lg shadow-teal-500/20">
-                    <Activity size={32} color="white" />
-                </div>
+          <form onSubmit={handleLogin} className="space-y-4 flex-1 flex flex-col">
+            <div>
+              <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-2 block">Email</label>
+              <InputField icon={Mail} placeholder="nama@email.com" type="email" value={email} onChange={e => setEmail(e.target.value)} />
             </div>
-            <h1 className="text-3xl font-extrabold text-center text-slate-800 mb-2">BILOVA</h1>
-            <p className="text-center text-slate-500 mb-10 font-medium">Asisten pintar pengingat antibiotik Anda</p>
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider">Kata Sandi</label>
+                <Link to="/forgot-password" className="text-xs font-bold text-[#8B2C8C] hover:text-[#C85CA0]">Lupa password?</Link>
+              </div>
+              <InputField icon={Lock} type={showPassword ? 'text' : 'password'} placeholder="••••••••" value={password}
+                onChange={e => setPassword(e.target.value)}
+                rightIcon={
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-[#B090C0] hover:text-[#8B2C8C] transition">
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                }
+              />
+            </div>
+            <div className="mt-auto pt-2">
+              <Button type="submit" disabled={loading}>
+                {loading ? <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Memproses...</>
+                  : <><span>Masuk</span><ArrowRight size={16} /></>}
+              </Button>
+            </div>
+          </form>
 
-            <form onSubmit={handleLogin} className="bg-white rounded-[2rem] p-6 shadow-xl shadow-slate-200/50 border border-slate-50 flex-1 flex flex-col">
-                <h2 className="text-2xl font-bold mb-6">Masuk ke Akun</h2>
+          {/* Demo credentials — compact callout */}
+          <div className="mt-4 border-2 border-dashed border-[#EDD9F5] rounded-2xl p-4">
+            <p className="text-[10px] font-black text-[#8B2C8C] uppercase tracking-widest mb-2">🔑 Akun Demo</p>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-[#EDD9F5]/60 rounded-xl p-2.5">
+                <p className="font-black text-[#6B1B6C] text-[10px] uppercase mb-1">Pasien</p>
+                <p className="text-[#6B4B7B] font-bold break-all">user@bilova.com</p>
+                <p className="text-[#B090C0] font-semibold">Pass: 12345678</p>
+              </div>
+              <div className="bg-[#EDD9F5]/60 rounded-xl p-2.5">
+                <p className="font-black text-[#6B1B6C] text-[10px] uppercase mb-1">Admin</p>
+                <p className="text-[#6B4B7B] font-bold break-all">admin@bilova.com</p>
+                <p className="text-[#B090C0] font-semibold">Pass: 12345678</p>
+              </div>
+            </div>
+          </div>
 
-                {error && (
-                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4 text-sm font-medium">
-                        {error}
-                    </div>
-                )}
-
-                <div className="space-y-5">
-                    <div>
-                        <label className="text-sm font-semibold text-slate-700 mb-2 block">Email</label>
-                        <InputField
-                            icon={Mail}
-                            placeholder="nama@email.com"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                    </div>
-                    <div>
-                        <div className="flex justify-between items-center mb-2">
-                            <label className="text-sm font-semibold text-slate-700 block">Kata Sandi</label>
-                            <Link to="/forgot-password" className="text-sm font-bold text-[#138476]">Lupa Password?</Link>
-                        </div>
-                        <InputField
-                            icon={Lock}
-                            type={showPassword ? "text" : "password"}
-                            placeholder="••••••••"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            rightIcon={
-                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-slate-400">
-                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                                </button>
-                            }
-                        />
-                    </div>
-                </div>
-                <div className="mt-8">
-                    <Button type="submit" disabled={loading}>
-                        {loading ? `Memproses${dots}` : 'Masuk'}
-                    </Button>
-                </div>
-                <div className="flex items-center gap-4 my-8">
-                    <div className="h-px bg-slate-200 flex-1" />
-                    <span className="text-sm text-slate-400 font-medium">atau masuk dengan</span>
-                    <div className="h-px bg-slate-200 flex-1" />
-                </div>
-                <div className="flex gap-4 mb-6">
-                    <button type="button" className="flex-1 bg-slate-100 py-3 rounded-2xl flex items-center justify-center font-semibold text-slate-700 hover:bg-slate-200 transition">Google</button>
-                    <button type="button" className="flex-1 bg-slate-100 py-3 rounded-2xl flex items-center justify-center font-semibold text-slate-700 hover:bg-slate-200 transition">Apple</button>
-                </div>
-
-                <div className="bg-emerald-50 rounded-2xl p-4 border border-emerald-100">
-                    <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-2">Akses Demo (Jika belum punya akun)</p>
-                    <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                            <span className="text-xs font-medium text-emerald-700">Pasien: user@bilova.com</span>
-                            <span className="text-[10px] bg-white px-2 py-0.5 rounded-md text-emerald-600 border border-emerald-100 font-bold tracking-tighter self-center">pass: 12345678</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                            <span className="text-xs font-medium text-emerald-700">Admin: admin@bilova.com</span>
-                            <span className="text-[10px] bg-white px-2 py-0.5 rounded-md text-emerald-600 border border-emerald-100 font-bold tracking-tighter self-center">pass: 12345678</span>
-                        </div>
-                    </div>
-                </div>
-            </form>
-            <p className="text-center mt-8 font-medium text-slate-600">
-                Belum punya akun?{' '}
-                <Link to="/register" className="text-[#138476] font-bold">Daftar sekarang</Link>
-            </p>
+          <p className="text-center mt-5 mb-2 text-sm text-[#6B4B7B] font-semibold">
+            Belum punya akun?{' '}
+            <Link to="/register" className="text-[#8B2C8C] font-black hover:text-[#C85CA0]">Daftar Sekarang</Link>
+          </p>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default LoginScreen;

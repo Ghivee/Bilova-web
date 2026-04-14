@@ -1,111 +1,196 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { ChevronLeft, X } from 'lucide-react';
 
-export const CircularProgress = ({ percentage, size = 100, strokeWidth = 8, color = '#138476' }) => {
-    const radius = (size - strokeWidth) / 2;
-    const circumference = radius * 2 * Math.PI;
-    const offset = circumference - (percentage / 100) * circumference;
-
-    return (
-        <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
-            <svg className="transform -rotate-90" width={size} height={size}>
-                <circle cx={size / 2} cy={size / 2} r={radius} stroke="#E2E8F0" strokeWidth={strokeWidth} fill="transparent" />
-                <motion.circle
-                    initial={{ strokeDashoffset: circumference }}
-                    animate={{ strokeDashoffset: offset }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
-                    cx={size / 2} cy={size / 2} r={radius} stroke={color} strokeWidth={strokeWidth} fill="transparent"
-                    strokeDasharray={circumference} strokeLinecap="round"
-                />
-            </svg>
-            <div className="absolute flex items-center justify-center font-bold text-2xl" style={{ color }}>
-                {percentage}%
-            </div>
-        </div>
-    );
-};
-
-export const Button = ({ children, onClick, variant = 'primary', className = '', type = 'button', disabled = false }) => {
-    const baseStyle = "w-full py-4 rounded-full font-bold transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed";
-    const variants = {
-        primary: `bg-[#138476] text-white shadow-lg shadow-teal-500/30`,
-        secondary: `bg-[#E2E8F0] text-slate-700`,
-        outline: `border-2 border-[#138476] text-[#138476]`,
-        ghost: `text-[#138476] bg-transparent hover:bg-teal-50`,
-        danger: `bg-red-500 text-white shadow-lg shadow-red-500/30`
-    };
-
-    return (
-        <motion.button whileTap={{ scale: disabled ? 1 : 0.97 }} type={type} onClick={onClick} disabled={disabled} className={`${baseStyle} ${variants[variant]} ${className}`}>
-            {children}
-        </motion.button>
-    );
-};
-
-export const InputField = ({ icon: Icon, type = 'text', placeholder, rightIcon, value, onChange, name, ...props }) => (
-    <div className="bg-slate-50/80 border border-slate-100 rounded-2xl px-4 py-4 w-full flex items-center gap-3 shadow-sm focus-within:border-[#138476] focus-within:ring-1 focus-within:ring-[#138476] transition-all">
-        {Icon && <Icon size={20} className="text-slate-400 shrink-0" />}
-        <input
-            type={type} placeholder={placeholder} value={value} onChange={onChange} name={name}
-            className="bg-transparent flex-1 outline-none text-slate-800 placeholder:text-slate-400 font-medium"
-            {...props}
-        />
-        {rightIcon}
-    </div>
+/* ─── BiLova Official Logo (from Bilova_Logo.png in assets) ─── */
+export const BiLovaLogo = ({ size = 48, className = '' }) => (
+  <img
+    src="/Bilova-web/src/assets/Bilova_Logo.png"
+    alt="BiLova Logo"
+    width={size}
+    height={size}
+    className={`object-contain ${className}`}
+    style={{ maxWidth: size, maxHeight: size }}
+  />
 );
 
-// Header tanpa foto profil — dipakai di semua halaman kecuali Beranda
-export const Header = ({ title, showBack, onBack, rightElement, showLogo = false }) => (
-    <div className="flex items-center justify-between py-4 px-6 bg-transparent sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-            {showBack && (
-                <button onClick={onBack} className="p-2 rounded-full hover:bg-slate-200/50 transition">
-                    <ChevronLeft size={24} className="text-[#138476]" />
-                </button>
-            )}
-            <h1 className="text-lg font-bold text-[#138476] uppercase tracking-wide">{title}</h1>
-        </div>
-        {rightElement || <div />}
-    </div>
+/* Dynamic import so Vite bundles the asset properly */
+import logoSrc from '../assets/Bilova_Logo.png';
+export const BiLovaLogoImg = ({ size = 48, className = '' }) => (
+  <img src={logoSrc} alt="BiLova" width={size} height={size}
+    className={`object-contain ${className}`}
+    style={{ maxWidth: size, maxHeight: size }}
+  />
 );
 
-export const Notification = ({ type = 'info', message, onClose }) => {
-  const styles = {
-    success: 'bg-emerald-50 border-emerald-200 text-emerald-800',
-    error: 'bg-red-50 border-red-200 text-red-800',
-    info: 'bg-blue-50 border-blue-200 text-blue-800',
-  };
+/* ─── Decorative Pill Capsule ─── */
+export const PillShape = ({ color = '#8B2C8C', className = '' }) => (
+  <svg width="36" height="18" viewBox="0 0 36 18" fill="none" className={className}>
+    <rect x="0" y="0" width="36" height="18" rx="9" fill={color} opacity="0.15" />
+    <rect x="0" y="0" width="18" height="18" rx="9" fill={color} opacity="0.25" />
+    <line x1="18" y1="2" x2="18" y2="16" stroke={color} strokeWidth="1" opacity="0.4" />
+  </svg>
+);
 
+/* ─── Floating decoration pills for auth screens ─── */
+export const FloatingPills = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div className="absolute top-[8%] left-[12%] rotate-[25deg] opacity-30">
+      <PillShape color="#EDD9F5" />
+    </div>
+    <div className="absolute top-[18%] right-[8%] rotate-[-15deg] opacity-25">
+      <svg width="28" height="14" viewBox="0 0 28 14" fill="none">
+        <rect width="28" height="14" rx="7" fill="#EDD9F5" />
+        <rect width="14" height="14" rx="7" fill="#D4A8E0" />
+      </svg>
+    </div>
+    <div className="absolute top-[35%] left-[5%] rotate-[45deg] opacity-20">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <circle cx="11" cy="11" r="10" fill="#EDD9F5" />
+        <circle cx="11" cy="11" r="5" fill="#D4A8E0" />
+      </svg>
+    </div>
+    <div className="absolute bottom-[25%] right-[5%] rotate-[60deg] opacity-25">
+      <PillShape color="#EDD9F5" />
+    </div>
+    <div className="absolute bottom-[12%] left-[18%] rotate-[-30deg] opacity-20">
+      <svg width="30" height="15" viewBox="0 0 30 15" fill="none">
+        <rect width="30" height="15" rx="7.5" fill="#EDD9F5" />
+        <rect x="15" width="15" height="15" rx="7.5" fill="#D4A8E0" />
+      </svg>
+    </div>
+  </div>
+);
+
+/* ─── Circular Progress Ring ─── */
+export const CircularProgress = ({ percentage, size = 100, strokeWidth = 8, color = '#8B2C8C' }) => {
+  const r = (size - strokeWidth) / 2;
+  const circ = r * 2 * Math.PI;
+  const offset = circ - (Math.min(percentage, 100) / 100) * circ;
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className={`fixed top-6 left-6 right-6 z-[100] p-4 rounded-2xl border shadow-lg flex items-center justify-between ${styles[type]}`}
-    >
-      <p className="text-sm font-bold">{message}</p>
-      <button onClick={onClose} className="p-1 rounded-full hover:bg-black/5">
-        <X size={16} />
-      </button>
-    </motion.div>
+    <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+      <svg className="transform -rotate-90" width={size} height={size}>
+        <circle cx={size/2} cy={size/2} r={r} stroke="#EDD9F5" strokeWidth={strokeWidth} fill="transparent" />
+        <circle cx={size/2} cy={size/2} r={r} stroke={color} strokeWidth={strokeWidth} fill="transparent"
+          strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
+          style={{ transition: 'stroke-dashoffset 0.8s ease' }}
+        />
+      </svg>
+      <div className="absolute text-center">
+        <span className="font-black text-lg" style={{ color }}>{percentage}%</span>
+      </div>
+    </div>
   );
 };
 
-export const Modal = ({ isOpen, onClose, title, children, footer }) => {
-    if (!isOpen) return null;
-    return (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 px-4 md:px-6">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} onClick={onClose} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl relative z-10">
-                <div className="p-8 text-center pt-10">
-                    <h3 className="text-xl font-bold text-slate-800 mb-4">{title}</h3>
-                    <div className="text-slate-600 mb-8 font-medium leading-relaxed text-sm">{children}</div>
-                    <div className="flex gap-3">
-                        {footer}
-                    </div>
-                </div>
-            </motion.div>
-        </div>
-    );
+/* ─── Primary Button ─── */
+export const Button = ({ children, onClick, variant = 'primary', className = '', type = 'button', disabled = false }) => {
+  const base = 'w-full py-3.5 rounded-full font-bold transition-all flex items-center justify-center gap-2 text-sm active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed select-none';
+  const variants = {
+    primary: 'bg-[#8B2C8C] text-white shadow-bilova hover:bg-[#6B1B6C]',
+    secondary: 'bg-[#EDD9F5] text-[#8B2C8C] hover:bg-[#D4A8E0]',
+    outline: 'border-2 border-[#8B2C8C] text-[#8B2C8C] hover:bg-[#EDD9F5]',
+    ghost: 'text-[#8B2C8C] hover:bg-[#EDD9F5]',
+    danger: 'bg-red-500 text-white hover:bg-red-600 shadow-sm',
+    white: 'bg-white text-[#8B2C8C] shadow-card hover:bg-[#FCF7FF]',
+  };
+  return (
+    <button type={type} onClick={onClick} disabled={disabled} className={`${base} ${variants[variant]} ${className}`}>
+      {children}
+    </button>
+  );
 };
+
+/* ─── Input Field ─── */
+export const InputField = ({ icon: Icon, type = 'text', placeholder, rightIcon, value, onChange, name, ...props }) => (
+  <div className="bg-white border-2 border-[#EDD9F5] rounded-2xl px-4 py-3 w-full flex items-center gap-3 focus-within:border-[#8B2C8C] focus-within:ring-2 focus-within:ring-[#8B2C8C]/15 transition-all shadow-card">
+    {Icon && <Icon size={18} className="text-[#B090C0] shrink-0" />}
+    <input type={type} placeholder={placeholder} value={value} onChange={onChange} name={name}
+      className="bg-transparent flex-1 outline-none text-[#2D1B3D] placeholder:text-[#C0A8D0] font-semibold text-sm" {...props} />
+    {rightIcon}
+  </div>
+);
+
+/* ─── Page Header ─── */
+export const Header = ({ title, showBack, onBack, rightElement }) => (
+  <div className="flex items-center justify-between py-4 px-5 sticky top-0 z-20 bg-[#FCF7FF]/95 backdrop-blur-md border-b border-[#EDD9F5]/60">
+    <div className="flex items-center gap-3">
+      {showBack && (
+        <button onClick={onBack} className="w-9 h-9 rounded-full bg-[#EDD9F5] flex items-center justify-center hover:bg-[#D4A8E0] transition">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B2C8C" strokeWidth="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+      )}
+      <h1 className="text-sm font-black text-[#8B2C8C] uppercase tracking-widest">{title}</h1>
+    </div>
+    {rightElement || <div />}
+  </div>
+);
+
+/* ─── Spinner ─── */
+export const Spinner = ({ size = 'md' }) => {
+  const sz = { sm: 'w-4 h-4', md: 'w-8 h-8', lg: 'w-12 h-12' };
+  return <div className={`${sz[size]} border-3 border-[#EDD9F5] border-t-[#8B2C8C] rounded-full animate-spin`} style={{ borderWidth: 3 }} />;
+};
+
+/* ─── Modal ─── */
+export const Modal = ({ isOpen, onClose, title, children, footer }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fadeIn" onClick={onClose} />
+      <div className="bg-[#FCF7FF] w-full max-w-sm rounded-3xl shadow-bilova overflow-hidden relative z-10 animate-slideUp">
+        <div className="p-6 text-center">
+          <h3 className="text-lg font-black text-[#2D1B3D] mb-3">{title}</h3>
+          <div className="text-[#6B4B7B] text-sm font-semibold leading-relaxed mb-5">{children}</div>
+          <div className="flex gap-3">{footer}</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ─── Alert/Toast ─── */
+export const Alert = ({ type = 'error', message }) => {
+  if (!message) return null;
+  const styles = {
+    error: 'bg-red-50 border-red-200 text-red-700',
+    success: 'bg-[#EDD9F5] border-[#D4A8E0] text-[#6B1B6C]',
+    warning: 'bg-amber-50 border-amber-200 text-amber-800',
+    info: 'bg-blue-50 border-blue-200 text-blue-700',
+  };
+  return (
+    <div className={`border rounded-2xl px-4 py-3 text-sm font-semibold flex items-start gap-2 ${styles[type]}`}>
+      <span className="mt-0.5 shrink-0">
+        {type === 'error' ? '⚠️' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️'}
+      </span>
+      {message}
+    </div>
+  );
+};
+
+/* ─── Badge ─── */
+export const Badge = ({ children, color = 'purple', className = '' }) => {
+  const c = {
+    purple: 'bg-[#EDD9F5] text-[#8B2C8C]',
+    green: 'bg-green-100 text-green-700',
+    red: 'bg-red-100 text-red-700',
+    amber: 'bg-amber-100 text-amber-700',
+    slate: 'bg-slate-100 text-slate-600',
+  };
+  return <span className={`px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wide ${c[color]} ${className}`}>{children}</span>;
+};
+
+/* ─── Section Title ─── */
+export const SectionTitle = ({ children, action }) => (
+  <div className="flex items-center justify-between mb-3">
+    <h3 className="font-black text-[#2D1B3D] text-base">{children}</h3>
+    {action}
+  </div>
+);
+
+/* ─── Empty State ─── */
+export const EmptyState = ({ icon, title, desc }) => (
+  <div className="text-center py-10 px-6">
+    <div className="text-5xl mb-3">{icon}</div>
+    <h4 className="font-black text-[#2D1B3D] mb-1">{title}</h4>
+    <p className="text-sm text-[#B090C0] font-medium">{desc}</p>
+  </div>
+);

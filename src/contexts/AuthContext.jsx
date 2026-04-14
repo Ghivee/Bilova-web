@@ -1,11 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext(null);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  if (!context) throw new Error('useAuth harus digunakan dalam AuthProvider');
   return context;
 };
 
@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId) => {
+  const fetchProfile = useCallback(async (userId) => {
     if (!userId) return null;
     try {
       const { data, error } = await supabase
@@ -22,138 +22,117 @@ export const AuthProvider = ({ children }) => {
         .select('*')
         .eq('id', userId)
         .single();
-      
       if (error) {
-        if (error.code === 'PGRST116') {
-           console.log('Profile not found for:', userId);
-        } else {
-           console.error('Fetch profile error:', error);
-        }
-        setLoading(false);
+        if (error.code !== 'PGRST116') console.error('Fetch profil error:', error);
         return null;
       }
-      
       setProfile(data);
-      setLoading(false);
       return data;
     } catch (err) {
-      console.error('Error fetching profile:', err);
-      setLoading(false);
+      console.error('Error mengambil profil:', err);
       return null;
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    const getSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          setUser(session.user);
-          await fetchProfile(session.user.id);
-        }
-      } catch (err) {
-        console.error('Session error:', err);
-      } finally {
+    // Safety timeout — jika Supabase tidak merespons
+    const timeout = setTimeout(() => setLoading(false), 3000);
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser(session.user);
+        fetchProfile(session.user.id);
+      } else {
         setLoading(false);
       }
-    };
+    }).catch(() => setLoading(false));
 
-    getSession();
-
-    // Safety timeout — if Supabase is not configured, resolve loading quickly
-    const timeout = setTimeout(() => {
-      setLoading(false);
-    }, 500);
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (session?.user) {
-          setUser(session.user);
-          // Jangan gunakan await di sini agar tidak memblokir event auth
-          fetchProfile(session.user.id);
-        } else {
-          setUser(null);
-          setProfile(null);
-          setLoading(false);
-        }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setProfile(null);
+        setLoading(false);
+        return;
       }
-    );
+      if (session?.user) {
+        setUser(session.user);
+        fetchProfile(session.user.id);
+      } else {
+        setLoading(false);
+      }
+    });
 
     return () => {
       subscription.unsubscribe();
       clearTimeout(timeout);
     };
-  }, []);
+  }, [fetchProfile]);
 
   const signUp = async (email, password, fullName) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: { full_name: fullName, role: 'user' }
-      }
+      options: { data: { full_name: fullName, role: 'user' } }
     });
-    if (error) throw error;
+    if (error) {
+      if (error.message?.includes('already registered')) throw new Error('Email sudah terdaftar. Silakan gunakan email lain atau masuk.');
+      if (error.message?.includes('Password')) throw new Error('Password terlalu lemah. Gunakan minimal 8 karakter.');
+      throw new Error(error.message || 'Gagal mendaftar. Coba lagi.');
+    }
     return data;
   };
 
   const signIn = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-    if (error) throw error;
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      if (error.message?.includes('Invalid login credentials')) throw new Error('Email atau password salah. Periksa kembali data Anda.');
+      if (error.message?.includes('Email not confirmed')) throw new Error('Email belum diverifikasi. Cek kotak masuk email Anda.');
+      if (error.message?.includes('Too many requests')) throw new Error('Terlalu banyak percobaan masuk. Tunggu beberapa menit.');
+      throw new Error(error.message || 'Gagal masuk. Coba lagi.');
+    }
     return data;
   };
 
   const signOut = async () => {
-    try {
-      await supabase.auth.signOut();
-    } catch (err) {
-      console.error('Error during signOut:', err);
-    } finally {
-      setUser(null);
-      setProfile(null);
-      // Clear persistence if any
-      localStorage.removeItem('sb-' + import.meta.env.VITE_SUPABASE_URL + '-auth-token');
-    }
+    setUser(null);
+    setProfile(null);
+    try { await supabase.auth.signOut(); } catch { /* silent */ }
   };
 
   const resetPassword = async (email) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-    if (error) throw error;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/Bilova-web/reset-password`
+    });
+    if (error) {
+      if (error.message?.includes('not found')) throw new Error('Email tidak ditemukan. Pastikan email sudah terdaftar.');
+      throw new Error(error.message || 'Gagal mengirim email reset password.');
+    }
   };
 
   const updateProfile = async (updates) => {
-    if (!user) return;
+    if (!user) throw new Error('Sesi tidak ditemukan. Silakan masuk kembali.');
     const { data, error } = await supabase
       .from('profiles')
-      .update(updates)
+      .update({ ...updates, updated_at: new Date().toISOString() })
       .eq('id', user.id)
       .select()
       .single();
-    if (error) throw error;
+    if (error) throw new Error('Gagal memperbarui profil: ' + error.message);
     setProfile(data);
     return data;
   };
 
+  const isAdmin = profile?.role?.toLowerCase() === 'admin' || profile?.role?.toLowerCase() === 'superadmin';
+  // Profile dianggap lengkap jika ada nama dan tanggal lahir (atau flag is_profile_complete)
+  const isProfileComplete = !!(profile?.is_profile_complete || (profile?.full_name && profile?.phone && profile?.gender));
+
   const value = {
-    user,
-    profile,
-    loading,
-    signUp,
-    signIn,
-    signOut,
-    resetPassword,
-    updateProfile,
-    fetchProfile,
-    isAdmin: profile?.role?.toLowerCase() === 'admin' || profile?.role?.toLowerCase() === 'superadmin',
-    isAuthenticated: !!user
+    user, profile, loading,
+    signUp, signIn, signOut, resetPassword, updateProfile, fetchProfile,
+    isAdmin, isAuthenticated: !!user, isProfileComplete,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -1,226 +1,256 @@
-import React, { useState, useEffect } from 'react';
-import { Pill, CheckCircle2, Calendar as CalendarIcon, Clock, Activity } from 'lucide-react';
-import { Button } from '../../components/UIComponents';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Pill, CheckCircle2, Clock, TrendingUp, Bell, Calendar, Lightbulb, AlertTriangle } from 'lucide-react';
+import { Button, SectionTitle, Alert } from '../../components/UIComponents';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
+import logoSrc from '../../assets/Bilova_Logo.png';
+
+const DAY_NAMES_SHORT = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
 const Beranda = () => {
-    const { profile } = useAuth();
-    const [medications, setMedications] = useState([]);
-    const [todayLogs, setTodayLogs] = useState([]);
-    const [takenIds, setTakenIds] = useState(new Set());
-    const [loadingMed, setLoadingMed] = useState(null);
+  const { profile } = useAuth();
+  const [medications, setMedications] = useState([]);
+  const [takenIds, setTakenIds] = useState(new Set());
+  const [loadingMed, setLoadingMed] = useState(null);
+  const [compliance, setCompliance] = useState(0);
+  const [takenToday, setTakenToday] = useState(0);
+  const [calendarDays, setCalendarDays] = useState([]);
+  const [tip, setTip] = useState(null);
+  const [error, setError] = useState('');
 
-    const today = new Date();
-    const dayNames = ['MIN', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'];
+  const today = new Date();
+  const firstName = profile?.full_name?.split(' ')[0] || 'Pengguna';
+  const hour = today.getHours();
+  const greeting = hour < 12 ? 'Selamat Pagi' : hour < 17 ? 'Selamat Siang' : 'Selamat Malam';
 
-    // Buat kalender mingguan dari hari ini
-    const getWeekDays = () => {
-        const startOfWeek = new Date(today);
-        startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday
-        return Array.from({ length: 7 }, (_, i) => {
-            const d = new Date(startOfWeek);
-            d.setDate(startOfWeek.getDate() + i);
-            const isToday = d.toDateString() === today.toDateString();
-            const isPast = d < today && !isToday;
-            return { day: dayNames[d.getDay()], date: d.getDate(), isToday, isPast, full: d };
-        });
-    };
+  // Build weekly calendar
+  useEffect(() => {
+    const start = new Date(today);
+    start.setDate(today.getDate() - ((today.getDay() + 6) % 7)); // Monday start
+    setCalendarDays(Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      return {
+        day: DAY_NAMES_SHORT[d.getDay()],
+        date: d.getDate(),
+        isToday: d.toDateString() === today.toDateString(),
+        isPast: d < today && d.toDateString() !== today.toDateString(),
+      };
+    }));
+  }, []);
 
-    const calendarDays = getWeekDays();
+  const fetchData = useCallback(async () => {
+    if (!profile?.id) return;
+    setError('');
+    const startOfDay = new Date(today);
+    startOfDay.setHours(0, 0, 0, 0);
+    try {
+      const [medRes, logRes, tipRes] = await Promise.all([
+        supabase.from('medications').select('*').eq('is_active', true).eq('user_id', profile.id).order('created_at'),
+        supabase.from('compliance_logs').select('medication_id').gte('taken_at', startOfDay.toISOString()).eq('status', 'taken').eq('user_id', profile.id),
+        supabase.from('daily_tips').select('*').eq('is_active', true).order('created_at', { ascending: false }).limit(1).single()
+      ]);
+      if (medRes.error && medRes.error.code !== 'PGRST116') throw new Error('Gagal memuat jadwal obat.');
+      if (medRes.data) setMedications(medRes.data);
+      if (logRes.data) {
+        const ids = new Set(logRes.data.map(l => l.medication_id));
+        setTakenIds(ids);
+        setTakenToday(ids.size);
+        const total = medRes.data?.length || 0;
+        setCompliance(total > 0 ? Math.round((ids.size / total) * 100) : 0);
+      }
+      if (tipRes.data) setTip(tipRes.data);
+    } catch (err) {
+      setError(err.message);
+    }
+  }, [profile?.id]);
 
-    useEffect(() => {
-        fetchMedications();
-        fetchTodayLogs();
-    }, []);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-    const fetchMedications = async () => {
-        try {
-            const { data } = await supabase
-                .from('medications')
-                .select('*')
-                .eq('is_active', true)
-                .order('created_at', { ascending: false });
-            if (data) setMedications(data);
-        } catch (err) {
-            console.error('Error fetching medications:', err);
-        }
-    };
+  const handleConfirmMed = async (medicationId) => {
+    if (!profile) return;
+    setLoadingMed(medicationId);
+    setError('');
+    try {
+      // Check if already logged today
+      const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0);
+      const { data: existing } = await supabase.from('compliance_logs')
+        .select('id').eq('medication_id', medicationId).eq('user_id', profile.id)
+        .gte('taken_at', startOfDay.toISOString()).limit(1);
+      if (existing?.length > 0) { setError('Anda sudah mengkonfirmasi obat ini hari ini.'); return; }
 
-    const fetchTodayLogs = async () => {
-        try {
-            const startOfDay = new Date(today);
-            startOfDay.setHours(0, 0, 0, 0);
-            const { data } = await supabase
-                .from('compliance_logs')
-                .select('*')
-                .gte('taken_at', startOfDay.toISOString())
-                .eq('status', 'taken');
-            if (data) {
-                setTodayLogs(data);
-                setTakenIds(new Set(data.map(l => l.medication_id)));
-            }
-        } catch (err) {
-            console.error('Error fetching today logs:', err);
-        }
-    };
+      const { error: insertErr } = await supabase.from('compliance_logs').insert({
+        user_id: profile.id, medication_id: medicationId,
+        taken_at: new Date().toISOString(), status: 'taken'
+      });
+      if (insertErr) throw new Error('Gagal menyimpan konfirmasi: ' + insertErr.message);
 
-    const handleConfirmMed = async (medicationId) => {
-        if (!profile) return;
-        setLoadingMed(medicationId);
-        try {
-            const { error } = await supabase.from('compliance_logs').insert({
-                user_id: profile.id,
-                medication_id: medicationId,
-                taken_at: new Date().toISOString(),
-                status: 'taken'
-            });
-            if (error) throw error;
+      const med = medications.find(m => m.id === medicationId);
+      if (med?.remaining_tablets > 0) {
+        await supabase.from('medications').update({ remaining_tablets: med.remaining_tablets - 1 }).eq('id', medicationId);
+      }
+      await fetchData();
+    } catch (err) { setError(err.message); } finally { setLoadingMed(null); }
+  };
 
-            // Kurangi sisa tablet
-            const med = medications.find(m => m.id === medicationId);
-            if (med && med.remaining_tablets > 0) {
-                const { error: updateError } = await supabase
-                    .from('medications')
-                    .update({ remaining_tablets: med.remaining_tablets - 1 })
-                    .eq('id', medicationId)
-                    .eq('user_id', profile.id); // Guard tambahan
-                
-                if (updateError) console.error('Gagal update sisa tablet:', updateError);
-            }
+  const complianceColor = compliance >= 80 ? '#8B2C8C' : compliance >= 50 ? '#D97706' : '#DC2626';
+  const complianceLabel = compliance >= 80 ? 'Kepatuhan Sangat Baik! 🌟' : compliance >= 50 ? 'Cukup Patuh 👍' : 'Perlu Ditingkatkan ⚠️';
 
-            setTakenIds(prev => new Set([...prev, medicationId]));
-            fetchMedications();
-            fetchTodayLogs(); // Refresh logs juga
-        } catch (err) {
-            console.error('Error confirming medication:', err);
-            alert('Gagal mengonfirmasi minum obat. Silakan coba lagi.');
-        } finally {
-            setLoadingMed(null);
-        }
-    };
-
-    // Hitung kepatuhan
-    const totalDoses = medications.length * 7; // simplifikasi
-    const takenDoses = todayLogs.length;
-    const compliancePercent = totalDoses > 0 ? Math.round((takenDoses / Math.max(medications.length, 1)) * 100) : 0;
-
-    const firstName = profile?.full_name?.split(' ')[0] || 'Pengguna';
-
-    return (
-        <div className="pb-24">
-            {/* Header dengan Logo — hanya di Beranda */}
-            <div className="flex items-center justify-between py-4 px-6 sticky top-0 z-10 bg-slate-50/80 backdrop-blur-sm">
-                <div className="flex items-center gap-2">
-                    <Activity size={22} className="text-[#138476]" />
-                    <h1 className="text-lg font-bold text-[#138476] uppercase tracking-wide">BILOVA</h1>
-                </div>
-                <div />
+  return (
+    <div className="min-h-full">
+      {/* Header */}
+      <div className="sticky top-0 z-20 bg-[#FCF7FF]/95 backdrop-blur-md border-b border-[#EDD9F5] px-5 py-3.5 flex items-center justify-between">
+        <img src={logoSrc} alt="BiLova" className="h-9 w-auto object-contain" />
+        <div className="flex items-center gap-2">
+          {medications.length > 0 && (
+            <div className="relative">
+              <Bell size={20} className="text-[#8B2C8C]" />
+              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#C85CA0] rounded-full text-[8px] text-white font-black flex items-center justify-center">
+                {medications.length - takenToday}
+              </span>
             </div>
-
-            <div className="px-6 mt-2 mb-6">
-                <p className="text-slate-600 font-medium text-lg">Halo, {firstName} 👋</p>
-                <h2 className="text-2xl font-extrabold text-slate-800">Kesehatan Anda Hari Ini</h2>
-            </div>
-
-            {/* Daftar Obat */}
-            {medications.length > 0 ? medications.map((med) => {
-                const isTaken = takenIds.has(med.id);
-                return (
-                    <div key={med.id} className="px-6 mb-4">
-                        <div className="bg-white rounded-[2rem] p-6 shadow-md shadow-slate-200/50 border border-slate-100 relative overflow-hidden">
-                            <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <span className="bg-[#DFF0EE] text-[#138476] text-xs font-extrabold px-3 py-1 rounded-full uppercase">
-                                        {isTaken ? '✓ Sudah Diminum' : 'Dosis Berikutnya'}
-                                    </span>
-                                    <h3 className="text-xl font-extrabold text-slate-800 mt-3 mb-1">{med.name} {med.dosage}</h3>
-                                    <div className="flex items-center gap-2 text-slate-600 font-medium text-sm">
-                                        <Clock size={14} />
-                                        <span>{med.frequency}</span>
-                                    </div>
-                                </div>
-                                <div className="bg-slate-100 p-3 rounded-2xl">
-                                    <Pill size={24} className="text-[#138476]" />
-                                </div>
-                            </div>
-                            <div className="bg-slate-50 rounded-2xl p-3 flex justify-between mb-4 border border-slate-100">
-                                <div>
-                                    <p className="text-xs font-bold text-slate-500 uppercase mb-1">Instruksi</p>
-                                    <p className="font-semibold text-slate-800 text-sm">{med.instruction || '-'}</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-xs font-bold text-slate-500 uppercase mb-1">Sisa</p>
-                                    <p className="font-semibold text-[#138476] text-sm">{med.remaining_tablets} Tablet</p>
-                                </div>
-                            </div>
-                            <Button
-                                onClick={() => handleConfirmMed(med.id)}
-                                variant={isTaken ? "secondary" : "primary"}
-                                disabled={isTaken || loadingMed === med.id}
-                                className={isTaken ? "!bg-slate-100 !text-slate-500 !shadow-none" : ""}
-                            >
-                                {loadingMed === med.id ? 'Menyimpan...' : isTaken ? 'Sudah Diminum ✓' : <><CheckCircle2 size={20} /> Konfirmasi Minum</>}
-                            </Button>
-                        </div>
-                    </div>
-                );
-            }) : (
-                <div className="px-6 mb-6">
-                    <div className="bg-white rounded-[2rem] p-8 shadow-md border border-slate-100 text-center">
-                        <Pill size={40} className="text-slate-300 mx-auto mb-3" />
-                        <h3 className="font-bold text-slate-600 mb-1">Belum Ada Obat</h3>
-                        <p className="text-sm text-slate-400">Resep obat akan muncul di sini setelah ditambahkan oleh admin.</p>
-                    </div>
-                </div>
-            )}
-
-            {/* Kalender Mingguan */}
-            <div className="px-6 mb-8 mt-4">
-                <div className="flex justify-between items-end mb-4">
-                    <h3 className="font-bold text-lg text-slate-800">Kalender Mingguan</h3>
-                    <span className="text-sm font-semibold text-[#138476]">
-                        {today.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
-                    </span>
-                </div>
-                <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
-                    {calendarDays.map((item, idx) => (
-                        <div key={idx} className={`flex-shrink-0 w-16 h-24 rounded-full flex flex-col items-center justify-center gap-1 border-2 transition-all ${
-                            item.isToday ? 'bg-[#138476] border-[#138476] shadow-lg shadow-teal-500/30' :
-                            item.isPast ? 'bg-[#DFF0EE] border-[#DFF0EE]' :
-                            'bg-slate-50 border-slate-100'
-                        }`}>
-                            <span className={`text-xs font-bold ${item.isToday ? 'text-teal-100' : 'text-slate-500'}`}>{item.day}</span>
-                            <span className={`text-xl font-extrabold ${item.isToday ? 'text-white' : 'text-slate-800'}`}>{item.date}</span>
-                            <div className="mt-1 h-5 flex items-center justify-center">
-                                {item.isPast && <CheckCircle2 size={16} className="text-[#138476]" />}
-                                {item.isToday && <div className="w-2 h-2 rounded-full bg-white" />}
-                                {!item.isPast && !item.isToday && <div className="w-2 h-2 rounded-full bg-slate-300" />}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Kartu Kepatuhan */}
-            <div className="px-6 space-y-4">
-                <div className="bg-[#DFF0EE] rounded-3xl p-5 flex items-center justify-between relative overflow-hidden">
-                    <div className="z-10 w-2/3">
-                        <h4 className="font-bold text-slate-800 text-lg mb-1">
-                            {compliancePercent >= 80 ? 'Kepatuhan Sangat Baik!' :
-                             compliancePercent >= 50 ? 'Kepatuhan Cukup Baik' : 'Ayo Tingkatkan Kepatuhan!'}
-                        </h4>
-                        <p className="text-sm text-slate-600 font-medium">
-                            Anda telah meminum {takenDoses} dosis hari ini. Pertahankan!
-                        </p>
-                    </div>
-                    <div className="z-10 w-16 h-16 bg-[#138476] rounded-full flex items-center justify-center shadow-lg text-white font-bold text-xl">
-                        {Math.min(compliancePercent, 100)}%
-                    </div>
-                </div>
-            </div>
+          )}
         </div>
-    );
+      </div>
+
+      <div className="px-5 pt-4 pb-24 lg:pb-8 space-y-5">
+        {/* Greeting */}
+        <div>
+          <p className="text-sm text-[#B090C0] font-bold">{greeting}, {firstName} 👋</p>
+          <h1 className="text-xl font-black text-[#2D1B3D]">Kesehatan Anda Hari Ini</h1>
+        </div>
+
+        {error && <Alert type="error" message={error} />}
+
+        {/* Compliance Card */}
+        <div className="bg-gradient-to-br from-[#8B2C8C] to-[#C85CA0] rounded-3xl p-5 text-white relative overflow-hidden shadow-bilova">
+          <div className="absolute -right-8 -top-8 w-36 h-36 bg-white/10 rounded-full" />
+          <div className="absolute right-4 bottom-4 w-16 h-16 bg-white/5 rounded-full" />
+          {/* Decorative pill shapes */}
+          <div className="absolute top-3 right-12 opacity-20 rotate-[30deg]">
+            <div className="w-8 h-4 bg-white rounded-full" />
+          </div>
+          <div className="relative z-10 flex justify-between items-center">
+            <div>
+              <p className="text-white/70 text-xs font-bold uppercase tracking-wider mb-1">Kepatuhan Hari Ini</p>
+              <p className="text-5xl font-black">{compliance}%</p>
+              <p className="text-white/80 text-sm mt-1">{takenToday} dari {medications.length} dosis diminum</p>
+              <p className="text-[#EDD9F5] text-xs font-bold mt-1">{complianceLabel}</p>
+            </div>
+            <div className="w-16 h-16 rounded-full bg-white/15 flex items-center justify-center">
+              <TrendingUp size={28} />
+            </div>
+          </div>
+        </div>
+
+        {/* Weekly calendar */}
+        <div>
+          <div className="flex justify-between items-center mb-3">
+            <SectionTitle><Calendar size={14} className="inline mr-1" />Minggu Ini</SectionTitle>
+            <span className="text-xs font-bold text-[#B090C0]">
+              {today.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+            </span>
+          </div>
+          <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+            {calendarDays.map((d, i) => (
+              <div key={i} className={`flex-shrink-0 w-12 h-16 rounded-2xl flex flex-col items-center justify-center gap-0.5 border-2 transition-all ${
+                d.isToday ? 'bg-[#8B2C8C] border-[#8B2C8C] shadow-bilova-sm' :
+                d.isPast ? 'bg-[#EDD9F5] border-[#D4A8E0]' : 'bg-white border-[#EDD9F5]'
+              }`}>
+                <span className={`text-[9px] font-black ${d.isToday ? 'text-[#EDD9F5]' : 'text-[#B090C0]'}`}>{d.day}</span>
+                <span className={`text-base font-black ${d.isToday ? 'text-white' : 'text-[#2D1B3D]'}`}>{d.date}</span>
+                <div className="h-2 flex items-center">
+                  {d.isPast && <CheckCircle2 size={10} className="text-[#8B2C8C]" />}
+                  {d.isToday && <div className="w-1.5 h-1.5 rounded-full bg-[#EDD9F5]" />}
+                  {!d.isPast && !d.isToday && <div className="w-1.5 h-1.5 rounded-full bg-[#EDD9F5]" />}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Medication schedule */}
+        <div>
+          <SectionTitle><Pill size={14} className="inline mr-1" />Jadwal Obat</SectionTitle>
+          {medications.length > 0 ? medications.map(med => {
+            const taken = takenIds.has(med.id);
+            const lowStock = med.remaining_tablets <= 5;
+            return (
+              <div key={med.id} className={`mb-3 bg-white rounded-3xl p-5 border-2 shadow-card transition-all ${taken ? 'border-[#EDD9F5] opacity-80' : 'border-[#EDD9F5] shadow-bilova-sm'}`}>
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wide ${taken ? 'bg-[#EDD9F5] text-[#8B2C8C]' : 'bg-[#8B2C8C] text-white'}`}>
+                        {taken ? '✓ Sudah Diminum' : 'Dosis Berikutnya'}
+                      </span>
+                      {lowStock && !taken && (
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 flex items-center gap-1">
+                          <AlertTriangle size={8} /> Stok Menipis
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="text-lg font-black text-[#2D1B3D]">{med.name} <span className="text-[#8B2C8C]">{med.dosage}</span></h3>
+                    <div className="flex items-center gap-1 text-[#B090C0] text-xs mt-0.5">
+                      <Clock size={11} /> <span>{med.frequency}</span>
+                      {med.schedule_times?.length > 0 && <span>· {med.schedule_times.join(', ')}</span>}
+                    </div>
+                  </div>
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${taken ? 'bg-[#EDD9F5]' : 'bg-[#8B2C8C]'}`}>
+                    {/* Pill capsule icon */}
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <rect x="2" y="9" width="20" height="6" rx="3" fill={taken ? '#8B2C8C' : 'white'} opacity="0.3"/>
+                      <rect x="2" y="9" width="10" height="6" rx="3" fill={taken ? '#8B2C8C' : 'white'} opacity="0.6"/>
+                      <line x1="12" y1="10" x2="12" y2="14" stroke={taken ? '#8B2C8C' : 'white'} strokeWidth="1.5" opacity="0.8"/>
+                    </svg>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 bg-[#FCF7FF] rounded-2xl p-3 mb-3 border border-[#EDD9F5]">
+                  <div>
+                    <p className="text-[10px] font-black text-[#B090C0] uppercase mb-0.5">Instruksi</p>
+                    <p className="font-bold text-[#2D1B3D] text-sm">{med.instruction || 'Lihat kemasan'}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-black text-[#B090C0] uppercase mb-0.5">Sisa Tablet</p>
+                    <p className={`font-black text-sm ${lowStock ? 'text-amber-600' : 'text-[#8B2C8C]'}`}>{med.remaining_tablets} Tablet</p>
+                  </div>
+                </div>
+                <Button onClick={() => handleConfirmMed(med.id)} variant={taken ? 'secondary' : 'primary'} disabled={taken || loadingMed === med.id}>
+                  {loadingMed === med.id
+                    ? <><span className="w-4 h-4 border-2 border-[#EDD9F5] border-t-[#8B2C8C] rounded-full animate-spin" />Menyimpan...</>
+                    : taken ? '✓ Sudah Dikonfirmasi' : <><CheckCircle2 size={16} />Konfirmasi Minum</>
+                  }
+                </Button>
+              </div>
+            );
+          }) : (
+            <div className="bg-white rounded-3xl p-8 border border-[#EDD9F5] text-center shadow-card">
+              <div className="text-5xl mb-3">💊</div>
+              <p className="font-bold text-[#6B4B7B] mb-1">Belum Ada Resep Obat</p>
+              <p className="text-sm text-[#B090C0]">Obat akan muncul setelah dokter/admin menginputkan resep Anda.</p>
+            </div>
+          )}
+        </div>
+
+        {/* Daily tip (from admin) */}
+        {tip && (
+          <div className="bg-white rounded-3xl p-5 border border-[#EDD9F5] shadow-card relative overflow-hidden">
+            <div className="absolute -right-4 -bottom-4 opacity-10">
+              <Lightbulb size={80} className="text-[#8B2C8C]" />
+            </div>
+            <div className="flex items-start gap-3 relative z-10">
+              <div className="w-10 h-10 rounded-2xl bg-[#EDD9F5] flex items-center justify-center shrink-0">
+                <Lightbulb size={20} className="text-[#8B2C8C]" />
+              </div>
+              <div>
+                <p className="text-xs font-black text-[#8B2C8C] uppercase tracking-wider mb-1">Tips Hari Ini</p>
+                <p className="text-sm text-[#6B4B7B] font-semibold leading-relaxed">{tip.content}</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default Beranda;
