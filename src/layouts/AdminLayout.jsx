@@ -63,23 +63,20 @@ const AdminLayout = () => {
         ))}
       </nav>
 
-      {/* Back to user panel */}
-      <div className="px-3 pb-2">
-        <button onClick={() => { setSidebarOpen(false); navigate('/'); }}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm text-[#C85CA0] hover:bg-[#EDD9F5] transition-all">
-          <ArrowLeftCircle size={16} /> Kembali ke Panel User
-        </button>
-      </div>
-
-      {/* User profile + logout */}
+      {/* User profile + Switch & logout (pinned to bottom) */}
       <div className="px-3 pb-5 border-t border-[#EDD9F5] pt-3 space-y-2">
-        <div className="flex items-center gap-3 px-3">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#8B2C8C] to-[#C85CA0] flex items-center justify-center text-white font-black text-xs">
+        <button onClick={() => { setSidebarOpen(false); navigate('/'); }}
+          className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-gradient-to-r from-[#8B2C8C] to-[#C85CA0] text-white font-bold text-sm shadow-bilova-sm hover:opacity-90 transition">
+          <div className="flex items-center gap-2"><ArrowLeftCircle size={16} /> Panel Pengguna</div>
+        </button>
+
+        <div className="flex items-center gap-3 px-3 py-2">
+          <div className="w-9 h-9 rounded-full bg-[#EDD9F5] flex items-center justify-center text-[#8B2C8C] font-black text-xs">
             {initials}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-black text-[#2D1B3D] truncate">{profile?.full_name || 'Administrator'}</p>
-            <p className="text-[10px] text-[#8B2C8C] font-bold uppercase tracking-wide">Admin</p>
+            <p className="text-[10px] text-[#B090C0] font-bold uppercase tracking-wide">Admin</p>
           </div>
         </div>
         <button onClick={() => setShowLogoutModal(true)}

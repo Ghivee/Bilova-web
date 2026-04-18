@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { Alert, Modal, Button } from '../../components/UIComponents';
 
-const emptyQ = { question: '', options: ['', '', '', ''], correct: 0, explanation: '' };
+const emptyQ = { question: '', options: ['', '', '', ''], correct: 0, explanation: '', folder_name: 'Kuis Umum' };
 
 const AdminKuis = () => {
   const { profile } = useAuth();
@@ -32,7 +32,8 @@ const AdminKuis = () => {
       question: q.question,
       options: Array.isArray(q.options) ? q.options : ['', '', '', ''],
       correct: q.correct || 0,
-      explanation: q.explanation || ''
+      explanation: q.explanation || '',
+      folder_name: q.folder_name || 'Kuis Umum'
     } : { ...emptyQ });
     setError('');
     setShowForm(true);
@@ -49,7 +50,15 @@ const AdminKuis = () => {
     if (form.correct < 0 || form.correct >= form.options.length) { setError('Pilihan kunci jawaban tidak valid.'); return; }
     setSaving(true); setError('');
     try {
-      const payload = { question: form.question.trim(), options: form.options, correct: form.correct, explanation: form.explanation || '', author_id: profile?.id, is_active: true };
+      const payload = { 
+        folder_name: form.folder_name.trim() || 'Kuis Umum',
+        question: form.question.trim(), 
+        options: form.options, 
+        correct: form.correct, 
+        explanation: form.explanation || '', 
+        author_id: profile?.id, 
+        is_active: true 
+      };
       const { error: err } = editId
         ? await supabase.from('quiz_questions').update(payload).eq('id', editId)
         : await supabase.from('quiz_questions').insert(payload);
@@ -101,6 +110,13 @@ const AdminKuis = () => {
           </div>
 
           <div className="space-y-4">
+            <div>
+              <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-1.5 block">Folder / Judul Kuis</label>
+              <input value={form.folder_name} onChange={e => setForm(p => ({ ...p, folder_name: e.target.value }))}
+                placeholder="Misal: Kuis Dasar 1, Minggu 1, dll..."
+                className="w-full bg-white border-2 border-[#EDD9F5] rounded-xl px-4 py-3 text-[#2D1B3D] font-bold text-sm focus:outline-none focus:border-[#8B2C8C] shadow-sm mb-2" />
+            </div>
+
             <div>
               <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-1.5 block">Pertanyaan *</label>
               <textarea value={form.question} onChange={e => setForm(p => ({ ...p, question: e.target.value }))}
@@ -156,6 +172,9 @@ const AdminKuis = () => {
         </div>
       ) : questions.map((q, idx) => (
         <div key={q.id} className={`bg-white rounded-2xl p-5 mb-3 border-2 ${q.is_active ? 'border-[#EDD9F5]' : 'border-slate-100 opacity-70'}`}>
+          <div className="mb-3">
+             <span className="text-[10px] font-black uppercase tracking-widest text-[#B090C0] bg-[#FCF7FF] px-2 py-1 rounded-md border border-[#EDD9F5]">{q.folder_name || 'Kuis Umum'}</span>
+          </div>
           <div className="flex items-start justify-between gap-4 mb-3">
             <div className="flex items-start gap-3">
               <span className="w-7 h-7 rounded-xl bg-[#EDD9F5] text-[#8B2C8C] font-black text-xs flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>

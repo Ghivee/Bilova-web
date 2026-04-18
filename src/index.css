@@ -47,6 +47,7 @@ body {
   display: flex;
   align-items: stretch;
   background: linear-gradient(135deg, #6B1B6C 0%, #8B2C8C 40%, #C85CA0 100%);
+  font-family: 'Nunito', -apple-system, sans-serif;
 }
 /* Mobile: full screen card */
 .auth-card {

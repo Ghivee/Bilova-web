@@ -1,19 +1,7 @@
 import React from 'react';
-
-/* ─── BiLova Official Logo (from Bilova_Logo.png in assets) ─── */
-export const BiLovaLogo = ({ size = 48, className = '' }) => (
-  <img
-    src="/Bilova-web/src/assets/Bilova_Logo.png"
-    alt="BiLova Logo"
-    width={size}
-    height={size}
-    className={`object-contain ${className}`}
-    style={{ maxWidth: size, maxHeight: size }}
-  />
-);
-
-/* Dynamic import so Vite bundles the asset properly */
 import logoSrc from '../assets/Bilova_Logo.png';
+
+/* ─── BiLova Official Logo ─── */
 export const BiLovaLogoImg = ({ size = 48, className = '' }) => (
   <img src={logoSrc} alt="BiLova" width={size} height={size}
     className={`object-contain ${className}`}
@@ -30,7 +18,7 @@ export const PillShape = ({ color = '#8B2C8C', className = '' }) => (
   </svg>
 );
 
-/* ─── Floating decoration pills for auth screens ─── */
+/* ─── Floating pills decoration for auth screens ─── */
 export const FloatingPills = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
     <div className="absolute top-[8%] left-[12%] rotate-[25deg] opacity-30">
@@ -68,8 +56,8 @@ export const CircularProgress = ({ percentage, size = 100, strokeWidth = 8, colo
   return (
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
       <svg className="transform -rotate-90" width={size} height={size}>
-        <circle cx={size/2} cy={size/2} r={r} stroke="#EDD9F5" strokeWidth={strokeWidth} fill="transparent" />
-        <circle cx={size/2} cy={size/2} r={r} stroke={color} strokeWidth={strokeWidth} fill="transparent"
+        <circle cx={size / 2} cy={size / 2} r={r} stroke="#EDD9F5" strokeWidth={strokeWidth} fill="transparent" />
+        <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={strokeWidth} fill="transparent"
           strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
           style={{ transition: 'stroke-dashoffset 0.8s ease' }}
         />
@@ -115,7 +103,9 @@ export const Header = ({ title, showBack, onBack, rightElement }) => (
     <div className="flex items-center gap-3">
       {showBack && (
         <button onClick={onBack} className="w-9 h-9 rounded-full bg-[#EDD9F5] flex items-center justify-center hover:bg-[#D4A8E0] transition">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B2C8C" strokeWidth="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B2C8C" strokeWidth="2.5">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
         </button>
       )}
       <h1 className="text-sm font-black text-[#8B2C8C] uppercase tracking-widest">{title}</h1>
@@ -127,7 +117,7 @@ export const Header = ({ title, showBack, onBack, rightElement }) => (
 /* ─── Spinner ─── */
 export const Spinner = ({ size = 'md' }) => {
   const sz = { sm: 'w-4 h-4', md: 'w-8 h-8', lg: 'w-12 h-12' };
-  return <div className={`${sz[size]} border-3 border-[#EDD9F5] border-t-[#8B2C8C] rounded-full animate-spin`} style={{ borderWidth: 3 }} />;
+  return <div className={`${sz[size]} rounded-full animate-spin border-[#EDD9F5] border-t-[#8B2C8C]`} style={{ borderWidth: 3, borderStyle: 'solid' }} />;
 };
 
 /* ─── Modal ─── */
@@ -147,7 +137,7 @@ export const Modal = ({ isOpen, onClose, title, children, footer }) => {
   );
 };
 
-/* ─── Alert/Toast ─── */
+/* ─── Alert ─── */
 export const Alert = ({ type = 'error', message }) => {
   if (!message) return null;
   const styles = {
@@ -156,11 +146,10 @@ export const Alert = ({ type = 'error', message }) => {
     warning: 'bg-amber-50 border-amber-200 text-amber-800',
     info: 'bg-blue-50 border-blue-200 text-blue-700',
   };
+  const icons = { error: '⚠️', success: '✅', warning: '⚠️', info: 'ℹ️' };
   return (
     <div className={`border rounded-2xl px-4 py-3 text-sm font-semibold flex items-start gap-2 ${styles[type]}`}>
-      <span className="mt-0.5 shrink-0">
-        {type === 'error' ? '⚠️' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️'}
-      </span>
+      <span className="mt-0.5 shrink-0">{icons[type]}</span>
       {message}
     </div>
   );
@@ -175,7 +164,11 @@ export const Badge = ({ children, color = 'purple', className = '' }) => {
     amber: 'bg-amber-100 text-amber-700',
     slate: 'bg-slate-100 text-slate-600',
   };
-  return <span className={`px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wide ${c[color]} ${className}`}>{children}</span>;
+  return (
+    <span className={`px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wide ${c[color] || c.purple} ${className}`}>
+      {children}
+    </span>
+  );
 };
 
 /* ─── Section Title ─── */
