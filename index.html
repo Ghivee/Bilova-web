@@ -5,10 +5,22 @@
     <link rel="icon" type="image/svg+xml" href="/Bilova-web/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="BILOVA - Pengingat Antibiotik Cerdas. Asisten pintar untuk mengelola jadwal minum antibiotik Anda dengan aman dan tepat waktu." />
-    <meta name="theme-color" content="#51227d" />
+    <meta name="theme-color" content="#8B2C8C" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>BiLova - Pengingat Antibiotik Cerdas</title>
+    <script>
+      // GitHub Pages SPA routing fix — restore path from query string
+      (function() {
+        var redirect = window.location.search;
+        if (redirect.startsWith('?path=')) {
+          var path = decodeURIComponent(redirect.slice(6));
+          window.history.replaceState(null, null,
+            window.location.pathname.replace(/\/$/, '') + '/' + path
+          );
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

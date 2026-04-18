@@ -63,17 +63,17 @@ const Edukasi = () => {
     const isCorrect = idx === quizQuestions[quizStep].correct;
     const newAnswers = [...answers, { questionIdx: quizStep, selected: idx, correct: isCorrect }];
     setAnswers(newAnswers);
+  };
 
-    setTimeout(() => {
-      if (quizStep < quizQuestions.length - 1) {
-        setQuizStep(quizStep + 1);
-        setSelected(null);
-      } else {
-        // Quiz finished
-        const score = newAnswers.filter(a => a.correct).length;
-        setQuizResult({ answered: true, score, total: quizQuestions.length });
-      }
-    }, 1200);
+  const nextQuestion = () => {
+    if (quizStep < quizQuestions.length - 1) {
+      setQuizStep(quizStep + 1);
+      setSelected(null);
+    } else {
+      // Quiz finished
+      const score = answers.filter(a => a.correct).length;
+      setQuizResult({ answered: true, score, total: quizQuestions.length });
+    }
   };
 
   if (loading) return (
@@ -167,10 +167,20 @@ const Edukasi = () => {
             );
           })}
         </div>
+        
         {selected !== null && q.explanation && (
-          <div className="mt-4 bg-[#EDD9F5]/50 rounded-2xl p-4 border border-[#EDD9F5] text-sm">
+          <div className="mt-4 bg-[#EDD9F5]/50 rounded-2xl p-4 border border-[#EDD9F5] text-sm animate-in fade-in slide-in-from-bottom-2">
             <p className="text-xs font-black text-[#8B2C8C] mb-1">💡 Penjelasan</p>
             <p className="text-[#6B4B7B] font-semibold">{q.explanation}</p>
+          </div>
+        )}
+
+        {selected !== null && (
+          <div className="mt-6 flex justify-end">
+            <Button onClick={nextQuestion}>
+              {quizStep < quizQuestions.length - 1 ? 'Lanjut ke Soal Berikutnya' : 'Selesai & Lihat Hasil'}
+              <ChevronRight size={18} />
+            </Button>
           </div>
         )}
       </div>
@@ -198,13 +208,15 @@ const Edukasi = () => {
         </div>
 
         {/* Category filter */}
-        <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
-          {categories.map(c => (
-            <button key={c} onClick={() => setCurrentCat(c)}
-              className={`shrink-0 px-4 py-1.5 rounded-full font-bold text-xs transition-all ${currentCat === c ? 'bg-[#8B2C8C] text-white' : 'bg-white text-[#6B4B7B] border border-[#EDD9F5] hover:border-[#8B2C8C]'}`}>
-              {c === 'semua' ? 'Semua' : c.charAt(0).toUpperCase() + c.slice(1)}
-            </button>
-          ))}
+        <div className="relative w-full -mx-5 px-5">
+          <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-3 pr-5">
+            {categories.map(c => (
+              <button key={c} onClick={() => setCurrentCat(c)}
+                className={`flex-shrink-0 px-5 py-2 rounded-full font-bold text-sm transition-all ${currentCat === c ? 'bg-[#8B2C8C] text-white shadow-bilova-sm border border-[#8B2C8C]' : 'bg-white text-[#6B4B7B] border border-[#EDD9F5] hover:border-[#8B2C8C] hover:bg-[#EDD9F5]/30'}`}>
+                {c === 'semua' ? 'Semua Kategori' : c.charAt(0).toUpperCase() + c.slice(1)}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Articles */}

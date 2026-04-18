@@ -3,19 +3,19 @@ import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext(null);
 
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) throw new Error('useAuth harus digunakan dalam AuthProvider');
   return context;
-};
+}
 
-export const AuthProvider = ({ children }) => {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = useCallback(async (userId) => {
-    if (!userId) return null;
+    if (!userId) { setLoading(false); return null; }
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -24,6 +24,7 @@ export const AuthProvider = ({ children }) => {
         .single();
       if (error) {
         if (error.code !== 'PGRST116') console.error('Fetch profil error:', error);
+        setLoading(false);
         return null;
       }
       setProfile(data);
@@ -37,8 +38,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    // Safety timeout — jika Supabase tidak merespons
-    const timeout = setTimeout(() => setLoading(false), 3000);
+    // Safety timeout — jika Supabase tidak merespons dalam 5 detik
+    const timeout = setTimeout(() => setLoading(false), 5000);
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
@@ -56,11 +57,9 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
         return;
       }
-      if (session?.user) {
+      if (event === 'SIGNED_IN' && session?.user) {
         setUser(session.user);
         fetchProfile(session.user.id);
-      } else {
-        setLoading(false);
       }
     });
 
@@ -77,7 +76,9 @@ export const AuthProvider = ({ children }) => {
       options: { data: { full_name: fullName, role: 'user' } }
     });
     if (error) {
-      if (error.message?.includes('already registered')) throw new Error('Email sudah terdaftar. Silakan gunakan email lain atau masuk.');
+      if (error.message?.includes('already registered') || error.message?.includes('already been registered')) {
+        throw new Error('Email sudah terdaftar. Silakan gunakan email lain atau masuk.');
+      }
       if (error.message?.includes('Password')) throw new Error('Password terlalu lemah. Gunakan minimal 8 karakter.');
       throw new Error(error.message || 'Gagal mendaftar. Coba lagi.');
     }
@@ -87,9 +88,15 @@ export const AuthProvider = ({ children }) => {
   const signIn = async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      if (error.message?.includes('Invalid login credentials')) throw new Error('Email atau password salah. Periksa kembali data Anda.');
-      if (error.message?.includes('Email not confirmed')) throw new Error('Email belum diverifikasi. Cek kotak masuk email Anda.');
-      if (error.message?.includes('Too many requests')) throw new Error('Terlalu banyak percobaan masuk. Tunggu beberapa menit.');
+      if (error.message?.includes('Invalid login credentials')) {
+        throw new Error('Email atau password salah. Periksa kembali data Anda.');
+      }
+      if (error.message?.includes('Email not confirmed')) {
+        throw new Error('Email belum diverifikasi. Cek kotak masuk email Anda.');
+      }
+      if (error.message?.includes('Too many requests')) {
+        throw new Error('Terlalu banyak percobaan masuk. Tunggu beberapa menit lalu coba lagi.');
+      }
       throw new Error(error.message || 'Gagal masuk. Coba lagi.');
     }
     return data;
@@ -106,8 +113,10 @@ export const AuthProvider = ({ children }) => {
       redirectTo: `${window.location.origin}/Bilova-web/reset-password`
     });
     if (error) {
-      if (error.message?.includes('not found')) throw new Error('Email tidak ditemukan. Pastikan email sudah terdaftar.');
-      throw new Error(error.message || 'Gagal mengirim email reset password.');
+      if (error.message?.includes('not found')) {
+        throw new Error('Email tidak ditemukan. Pastikan email sudah terdaftar di BiLova.');
+      }
+      throw new Error(error.message || 'Gagal mengirim email reset password. Coba lagi.');
     }
   };
 
@@ -124,15 +133,30 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
-  const isAdmin = profile?.role?.toLowerCase() === 'admin' || profile?.role?.toLowerCase() === 'superadmin';
-  // Profile dianggap lengkap jika ada nama dan tanggal lahir (atau flag is_profile_complete)
-  const isProfileComplete = !!(profile?.is_profile_complete || (profile?.full_name && profile?.phone && profile?.gender));
+  const isAdmin = !!(
+    profile?.role?.toLowerCase() === 'admin' ||
+    profile?.role?.toLowerCase() === 'superadmin'
+  );
+
+  const isProfileComplete = !!(
+    profile?.is_profile_complete ||
+    (profile?.full_name && profile?.phone && profile?.gender)
+  );
 
   const value = {
-    user, profile, loading,
-    signUp, signIn, signOut, resetPassword, updateProfile, fetchProfile,
-    isAdmin, isAuthenticated: !!user, isProfileComplete,
+    user,
+    profile,
+    loading,
+    signUp,
+    signIn,
+    signOut,
+    resetPassword,
+    updateProfile,
+    fetchProfile,
+    isAdmin,
+    isAuthenticated: !!user,
+    isProfileComplete,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+}

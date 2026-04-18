@@ -8,7 +8,7 @@ import logoSrc from '../../assets/Bilova_Logo.png';
 
 /* ─── Desktop Left Panel ─── */
 const AuthLeftPanel = () => (
-  <div className="auth-left-panel hidden lg:flex">
+  <div className="auth-left-panel hidden lg:flex font-sans">
     {/* Pills floating background */}
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {[
@@ -27,26 +27,31 @@ const AuthLeftPanel = () => (
         </div>
       ))}
     </div>
-    <div className="relative z-10 text-white text-center max-w-md">
-      <img src={logoSrc} alt="BiLova" className="w-36 h-auto object-contain mx-auto mb-6 brightness-0 invert" />
-      <h1 className="text-4xl font-black mb-3 tracking-tight">Selamat Datang di<br />BiLova</h1>
-      <p className="text-white/80 text-base font-medium leading-relaxed mb-8">
+    <div className="relative z-10 text-white text-center max-w-md mt-10">
+      <img src={logoSrc} alt="BiLova" className="w-48 h-auto object-contain mx-auto mb-8 brightness-0 invert" />
+      <h1 className="text-4xl font-black mb-4 tracking-tight leading-tight">Selamat Datang di<br />BiLova</h1>
+      <p className="text-white/90 text-base font-semibold leading-relaxed mb-10 w-4/5 mx-auto">
         Asisten pintar pengingat antibiotik Anda.<br />
         Minum tepat waktu, sembuh sempurna.
       </p>
       {/* Feature highlights */}
-      <div className="space-y-3">
-        {[
-          { icon: '💊', text: 'Jadwal minum obat otomatis & pengingat' },
-          { icon: '📊', text: 'Pantau kepatuhan pengobatan harian' },
-          { icon: '🏥', text: 'Laporkan gejala langsung ke dokter' },
-          { icon: '📚', text: 'Edukasi resistansi antibiotik (AMR)' },
-        ].map(f => (
-          <div key={f.text} className="flex items-center gap-3 bg-white/10 rounded-2xl px-4 py-2.5 backdrop-blur-sm">
-            <span className="text-xl">{f.icon}</span>
-            <span className="text-sm font-semibold text-white/90">{f.text}</span>
-          </div>
-        ))}
+      <div className="space-y-4 w-full">
+        <div className="flex items-center gap-4 bg-white/10 hover:bg-white/20 transition-all rounded-2xl px-5 py-4 backdrop-blur-md border border-white/10 shadow-xl">
+          <div className="bg-white/20 p-2.5 rounded-xl"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg></div>
+          <span className="text-sm font-bold text-white tracking-wide text-left">Jadwal Minum Obat Otomatis & Pengingat</span>
+        </div>
+        <div className="flex items-center gap-4 bg-white/10 hover:bg-white/20 transition-all rounded-2xl px-5 py-4 backdrop-blur-md border border-white/10 shadow-xl">
+          <div className="bg-white/20 p-2.5 rounded-xl"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg></div>
+          <span className="text-sm font-bold text-white tracking-wide text-left">Pantau Kepatuhan Pengobatan Harian</span>
+        </div>
+        <div className="flex items-center gap-4 bg-white/10 hover:bg-white/20 transition-all rounded-2xl px-5 py-4 backdrop-blur-md border border-white/10 shadow-xl">
+          <div className="bg-white/20 p-2.5 rounded-xl"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg></div>
+          <span className="text-sm font-bold text-white tracking-wide text-left">Laporkan Gejala Langsung ke Dokter</span>
+        </div>
+        <div className="flex items-center gap-4 bg-white/10 hover:bg-white/20 transition-all rounded-2xl px-5 py-4 backdrop-blur-md border border-white/10 shadow-xl">
+          <div className="bg-white/20 p-2.5 rounded-xl"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg></div>
+          <span className="text-sm font-bold text-white tracking-wide text-left">Edukasi Resistansi Antibiotik (AMR)</span>
+        </div>
       </div>
     </div>
   </div>

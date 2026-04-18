@@ -37,7 +37,7 @@ const AdminDataPasien = () => {
 
   const selectPatient = async (p) => {
     setSelected(p);
-    setActiveTab('data');
+    setActiveTab('obat'); // Fitur utama: Resep Obat langsung terbuka
     setError('');
     try {
       const [medRes, logRes, sympRes] = await Promise.all([
