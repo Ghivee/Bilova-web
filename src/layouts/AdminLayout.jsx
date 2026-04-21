@@ -7,18 +7,17 @@ import {
 } from 'lucide-react';
 import { Modal, Button } from '../components/UIComponents';
 
-// NutriSea inline wordmark — no image file needed
+import logoSrc from '../assets/Nutrisea_Logo.PNG';
+
+// NutriSea Logo integration
 const NutriSeaLogo = ({ className = '' }) => (
-  <div className={`flex items-center gap-2 ${className}`}>
-    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-600 to-cyan-400 flex items-center justify-center shadow-sm">
-      <span className="text-white font-black text-sm">N</span>
-    </div>
-    <div className="leading-none">
-      <p className="font-black text-sky-700 text-base tracking-tight">NutriSea</p>
-      <p className="font-bold text-slate-400 text-[9px] uppercase tracking-widest">Posyandu</p>
-    </div>
-  </div>
+  <img 
+    src={logoSrc} 
+    alt="NutriSea" 
+    className={`h-10 w-auto object-contain ${className}`} 
+  />
 );
+
 
 const sidebarLinks = [
   { to: '/admin', icon: LayoutDashboard, label: 'Overview', end: true },

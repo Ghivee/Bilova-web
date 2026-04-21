@@ -3,17 +3,16 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { Home, LineChart, BookOpen, UserCircle2, Bot, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
+import logoSrc from '../assets/Nutrisea_Logo.PNG';
+
 const NutriSeaLogo = () => (
-  <div className="flex items-center gap-2">
-    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-600 to-cyan-400 flex items-center justify-center shadow-sm">
-      <span className="text-white font-black text-sm">N</span>
-    </div>
-    <div className="leading-none">
-      <p className="font-black text-sky-700 text-base tracking-tight">NutriSea</p>
-      <p className="font-bold text-slate-400 text-[9px] uppercase tracking-widest">Gizi Anak</p>
-    </div>
-  </div>
+  <img 
+    src={logoSrc} 
+    alt="NutriSea" 
+    className="h-10 w-auto object-contain" 
+  />
 );
+
 
 const navItems = [
   { to: '/', icon: Home, label: 'Beranda', end: true },

@@ -1,14 +1,14 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import logoSrc from '../assets/Nutrisea_Logo.PNG';
 
-// NutriSea loading screen — no external logo import needed
+// NutriSea loading screen
 const LoadingScreen = () => (
   <div className="h-dvh flex items-center justify-center bg-sky-50">
     <div className="flex flex-col items-center gap-4">
-      <div className="w-16 h-16 bg-gradient-to-br from-sky-600 to-cyan-400 rounded-3xl flex items-center justify-center shadow-nutrisea animate-pulse">
-        <span className="text-white font-black text-2xl">N</span>
-      </div>
+      <img src={logoSrc} alt="NutriSea" className="w-20 h-auto object-contain animate-pulse" />
+
       <div className="w-8 h-8 rounded-full animate-spin"
         style={{ border: '4px solid #e0f2fe', borderTopColor: '#0284c7' }} />
       <p className="text-sky-600 font-bold text-sm">Memuat NutriSea...</p>

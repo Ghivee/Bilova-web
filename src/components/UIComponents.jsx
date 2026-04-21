@@ -1,16 +1,18 @@
+import React from 'react';
+import logoSrc from '../assets/Nutrisea_Logo.PNG';
 
 /* ─── NutriSea Official Logo Mark ─── */
 export const NutriSeaLogoImg = ({ size = 48, className = '' }) => (
-  <div className={`flex items-center gap-2 ${className}`} style={{ width: 'auto' }}>
-    <div style={{ width: size, height: size }} className="rounded-xl bg-gradient-to-br from-sky-600 to-cyan-400 flex items-center justify-center shadow-sm shrink-0">
-      <span className="text-white font-black" style={{ fontSize: size * 0.4 }}>N</span>
-    </div>
-    <div className="leading-none">
-      <p className="font-black text-sky-700 tracking-tight" style={{ fontSize: size * 0.35 }}>NutriSea</p>
-      <p className="font-bold text-slate-400 uppercase tracking-widest" style={{ fontSize: size * 0.2 }}>Gizi Anak</p>
-    </div>
-  </div>
+  <img 
+    src={logoSrc} 
+    alt="NutriSea" 
+    width={size} 
+    height={size}
+    className={`object-contain ${className}`}
+    style={{ maxWidth: size, maxHeight: size }}
+  />
 );
+
 
 export const PillShape = ({ color = '#0284c7', className = '' }) => (
   <svg width="36" height="18" viewBox="0 0 36 18" fill="none" className={className}>

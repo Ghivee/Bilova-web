@@ -4,6 +4,7 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, Fish, Activity, BookOpen, Bot } fr
 import { Button, InputField, Alert } from '../../components/UIComponents';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
+import logoSrc from '../../assets/Nutrisea_Logo.PNG';
 
 /* ─── NutriSea desktop left panel ─── */
 const AuthLeftPanel = () => (
@@ -20,14 +21,9 @@ const AuthLeftPanel = () => (
     <div className="relative z-10 text-white text-center max-w-md mt-6">
       {/* Wordmark */}
       <div className="flex items-center gap-3 justify-center mb-8">
-        <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shadow-lg shrink-0">
-          <span className="text-white font-black text-xl">N</span>
-        </div>
-        <div className="leading-none text-left">
-          <p className="font-black text-white text-2xl tracking-tight">NutriSea</p>
-          <p className="font-bold text-white/70 text-xs uppercase tracking-widest">Gizi Anak Indonesia</p>
-        </div>
+        <img src={logoSrc} alt="NutriSea" className="h-20 w-auto object-contain brightness-0 invert" />
       </div>
+
       <h1 className="text-3xl font-black mb-3 tracking-tight leading-tight">
         Solusi Intervensi<br />Stunting Modern
       </h1>
