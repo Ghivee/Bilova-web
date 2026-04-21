@@ -1,18 +1,17 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { BiLovaLogoImg } from './UIComponents';
 
+// NutriSea loading screen — no external logo import needed
 const LoadingScreen = () => (
-  <div className="h-dvh flex items-center justify-center bg-[#FCF7FF]">
+  <div className="h-dvh flex items-center justify-center bg-sky-50">
     <div className="flex flex-col items-center gap-4">
-      <div className="w-16 h-16 bg-[#8B2C8C] rounded-3xl flex items-center justify-center"
-        style={{ boxShadow: '0 8px 32px rgba(139,44,140,0.35)' }}>
-        <BiLovaLogoImg size={36} className="brightness-0 invert" />
+      <div className="w-16 h-16 bg-gradient-to-br from-sky-600 to-cyan-400 rounded-3xl flex items-center justify-center shadow-nutrisea animate-pulse">
+        <span className="text-white font-black text-2xl">N</span>
       </div>
       <div className="w-8 h-8 rounded-full animate-spin"
-        style={{ border: '4px solid #EDD9F5', borderTopColor: '#8B2C8C' }} />
-      <p className="text-[#8B2C8C] font-bold text-sm">Memuat BiLova...</p>
+        style={{ border: '4px solid #e0f2fe', borderTopColor: '#0284c7' }} />
+      <p className="text-sky-600 font-bold text-sm">Memuat NutriSea...</p>
     </div>
   </div>
 );

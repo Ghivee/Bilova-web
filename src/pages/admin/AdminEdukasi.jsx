@@ -6,7 +6,7 @@ import { Alert, Modal, Button, Badge } from '../../components/UIComponents';
 
 const emptyArticle = { title: '', content: '', category: 'umum', is_published: true };
 const emptyTip = { content: '', is_active: true };
-const categories = ['umum', 'antibiotic', 'resistansi', 'efek-samping', 'nutrisi'];
+const categories = ['umum', 'stunting', 'nutrisi', 'tumbuh-kembang'];
 
 const AdminEdukasi = () => {
   const { profile } = useAuth();
@@ -101,27 +101,27 @@ const AdminEdukasi = () => {
 
   if (loading) return (
     <div className="flex items-center justify-center py-20">
-      <div className="w-10 h-10 border-4 border-[#EDD9F5] border-t-[#8B2C8C] rounded-full animate-spin" />
+      <div className="w-10 h-10 border-4 border-sky-100 border-t-sky-600 rounded-full animate-spin" />
     </div>
   );
 
   return (
     <div>
-      <div className="bg-gradient-to-br from-[#EDD9F5] to-[#D4A8E0]/40 rounded-2xl p-8 mb-6 border border-[#EDD9F5]">
-        <h3 className="text-3xl font-black text-[#8B2C8C] tracking-tight mb-1">Edukasi & Konten</h3>
-        <p className="text-[#6B4B7B] font-semibold text-sm">Kelola artikel edukasi dan tips harian untuk pengguna BiLova.</p>
+      <div className="bg-gradient-to-br from-sky-600 to-cyan-500 rounded-2xl p-8 mb-6 shadow-nutrisea text-white">
+        <h3 className="text-3xl font-black text-white tracking-tight mb-1">Edukasi & Konten</h3>
+        <p className="text-white/80 font-semibold text-sm">Kelola artikel edukasi dan tips harian untuk Bunda NutriSea.</p>
       </div>
 
       {error && <div className="mb-4"><Alert type="error" message={error} /></div>}
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-[#EDD9F5]/50 p-1 rounded-2xl mb-5 w-fit">
+      <div className="flex gap-1 bg-sky-50 p-1 rounded-2xl mb-5 w-fit">
         <button onClick={() => { setTab('articles'); setShowForm(false); setShowTipForm(false); }}
-          className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${tab === 'articles' ? 'bg-white text-[#8B2C8C] shadow-card' : 'text-[#B090C0]'}`}>
+          className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${tab === 'articles' ? 'bg-white text-sky-600 shadow-card' : 'text-slate-500 hover:text-sky-600'}`}>
           <BookOpen size={14} className="inline mr-1.5" />Artikel ({articles.length})
         </button>
         <button onClick={() => { setTab('tips'); setShowForm(false); setShowTipForm(false); }}
-          className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${tab === 'tips' ? 'bg-white text-[#8B2C8C] shadow-card' : 'text-[#B090C0]'}`}>
+          className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${tab === 'tips' ? 'bg-white text-sky-600 shadow-card' : 'text-slate-500 hover:text-sky-600'}`}>
           <Lightbulb size={14} className="inline mr-1.5" />Tips Harian ({tips.length})
         </button>
       </div>
@@ -130,69 +130,69 @@ const AdminEdukasi = () => {
       {tab === 'articles' && (
         <div>
           <div className="flex justify-end mb-4">
-            <button onClick={() => openArticleForm()} className="flex items-center gap-2 px-5 py-2.5 bg-[#8B2C8C] text-white rounded-xl font-bold text-sm hover:bg-[#6B1B6C] transition shadow-bilova-sm">
+            <button onClick={() => openArticleForm()} className="flex items-center gap-2 px-5 py-2.5 bg-sky-600 text-white rounded-xl font-bold text-sm hover:bg-sky-700 transition shadow-nutrisea-sm">
               <Plus size={14} /> Tambah Artikel
             </button>
           </div>
 
           {showForm && (
-            <form onSubmit={saveArticle} className="bg-[#EDD9F5]/30 rounded-2xl p-6 border border-[#EDD9F5] mb-5">
+            <form onSubmit={saveArticle} className="bg-sky-50/50 rounded-2xl p-6 border border-sky-100 mb-5">
               <div className="flex justify-between items-center mb-4">
-                <h4 className="font-black text-[#2D1B3D]">{editId ? 'Edit Artikel' : 'Artikel Baru'}</h4>
-                <button type="button" onClick={() => { setShowForm(false); setEditId(null); setError(''); }}><X size={18} className="text-[#B090C0]" /></button>
+                <h4 className="font-black text-slate-900">{editId ? 'Edit Artikel' : 'Artikel Baru'}</h4>
+                <button type="button" onClick={() => { setShowForm(false); setEditId(null); setError(''); }}><X size={18} className="text-slate-400 hover:text-red-500" /></button>
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-1.5 block">Judul *</label>
+                  <label className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1.5 block">Judul *</label>
                   <input name="title" value={form.title} onChange={handle} placeholder="Judul artikel..."
-                    className="w-full bg-white border-2 border-[#EDD9F5] rounded-xl px-4 py-3 text-[#2D1B3D] font-semibold text-sm focus:outline-none focus:border-[#8B2C8C]" />
+                    className="w-full bg-white border-2 border-sky-100 rounded-xl px-4 py-3 text-slate-900 font-semibold text-sm focus:outline-none focus:border-sky-600" />
                 </div>
                 <div>
-                  <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-1.5 block">Kategori</label>
+                  <label className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1.5 block">Kategori</label>
                   <select name="category" value={form.category} onChange={handle}
-                    className="w-full bg-white border-2 border-[#EDD9F5] rounded-xl px-4 py-3 text-[#2D1B3D] font-semibold text-sm focus:outline-none focus:border-[#8B2C8C]">
-                    {categories.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
+                    className="w-full bg-white border-2 border-sky-100 rounded-xl px-4 py-3 text-slate-900 font-semibold text-sm focus:outline-none focus:border-sky-600">
+                    {categories.map(c => <option key={c} value={c}>{c.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-1.5 block">Konten *</label>
+                  <label className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1.5 block">Konten *</label>
                   <textarea name="content" value={form.content} onChange={handle} rows={8} placeholder="Tulis konten artikel..."
-                    className="w-full bg-white border-2 border-[#EDD9F5] rounded-xl px-4 py-3 text-[#2D1B3D] font-semibold text-sm resize-none focus:outline-none focus:border-[#8B2C8C]" />
+                    className="w-full bg-white border-2 border-sky-100 rounded-xl px-4 py-3 text-slate-900 font-semibold text-sm resize-none focus:outline-none focus:border-sky-600" />
                 </div>
               </div>
               <div className="flex gap-3 mt-5">
                 <button type="submit" disabled={saving}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-[#8B2C8C] text-white rounded-xl font-bold text-sm hover:bg-[#6B1B6C] disabled:opacity-50 transition">
+                  className="flex items-center gap-2 px-6 py-2.5 bg-sky-600 text-white rounded-xl font-bold text-sm hover:bg-sky-700 disabled:opacity-50 transition">
                   <Save size={14} /> {saving ? 'Menyimpan...' : editId ? 'Simpan' : 'Publikasikan'}
                 </button>
                 <button type="button" onClick={() => { setShowForm(false); setEditId(null); setError(''); }}
-                  className="px-6 py-2.5 bg-[#EDD9F5] text-[#8B2C8C] rounded-xl font-bold text-sm hover:bg-[#D4A8E0] transition">Batal</button>
+                  className="px-6 py-2.5 bg-sky-50 text-sky-600 rounded-xl font-bold text-sm hover:bg-sky-100 transition">Batal</button>
               </div>
             </form>
           )}
 
           {articles.length === 0 ? (
-            <div className="bg-white rounded-2xl p-12 text-center border border-[#EDD9F5]">
-              <BookOpen size={40} className="text-[#D4A8E0] mx-auto mb-3" />
-              <p className="font-bold text-[#B090C0]">Belum ada artikel. Tambahkan artikel pertama!</p>
+            <div className="bg-white rounded-2xl p-12 text-center border border-sky-100">
+              <BookOpen size={40} className="text-sky-300 mx-auto mb-3" />
+              <p className="font-bold text-slate-400">Belum ada artikel. Tambahkan artikel pertama!</p>
             </div>
           ) : articles.map(a => (
-            <div key={a.id} className={`bg-white rounded-2xl p-5 mb-3 border-2 ${a.is_published ? 'border-[#EDD9F5]' : 'border-slate-100 opacity-70'}`}>
+            <div key={a.id} className={`bg-white rounded-2xl p-5 mb-3 border-2 ${a.is_published ? 'border-sky-50' : 'border-slate-100 opacity-70'}`}>
               <div className="flex items-start justify-between gap-3 mb-2">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <Badge>{a.category || 'umum'}</Badge>
+                    <Badge color="sky">{a.category || 'umum'}</Badge>
                     <Badge color={a.is_published ? 'green' : 'slate'}>{a.is_published ? 'Dipublikasikan' : 'Draf'}</Badge>
                   </div>
-                  <h4 className="font-black text-[#2D1B3D]">{a.title}</h4>
-                  <p className="text-xs text-[#B090C0] font-semibold mt-1 line-clamp-2">{a.content.substring(0, 120)}...</p>
+                  <h4 className="font-black text-slate-900">{a.title}</h4>
+                  <p className="text-xs text-slate-500 font-semibold mt-1 line-clamp-2">{a.content.substring(0, 120)}...</p>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
-                  <button onClick={() => togglePublish(a.id, a.is_published)} className="p-1.5 rounded-xl hover:bg-[#EDD9F5] text-[#B090C0] hover:text-[#8B2C8C] transition">
+                  <button onClick={() => togglePublish(a.id, a.is_published)} className="p-1.5 rounded-xl hover:bg-sky-50 text-slate-400 hover:text-sky-600 transition">
                     {a.is_published ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>
-                  <button onClick={() => openArticleForm(a)} className="p-1.5 rounded-xl hover:bg-[#EDD9F5] text-[#B090C0] hover:text-[#8B2C8C] transition"><Edit3 size={14} /></button>
-                  <button onClick={() => setDeleteModal({ id: a.id, type: 'article' })} className="p-1.5 rounded-xl hover:bg-red-50 text-[#B090C0] hover:text-red-600 transition"><Trash2 size={14} /></button>
+                  <button onClick={() => openArticleForm(a)} className="p-1.5 rounded-xl hover:bg-sky-50 text-slate-400 hover:text-sky-600 transition"><Edit3 size={14} /></button>
+                  <button onClick={() => setDeleteModal({ id: a.id, type: 'article' })} className="p-1.5 rounded-xl hover:bg-red-50 text-slate-400 hover:text-red-600 transition"><Trash2 size={14} /></button>
                 </div>
               </div>
             </div>
@@ -203,60 +203,60 @@ const AdminEdukasi = () => {
       {/* ─── TIPS TAB ─── */}
       {tab === 'tips' && (
         <div>
-          <div className="bg-[#EDD9F5]/50 rounded-2xl p-4 mb-4 border border-[#EDD9F5] flex items-start gap-3">
-            <Lightbulb size={20} className="text-[#8B2C8C] mt-0.5 shrink-0" />
-            <p className="text-sm text-[#6B4B7B] font-semibold">Tips harian muncul di halaman <strong>Beranda</strong> pengguna sebagai motivasi dan informasi edukasi. Hanya 1 tip terbaru yang ditampilkan.</p>
+          <div className="bg-sky-50 rounded-2xl p-4 mb-4 border border-sky-100 flex items-start gap-3">
+            <Lightbulb size={20} className="text-sky-600 mt-0.5 shrink-0" />
+            <p className="text-sm text-slate-600 font-semibold">Tips harian muncul di halaman <strong>Beranda</strong> Bunda sebagai motivasi dan informasi edukasi. Hanya 1 tip terbaru yang ditampilkan.</p>
           </div>
 
           <div className="flex justify-end mb-4">
-            <button onClick={() => openTipForm()} className="flex items-center gap-2 px-5 py-2.5 bg-[#8B2C8C] text-white rounded-xl font-bold text-sm hover:bg-[#6B1B6C] transition shadow-bilova-sm">
+            <button onClick={() => openTipForm()} className="flex items-center gap-2 px-5 py-2.5 bg-sky-600 text-white rounded-xl font-bold text-sm hover:bg-sky-700 transition shadow-nutrisea-sm">
               <Plus size={14} /> Tambah Tips
             </button>
           </div>
 
           {showTipForm && (
-            <form onSubmit={saveTip} className="bg-[#EDD9F5]/30 rounded-2xl p-6 border border-[#EDD9F5] mb-5">
+            <form onSubmit={saveTip} className="bg-sky-50/50 rounded-2xl p-6 border border-sky-100 mb-5">
               <div className="flex justify-between items-center mb-4">
-                <h4 className="font-black text-[#2D1B3D]">{editTipId ? 'Edit Tips' : 'Tips Baru'}</h4>
-                <button type="button" onClick={() => { setShowTipForm(false); setEditTipId(null); setError(''); }}><X size={18} className="text-[#B090C0]" /></button>
+                <h4 className="font-black text-slate-900">{editTipId ? 'Edit Tips' : 'Tips Baru'}</h4>
+                <button type="button" onClick={() => { setShowTipForm(false); setEditTipId(null); setError(''); }}><X size={18} className="text-slate-400 hover:text-red-500" /></button>
               </div>
               <div>
-                <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-1.5 block">Konten Tips *</label>
+                <label className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1.5 block">Konten Tips *</label>
                 <textarea value={tipForm.content} onChange={e => setTipForm(p => ({ ...p, content: e.target.value }))} rows={4}
-                  placeholder="Tulis tips edukasi singkat yang bermanfaat untuk pengguna..."
-                  className="w-full bg-white border-2 border-[#EDD9F5] rounded-xl px-4 py-3 text-[#2D1B3D] font-semibold text-sm resize-none focus:outline-none focus:border-[#8B2C8C]" />
+                  placeholder="Tulis tips edukasi singkat yang bermanfaat untuk Bunda..."
+                  className="w-full bg-white border-2 border-sky-100 rounded-xl px-4 py-3 text-slate-900 font-semibold text-sm resize-none focus:outline-none focus:border-sky-600" />
               </div>
               <div className="flex gap-3 mt-4">
                 <button type="submit" disabled={saving}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-[#8B2C8C] text-white rounded-xl font-bold text-sm hover:bg-[#6B1B6C] disabled:opacity-50 transition">
+                  className="flex items-center gap-2 px-6 py-2.5 bg-sky-600 text-white rounded-xl font-bold text-sm hover:bg-sky-700 disabled:opacity-50 transition">
                   <Save size={14} /> {saving ? 'Menyimpan...' : editTipId ? 'Simpan' : 'Tambah Tips'}
                 </button>
                 <button type="button" onClick={() => { setShowTipForm(false); setEditTipId(null); setError(''); }}
-                  className="px-6 py-2.5 bg-[#EDD9F5] text-[#8B2C8C] rounded-xl font-bold text-sm hover:bg-[#D4A8E0] transition">Batal</button>
+                  className="px-6 py-2.5 bg-sky-50 text-sky-600 rounded-xl font-bold text-sm hover:bg-sky-100 transition">Batal</button>
               </div>
             </form>
           )}
 
           {tips.length === 0 ? (
-            <div className="bg-white rounded-2xl p-12 text-center border border-[#EDD9F5]">
-              <Lightbulb size={40} className="text-[#D4A8E0] mx-auto mb-3" />
-              <p className="font-bold text-[#B090C0]">Belum ada tips. Tambahkan tips pertama!</p>
+            <div className="bg-white rounded-2xl p-12 text-center border border-sky-100">
+              <Lightbulb size={40} className="text-sky-300 mx-auto mb-3" />
+              <p className="font-bold text-slate-400">Belum ada tips. Tambahkan tips pertama!</p>
             </div>
           ) : tips.map((t, idx) => (
-            <div key={t.id} className={`bg-white rounded-2xl p-5 mb-3 border-2 ${t.is_active ? 'border-[#EDD9F5]' : 'border-slate-100 opacity-60'}`}>
+            <div key={t.id} className={`bg-white rounded-2xl p-5 mb-3 border-2 ${t.is_active ? 'border-sky-50' : 'border-slate-100 opacity-60'}`}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3 flex-1">
-                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${idx === 0 ? 'bg-[#8B2C8C]' : 'bg-[#EDD9F5]'}`}>
-                    <Lightbulb size={14} className={idx === 0 ? 'text-white' : 'text-[#8B2C8C]'} />
+                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${idx === 0 ? 'bg-sky-600' : 'bg-sky-100'}`}>
+                    <Lightbulb size={14} className={idx === 0 ? 'text-white' : 'text-sky-600'} />
                   </div>
                   <div>
-                    {idx === 0 && t.is_active && <span className="text-[10px] font-black text-[#8B2C8C] bg-[#EDD9F5] px-2 py-0.5 rounded-full block w-fit mb-1">DITAMPILKAN SEKARANG</span>}
-                    <p className="text-sm font-semibold text-[#2D1B3D] leading-relaxed">{t.content}</p>
+                    {idx === 0 && t.is_active && <span className="text-[10px] font-black text-sky-600 bg-sky-100 px-2 py-0.5 rounded-full block w-fit mb-1">DITAMPILKAN SEKARANG</span>}
+                    <p className="text-sm font-semibold text-slate-900 leading-relaxed">{t.content}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
-                  <button onClick={() => openTipForm(t)} className="p-1.5 rounded-xl hover:bg-[#EDD9F5] text-[#B090C0] hover:text-[#8B2C8C] transition"><Edit3 size={14} /></button>
-                  <button onClick={() => setDeleteModal({ id: t.id, type: 'tip' })} className="p-1.5 rounded-xl hover:bg-red-50 text-[#B090C0] hover:text-red-600 transition"><Trash2 size={14} /></button>
+                  <button onClick={() => openTipForm(t)} className="p-1.5 rounded-xl hover:bg-sky-50 text-slate-400 hover:text-sky-600 transition"><Edit3 size={14} /></button>
+                  <button onClick={() => setDeleteModal({ id: t.id, type: 'tip' })} className="p-1.5 rounded-xl hover:bg-red-50 text-slate-400 hover:text-red-600 transition"><Trash2 size={14} /></button>
                 </div>
               </div>
             </div>
@@ -266,7 +266,7 @@ const AdminEdukasi = () => {
 
       <Modal isOpen={!!deleteModal} onClose={() => setDeleteModal(null)} title={`Hapus ${deleteModal?.type === 'article' ? 'Artikel' : 'Tips'}?`}
         footer={<><Button variant="secondary" onClick={() => setDeleteModal(null)}>Batal</Button><Button variant="danger" onClick={deleteItem}>Hapus</Button></>}>
-        {deleteModal?.type === 'article' ? 'Artikel ini akan dihapus permanen.' : 'Tips ini akan dihapus dan tidak muncul di beranda pengguna.'}
+        {deleteModal?.type === 'article' ? 'Artikel ini akan dihapus permanen.' : 'Tips ini akan dihapus dan tidak muncul di beranda Bunda.'}
       </Modal>
     </div>
   );

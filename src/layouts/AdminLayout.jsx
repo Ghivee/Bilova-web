@@ -2,18 +2,29 @@ import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
-  LayoutDashboard, Users, ClipboardCheck, BookOpen,
-  LogOut, Menu, X, HelpCircle, ArrowLeftCircle
+  LayoutDashboard, Users, MapPin, BookOpen,
+  LogOut, Menu, X, ArrowLeftCircle
 } from 'lucide-react';
 import { Modal, Button } from '../components/UIComponents';
-import logoSrc from '../assets/Bilova_Logo.png';
+
+// NutriSea inline wordmark — no image file needed
+const NutriSeaLogo = ({ className = '' }) => (
+  <div className={`flex items-center gap-2 ${className}`}>
+    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-600 to-cyan-400 flex items-center justify-center shadow-sm">
+      <span className="text-white font-black text-sm">N</span>
+    </div>
+    <div className="leading-none">
+      <p className="font-black text-sky-700 text-base tracking-tight">NutriSea</p>
+      <p className="font-bold text-slate-400 text-[9px] uppercase tracking-widest">Posyandu</p>
+    </div>
+  </div>
+);
 
 const sidebarLinks = [
   { to: '/admin', icon: LayoutDashboard, label: 'Overview', end: true },
-  { to: '/admin/data-pasien', icon: Users, label: 'Data Pasien' },
-  { to: '/admin/kepatuhan', icon: ClipboardCheck, label: 'Kepatuhan' },
+  { to: '/admin/data-balita', icon: Users, label: 'Database Real-Time' },
+  { to: '/admin/kepatuhan', icon: MapPin, label: 'Heatmap Kepatuhan' },
   { to: '/admin/edukasi', icon: BookOpen, label: 'Edukasi & Artikel' },
-  { to: '/admin/kuis', icon: HelpCircle, label: 'Manajemen Kuis' },
 ];
 
 const AdminLayout = () => {
@@ -27,25 +38,25 @@ const AdminLayout = () => {
       await signOut();
       navigate('/login', { replace: true });
     } catch {
-      window.location.href = '/Bilova-web/login';
+      window.location.href = '/NutriSea-web/login';
     }
   };
 
   const initials = profile?.full_name?.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || 'AD';
 
   const Sidebar = () => (
-    <aside className={`fixed top-0 left-0 h-dvh w-72 bg-white border-r border-[#EDD9F5] flex flex-col z-50 transition-transform duration-300 shadow-bilova
+    <aside className={`fixed top-0 left-0 h-dvh w-72 bg-white border-r border-sky-100 flex flex-col z-50 transition-transform duration-300 shadow-nutrisea
       ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:shadow-none`}>
       {/* Brand */}
-      <div className="px-5 py-5 border-b border-[#EDD9F5] flex items-center justify-between">
-        <img src={logoSrc} alt="BiLova" className="h-10 w-auto object-contain" />
-        <button className="lg:hidden p-1 text-[#B090C0]" onClick={() => setSidebarOpen(false)}>
+      <div className="px-5 py-5 border-b border-sky-100 flex items-center justify-between">
+        <NutriSeaLogo />
+        <button className="lg:hidden p-1 text-slate-400" onClick={() => setSidebarOpen(false)}>
           <X size={20} />
         </button>
       </div>
 
       <div className="px-3 pt-2 pb-1">
-        <span className="text-[10px] font-black text-[#B090C0] uppercase tracking-widest px-2">Admin Panel</span>
+        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Kader Posyandu</span>
       </div>
 
       {/* Nav links */}
@@ -54,7 +65,7 @@ const AdminLayout = () => {
           <NavLink key={link.to} to={link.to} end={link.end} onClick={() => setSidebarOpen(false)}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all ${
-                isActive ? 'bg-[#8B2C8C] text-white shadow-bilova-sm' : 'text-[#6B4B7B] hover:bg-[#EDD9F5]'
+                isActive ? 'bg-sky-600 text-white shadow-nutrisea-sm' : 'text-slate-600 hover:bg-sky-50'
               }`
             }>
             <link.icon size={16} />
@@ -64,19 +75,19 @@ const AdminLayout = () => {
       </nav>
 
       {/* User profile + Switch & logout (pinned to bottom) */}
-      <div className="px-3 pb-5 border-t border-[#EDD9F5] pt-3 space-y-2">
+      <div className="px-3 pb-5 border-t border-sky-100 pt-3 space-y-2">
         <button onClick={() => { setSidebarOpen(false); navigate('/'); }}
-          className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-gradient-to-r from-[#8B2C8C] to-[#C85CA0] text-white font-bold text-sm shadow-bilova-sm hover:opacity-90 transition">
-          <div className="flex items-center gap-2"><ArrowLeftCircle size={16} /> Panel Pengguna</div>
+          className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-gradient-to-r from-sky-600 to-cyan-500 text-white font-bold text-sm shadow-nutrisea-sm hover:opacity-90 transition">
+          <div className="flex items-center gap-2"><ArrowLeftCircle size={16} /> Panel Ibu</div>
         </button>
 
         <div className="flex items-center gap-3 px-3 py-2">
-          <div className="w-9 h-9 rounded-full bg-[#EDD9F5] flex items-center justify-center text-[#8B2C8C] font-black text-xs">
+          <div className="w-9 h-9 rounded-full bg-sky-100 flex items-center justify-center text-sky-600 font-black text-xs">
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-black text-[#2D1B3D] truncate">{profile?.full_name || 'Administrator'}</p>
-            <p className="text-[10px] text-[#B090C0] font-bold uppercase tracking-wide">Admin</p>
+            <p className="text-xs font-black text-slate-900 truncate">{profile?.full_name || 'Kader'}</p>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Posyandu</p>
           </div>
         </div>
         <button onClick={() => setShowLogoutModal(true)}
@@ -88,7 +99,7 @@ const AdminLayout = () => {
   );
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-[#FCF7FF]">
+    <div className="flex h-dvh overflow-hidden bg-sky-50">
       {/* Mobile overlay */}
       {sidebarOpen && <div className="fixed inset-0 bg-black/40 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />}
 
@@ -97,12 +108,12 @@ const AdminLayout = () => {
       {/* Main */}
       <div className="flex-1 flex flex-col lg:ml-72 overflow-hidden">
         {/* Top bar (mobile only) */}
-        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-xl border-b border-[#EDD9F5] px-5 py-3 flex items-center justify-between lg:hidden">
-          <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-xl hover:bg-[#EDD9F5] transition">
-            <Menu size={20} className="text-[#8B2C8C]" />
+        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-xl border-b border-sky-100 px-5 py-3 flex items-center justify-between lg:hidden">
+          <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-xl hover:bg-sky-50 transition">
+            <Menu size={20} className="text-sky-600" />
           </button>
-          <img src={logoSrc} alt="BiLova" className="h-8 w-auto object-contain" />
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#8B2C8C] to-[#C85CA0] flex items-center justify-center text-white font-black text-xs">
+          <NutriSeaLogo />
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-sky-600 to-cyan-500 flex items-center justify-center text-white font-black text-xs">
             {initials}
           </div>
         </header>
@@ -122,7 +133,7 @@ const AdminLayout = () => {
           </>
         }
       >
-        Apakah Anda yakin ingin <strong>keluar</strong> dari panel admin BiLova?
+        Apakah Anda yakin ingin <strong>keluar</strong> dari panel admin NutriSea?
       </Modal>
     </div>
   );

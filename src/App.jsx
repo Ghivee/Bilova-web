@@ -10,21 +10,23 @@ import ForgotPasswordScreen from './pages/auth/ForgotPassword';
 // User Layout & Pages
 import UserLayout from './layouts/UserLayout';
 import Beranda from './pages/main/Beranda';
-import Gejala from './pages/main/Gejala';
+import TumbuhKembang from './pages/main/TumbuhKembang';
 import Edukasi from './pages/main/Edukasi';
 import Profil from './pages/main/Profil';
+import NutriBot from './pages/main/NutriBot';
 
 // Admin Layout & Pages
 import AdminLayout from './layouts/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminKepatuhan from './pages/admin/AdminKepatuhan';
 import AdminEdukasi from './pages/admin/AdminEdukasi';
-import AdminDataPasien from './pages/admin/AdminDataPasien';
-import AdminKuis from './pages/admin/AdminKuis';
+import AdminDataBalita from './pages/admin/AdminDataBalita';
 
 export default function App() {
+  // import.meta.env.BASE_URL = '/' in dev, '/NutriSea-web/' in prod build
+  const basename = import.meta.env.BASE_URL.replace(/\/$/, '');
   return (
-    <BrowserRouter basename="/Bilova-web">
+    <BrowserRouter basename={basename}>
       <AuthProvider>
         <Routes>
           {/* Auth — each page handles its own full-screen layout */}
@@ -35,8 +37,9 @@ export default function App() {
           {/* User */}
           <Route path="/" element={<ProtectedRoute><UserLayout /></ProtectedRoute>}>
             <Route index element={<Beranda />} />
-            <Route path="gejala" element={<Gejala />} />
+            <Route path="tumbuh-kembang" element={<TumbuhKembang />} />
             <Route path="edukasi" element={<Edukasi />} />
+            <Route path="nutri-bot" element={<NutriBot />} />
             <Route path="profil" element={<Profil />} />
           </Route>
 
@@ -45,8 +48,7 @@ export default function App() {
             <Route index element={<AdminDashboard />} />
             <Route path="kepatuhan" element={<AdminKepatuhan />} />
             <Route path="edukasi" element={<AdminEdukasi />} />
-            <Route path="data-pasien" element={<AdminDataPasien />} />
-            <Route path="kuis" element={<AdminKuis />} />
+            <Route path="data-balita" element={<AdminDataBalita />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/login" replace />} />

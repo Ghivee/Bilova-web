@@ -170,36 +170,54 @@ const AdminKuis = () => {
           <HelpCircle size={40} className="text-[#D4A8E0] mx-auto mb-3" />
           <p className="font-bold text-[#B090C0]">Belum ada soal kuis. Tambahkan soal pertama!</p>
         </div>
-      ) : questions.map((q, idx) => (
-        <div key={q.id} className={`bg-white rounded-2xl p-5 mb-3 border-2 ${q.is_active ? 'border-[#EDD9F5]' : 'border-slate-100 opacity-70'}`}>
-          <div className="mb-3">
-             <span className="text-[10px] font-black uppercase tracking-widest text-[#B090C0] bg-[#FCF7FF] px-2 py-1 rounded-md border border-[#EDD9F5]">{q.folder_name || 'Kuis Umum'}</span>
-          </div>
-          <div className="flex items-start justify-between gap-4 mb-3">
-            <div className="flex items-start gap-3">
-              <span className="w-7 h-7 rounded-xl bg-[#EDD9F5] text-[#8B2C8C] font-black text-xs flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
-              <p className="font-bold text-[#2D1B3D] text-sm leading-relaxed">{q.question}</p>
+      ) : (
+        Object.entries(
+          questions.reduce((acc, q) => {
+            const folder = q.folder_name || 'Kuis Umum';
+            acc[folder] = acc[folder] || [];
+            acc[folder].push(q);
+            return acc;
+          }, {})
+        ).map(([folder, folderQs]) => (
+          <div key={folder} className="mb-8">
+            <div className="flex items-center gap-3 mb-4 pl-1">
+              <div className="w-8 h-8 rounded-full bg-[#EDD9F5] flex items-center justify-center text-[#8B2C8C]">📁</div>
+              <h4 className="font-black text-[#6B1B6C] text-lg">{folder}</h4>
+              <span className="text-xs font-bold text-[#B090C0] bg-white border border-[#EDD9F5] px-2 py-0.5 rounded-md shadow-sm">{folderQs.length} Soal</span>
             </div>
-            <div className="flex items-center gap-1 shrink-0">
-              <button onClick={() => toggleActive(q.id, q.is_active)}
-                className={`px-2.5 py-1 rounded-full text-[10px] font-black ${q.is_active ? 'bg-[#EDD9F5] text-[#8B2C8C]' : 'bg-slate-100 text-slate-500'}`}>
-                {q.is_active ? 'Aktif' : 'Nonaktif'}
-              </button>
-              <button onClick={() => openForm(q)} className="p-1.5 rounded-xl hover:bg-[#EDD9F5] text-[#B090C0] hover:text-[#8B2C8C] transition"><Edit3 size={14} /></button>
-              <button onClick={() => setDeleteModal(q.id)} className="p-1.5 rounded-xl hover:bg-red-50 text-[#B090C0] hover:text-red-600 transition"><Trash2 size={14} /></button>
+            
+            <div className="space-y-3">
+              {folderQs.map((q, idx) => (
+                <div key={q.id} className={`bg-white rounded-2xl p-5 border-2 ${q.is_active ? 'border-[#EDD9F5]' : 'border-slate-100 opacity-70'}`}>
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <div className="flex items-start gap-3">
+                      <span className={`w-7 h-7 rounded-xl ${q.is_active ? 'bg-[#EDD9F5] text-[#8B2C8C]' : 'bg-slate-100 text-slate-400'} font-black text-xs flex items-center justify-center shrink-0 mt-0.5`}>{idx + 1}</span>
+                      <p className={`font-bold text-sm leading-relaxed ${q.is_active ? 'text-[#2D1B3D]' : 'text-slate-500'}`}>{q.question}</p>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button onClick={() => toggleActive(q.id, q.is_active)}
+                        className={`px-2.5 py-1 rounded-full text-[10px] font-black ${q.is_active ? 'bg-[#EDD9F5] text-[#8B2C8C]' : 'bg-slate-100 text-slate-500'}`}>
+                        {q.is_active ? 'Aktif' : 'Nonaktif'}
+                      </button>
+                      <button onClick={() => openForm(q)} className="p-1.5 rounded-xl hover:bg-[#EDD9F5] text-[#B090C0] hover:text-[#8B2C8C] transition"><Edit3 size={14} /></button>
+                      <button onClick={() => setDeleteModal(q.id)} className="p-1.5 rounded-xl hover:bg-red-50 text-[#B090C0] hover:text-red-600 transition"><Trash2 size={14} /></button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5 ml-10">
+                    {(Array.isArray(q.options) ? q.options : []).map((opt, i) => (
+                      <div key={i} className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold border ${i === q.correct ? (q.is_active ? 'bg-[#EDD9F5] border-[#8B2C8C] text-[#8B2C8C]' : 'bg-slate-200 border-slate-300 text-slate-500') : 'bg-slate-50 border-slate-100 text-slate-600'}`}>
+                         <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black ${i === q.correct ? (q.is_active ? 'bg-[#8B2C8C] text-white' : 'bg-slate-400 text-white') : 'bg-slate-200 text-slate-500'}`}>{String.fromCharCode(65 + i)}</span>
+                        {opt}
+                      </div>
+                    ))}
+                  </div>
+                  {q.explanation && <p className="text-xs text-[#6B4B7B] font-semibold bg-[#EDD9F5]/40 rounded-xl px-3 py-2 mt-2 ml-10">💡 {q.explanation}</p>}
+                </div>
+              ))}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-1.5 ml-10">
-            {(Array.isArray(q.options) ? q.options : []).map((opt, i) => (
-              <div key={i} className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold border ${i === q.correct ? 'bg-[#EDD9F5] border-[#8B2C8C] text-[#8B2C8C]' : 'bg-slate-50 border-slate-100 text-slate-600'}`}>
-                <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black ${i === q.correct ? 'bg-[#8B2C8C] text-white' : 'bg-slate-200 text-slate-500'}`}>{String.fromCharCode(65 + i)}</span>
-                {opt}
-              </div>
-            ))}
-          </div>
-          {q.explanation && <p className="text-xs text-[#6B4B7B] font-semibold bg-[#EDD9F5]/40 rounded-xl px-3 py-2 mt-2 ml-10">💡 {q.explanation}</p>}
-        </div>
-      ))}
+        ))
+      )}
 
       <Modal isOpen={!!deleteModal} onClose={() => setDeleteModal(null)} title="Hapus Soal?"
         footer={<><Button variant="secondary" onClick={() => setDeleteModal(null)}>Batal</Button><Button variant="danger" onClick={deleteQuestion}>Hapus</Button></>}>

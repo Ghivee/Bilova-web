@@ -1,19 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
-/* ============ BILOVA DESIGN TOKENS ============ */
+/* ============ NUTRISEA DESIGN TOKENS ============ */
 :root {
-  --primary: #8B2C8C;      /* BiLova purple-magenta: warna seed */
-  --primary-dark: #6B1B6C;
-  --primary-light: #A94BAA;
-  --pink: #C85CA0;          /* Aksen pink dari logo */
-  --pink-light: #E8A8D8;
-  --lavender: #EDD9F5;      /* Background cards & hover */
-  --lavender-mid: #D4A8E0;
-  --cream: #FCF7FF;         /* Main background */
-  --text-dark: #2D1B3D;
-  --text-mid: #6B4B7B;
-  --text-light: #B090C0;
+  --primary: #0284c7;      /* NutriSea blue */
+  --primary-dark: #0369a1;
+  --primary-light: #38bdf8;
+  --accent: #22d3ee;        /* Aqua/Cyan accent */
+  --accent-light: #67e8f9;
+  --ocean-light: #e0f2fe;   /* Background cards & hover */
+  --ocean-mid: #bae6fd;
+  --surf: #f0f9ff;         /* Main background */
+  --text-dark: #0f172a;
+  --text-mid: #334155;
+  --text-light: #64748b;
 }
 
 /* ============ BASE ============ */
@@ -27,7 +27,7 @@ html, body, #root {
 
 body {
   font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: var(--cream);
+  background-color: var(--surf);
   color: var(--text-dark);
   -webkit-font-smoothing: antialiased;
 }
@@ -46,13 +46,13 @@ body {
   width: 100%;
   display: flex;
   align-items: stretch;
-  background: linear-gradient(135deg, #6B1B6C 0%, #8B2C8C 40%, #C85CA0 100%);
+  background: linear-gradient(135deg, #0369a1 0%, #0284c7 40%, #22d3ee 100%);
   font-family: 'Nunito', -apple-system, sans-serif;
 }
 /* Mobile: full screen card */
 .auth-card {
   width: 100%;
-  background: var(--cream);
+  background: var(--surf);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -106,7 +106,7 @@ body {
 }
 .scroll-area::-webkit-scrollbar { width: 3px; }
 .scroll-area::-webkit-scrollbar-track { background: transparent; }
-.scroll-area::-webkit-scrollbar-thumb { background: var(--lavender-mid); border-radius: 10px; }
+.scroll-area::-webkit-scrollbar-thumb { background: var(--ocean-mid); border-radius: 10px; }
 
 /* ============ HIDE SCROLLBAR ============ */
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -118,7 +118,7 @@ input[type=range] {
   width: 100%;
   height: 8px;
   border-radius: 4px;
-  background: var(--lavender);
+  background: var(--ocean-light);
   outline: none;
   cursor: pointer;
 }
@@ -129,13 +129,13 @@ input[type=range]::-webkit-slider-thumb {
   background: var(--primary);
   cursor: pointer;
   border: 3px solid white;
-  box-shadow: 0 2px 8px rgba(139,44,140,0.4);
+  box-shadow: 0 2px 8px rgba(2,132,199,0.4);
 }
 
 /* ============ SHADOW UTILITIES ============ */
-.shadow-bilova { box-shadow: 0 8px 32px rgba(139,44,140,0.2); }
-.shadow-bilova-sm { box-shadow: 0 2px 12px rgba(139,44,140,0.15); }
-.shadow-card { box-shadow: 0 2px 16px rgba(45,27,61,0.08); }
+.shadow-nutrisea { box-shadow: 0 8px 32px rgba(2,132,199,0.2); }
+.shadow-nutrisea-sm { box-shadow: 0 2px 12px rgba(2,132,199,0.15); }
+.shadow-card { box-shadow: 0 2px 16px rgba(15,23,42,0.08); }
 
 /* ============ ANIMATIONS ============ */
 @keyframes slideUp {
@@ -152,8 +152,8 @@ input[type=range]::-webkit-slider-thumb {
 
 /* ============ GLASS CARD ============ */
 .glass {
-  background: rgba(252,247,255,0.9);
+  background: rgba(240,249,255,0.9);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(212,168,224,0.3);
+  border: 1px solid rgba(186,230,253,0.3);
 }

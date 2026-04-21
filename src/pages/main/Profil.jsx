@@ -86,40 +86,40 @@ const Profil = () => {
     try {
       await signOut();
       navigate('/login', { replace: true });
-    } catch { window.location.href = '/Bilova-web/login'; }
+    } catch { window.location.href = '/NutriSea-web/login'; }
   };
 
   const handleWA = () => {
-    const msg = `Halo Admin BiLova, saya membutuhkan bantuan terkait aplikasi BiLova. Nama: ${profile?.full_name || '-'}`;
+    const msg = `Halo Admin Posyandu NutriSea, saya membutuhkan bantuan informasi kesehatan. Nama: ${profile?.full_name || '-'}`;
     window.open(`https://wa.me/${WHATSAPP_SUPPORT}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   const initials = profile?.full_name?.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || '?';
-  const compColor = compliance.percentage >= 80 ? '#8B2C8C' : compliance.percentage >= 50 ? '#D97706' : '#DC2626';
+  const compColor = compliance.percentage >= 80 ? '#0284c7' : compliance.percentage >= 50 ? '#d97706' : '#dc2626';
 
   return (
     <div>
-      <Header title="Profil" />
+      <Header title="Identitas Bunda" />
       <div className="px-5 pb-10 space-y-4">
         {/* Avatar */}
         <div className="flex flex-col items-center py-5">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#8B2C8C] to-[#C85CA0] flex items-center justify-center text-white text-3xl font-black shadow-bilova mb-3">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-sky-600 to-cyan-500 flex items-center justify-center text-white text-3xl font-black shadow-nutrisea mb-3">
             {initials}
           </div>
-          <h2 className="text-xl font-black text-[#2D1B3D]">{profile?.full_name || 'Pengguna'}</h2>
-          <p className="text-sm text-[#B090C0] font-bold">{profile?.email}</p>
+          <h2 className="text-xl font-black text-slate-900">{profile?.full_name || 'Bunda Hebat'}</h2>
+          <p className="text-sm text-slate-500 font-bold">{profile?.email}</p>
           {profile?.allergy_info && (
             <div className="mt-2 bg-red-50 border border-red-200 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
               <AlertTriangle size={12} className="text-red-500" />
-              <span className="text-xs font-bold text-red-700">Alergi: {profile.allergy_info}</span>
+              <span className="text-xs font-bold text-red-700">Alergi Anak: {profile.allergy_info}</span>
             </div>
           )}
 
           {/* Streak badge */}
           {compliance.streak > 0 && (
-            <div className="mt-2 bg-[#EDD9F5] border border-[#D4A8E0] px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+            <div className="mt-2 bg-sky-100 border border-sky-300 px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-sm">
               <span className="text-sm">🔥</span>
-              <span className="text-xs font-black text-[#8B2C8C]">{compliance.streak} hari berturut-turut!</span>
+              <span className="text-xs font-black text-sky-600">{compliance.streak} hari konsisten!</span>
             </div>
           )}
         </div>
@@ -128,26 +128,26 @@ const Profil = () => {
         {error && <Alert type="error" message={error} />}
 
         {/* Compliance card */}
-        <div className="bg-white rounded-3xl p-5 border border-[#EDD9F5] shadow-card flex items-center gap-5">
+        <div className="bg-white rounded-3xl p-5 border border-sky-100 shadow-card flex items-center gap-5">
           <CircularProgress percentage={compliance.percentage} size={96} strokeWidth={9} color={compColor} />
           <div className="flex-1">
-            <p className="font-black text-[#2D1B3D] text-base mb-1">Rapor Kepatuhan</p>
-            <p className="text-xs text-[#B090C0] font-semibold">{compliance.taken}/{compliance.total} dosis bulan ini</p>
+            <p className="font-black text-slate-900 text-base mb-1">Status Kepatuhan</p>
+            <p className="text-xs text-slate-500 font-semibold">{compliance.taken}/{compliance.total} gummy bulan ini</p>
             <p className="text-xs font-black mt-1" style={{ color: compColor }}>
               {compliance.percentage >= 80 ? '🌟 Luar Biasa!' : compliance.percentage >= 50 ? '👍 Cukup Baik' : '⚠️ Perlu Ditingkatkan'}
             </p>
             {compliance.streak > 1 && (
-              <p className="text-[10px] text-[#8B2C8C] font-black mt-0.5">🔥 {compliance.streak} hari beruntun</p>
+              <p className="text-[10px] text-sky-600 font-black mt-0.5">🔥 {compliance.streak} hari beruntun</p>
             )}
           </div>
         </div>
 
         {/* Data pribadi */}
-        <div className="bg-white rounded-3xl p-5 border border-[#EDD9F5] shadow-card">
+        <div className="bg-white rounded-3xl p-5 border border-sky-100 shadow-card">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="font-black text-[#2D1B3D]">Data Pribadi</h3>
+            <h3 className="font-black text-slate-900">Data Identitas Anak</h3>
             <button onClick={() => { setEditing(!editing); setError(''); setSuccessMsg(''); }}
-              className="flex items-center gap-1 text-[#8B2C8C] font-bold text-sm">
+              className="flex items-center gap-1 text-sky-600 font-bold text-sm">
               {editing ? <><X size={14} />Batal</> : <><Edit3 size={14} />Edit</>}
             </button>
           </div>
@@ -155,29 +155,29 @@ const Profil = () => {
           {editing ? (
             <div className="space-y-3">
               {[
-                { label: 'Nama Lengkap', name: 'full_name', icon: UserCircle2, placeholder: 'Nama lengkap' },
+                { label: 'Nama Lengkap Bunda', name: 'full_name', icon: UserCircle2, placeholder: 'Nama lengkap' },
                 { label: 'Telepon', name: 'phone', icon: Phone, placeholder: '08xxx', type: 'tel' },
-                { label: 'Info Alergi', name: 'allergy_info', icon: AlertTriangle, placeholder: 'Misal: Penisilin' },
+                { label: 'Info Alergi Anak', name: 'allergy_info', icon: AlertTriangle, placeholder: 'Misal: Seafood' },
               ].map(f => (
                 <div key={f.name}>
-                  <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-1.5 block">{f.label}</label>
+                  <label className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1.5 block">{f.label}</label>
                   <InputField icon={f.icon} name={f.name} placeholder={f.placeholder} type={f.type || 'text'}
                     value={form[f.name] || ''} onChange={e => setForm(p => ({ ...p, [f.name]: e.target.value }))} />
                 </div>
               ))}
               <div>
-                <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-1.5 block">Jenis Kelamin</label>
+                <label className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1.5 block">Jenis Kelamin Anak</label>
                 <select value={form.gender} onChange={e => setForm(p => ({ ...p, gender: e.target.value }))}
-                  className="w-full bg-white border-2 border-[#EDD9F5] rounded-2xl px-4 py-3 text-[#2D1B3D] font-semibold text-sm focus:outline-none focus:border-[#8B2C8C]">
+                  className="w-full bg-white border-2 border-sky-100 rounded-2xl px-4 py-3 text-slate-900 font-semibold text-sm focus:outline-none focus:border-sky-600">
                   <option value="">-- Pilih</option>
                   <option value="Laki-laki">Laki-laki</option>
                   <option value="Perempuan">Perempuan</option>
                 </select>
               </div>
               <div>
-                <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-1.5 block">Tanggal Lahir</label>
+                <label className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1.5 block">Tanggal Lahir Anak</label>
                 <input type="date" value={form.date_of_birth || ''} onChange={e => setForm(p => ({ ...p, date_of_birth: e.target.value }))}
-                  className="w-full bg-white border-2 border-[#EDD9F5] rounded-2xl px-4 py-3 text-[#2D1B3D] font-semibold text-sm focus:outline-none focus:border-[#8B2C8C]" />
+                  className="w-full bg-white border-2 border-sky-100 rounded-2xl px-4 py-3 text-slate-900 font-semibold text-sm focus:outline-none focus:border-sky-600" />
               </div>
               <Button onClick={handleSave} disabled={loading}>
                 {loading ? <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Menyimpan...</>
@@ -185,17 +185,17 @@ const Profil = () => {
               </Button>
             </div>
           ) : (
-            <div className="space-y-3 divide-y divide-[#EDD9F5]">
+            <div className="space-y-3 divide-y divide-sky-50">
               {[
-                { label: 'Nama', value: profile?.full_name || '-', icon: UserCircle2 },
+                { label: 'Nama Bunda', value: profile?.full_name || '-', icon: UserCircle2 },
                 { label: 'Telepon', value: profile?.phone || '-', icon: Phone },
-                { label: 'Jenis Kelamin', value: profile?.gender || '-', icon: UserCircle2 },
-                { label: 'Tanggal Lahir', value: profile?.date_of_birth ? new Date(profile.date_of_birth).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-', icon: Calendar },
+                { label: 'JK Anak', value: profile?.gender || '-', icon: UserCircle2 },
+                { label: 'Lahir Anak', value: profile?.date_of_birth ? new Date(profile.date_of_birth).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-', icon: Calendar },
                 { label: 'Alergi', value: profile?.allergy_info || '-', icon: AlertTriangle, danger: !!profile?.allergy_info },
               ].map(item => (
                 <div key={item.label} className="flex items-center justify-between py-2.5">
-                  <div className="flex items-center gap-2 text-[#B090C0] text-sm"><item.icon size={14} /><span className="font-bold">{item.label}</span></div>
-                  <span className={`text-sm font-bold ${item.danger ? 'text-red-600' : 'text-[#2D1B3D]'}`}>{item.value}</span>
+                  <div className="flex items-center gap-2 text-slate-500 text-sm"><item.icon size={14} /><span className="font-bold">{item.label}</span></div>
+                  <span className={`text-sm font-bold ${item.danger ? 'text-red-600' : 'text-slate-900'}`}>{item.value}</span>
                 </div>
               ))}
             </div>
@@ -206,37 +206,37 @@ const Profil = () => {
         <div className="space-y-3">
           {isAdmin && (
             <button onClick={() => navigate('/admin')}
-              className="w-full bg-gradient-to-r from-[#8B2C8C] to-[#C85CA0] rounded-2xl p-5 flex items-center justify-between shadow-bilova text-white">
+              className="w-full bg-gradient-to-r from-sky-600 to-cyan-500 rounded-2xl p-5 flex items-center justify-between shadow-nutrisea text-white">
               <div className="flex items-center gap-3 font-black">
-                <div className="bg-white/20 p-2 rounded-xl"><LayoutDashboard size={18} /></div> Panel Administrasi
+                <div className="bg-white/20 p-2 rounded-xl"><LayoutDashboard size={18} /></div> Panel Posyandu
               </div>
               <ChevronRight size={18} />
             </button>
           )}
 
           {[
-            { icon: History, label: 'Riwayat Pengobatan', action: () => setShowHistoryModal(true), color: false },
-            { icon: HelpCircle, label: 'Butuh Bantuan?', desc: 'Chat WhatsApp Support', action: handleWA, color: false, extra: '💬' },
-            { icon: Info, label: 'Tentang BiLova', desc: 'Versi 1.0.0', action: () => setShowAboutModal(true), color: false },
+            { icon: History, label: 'Riwayat Gummy', action: () => setShowHistoryModal(true), color: false },
+            { icon: HelpCircle, label: 'Butuh Bantuan?', desc: 'Chat Posyandu', action: handleWA, color: false, extra: '💬' },
+            { icon: Info, label: 'Tentang NutriSea', desc: 'Versi 1.0.0', action: () => setShowAboutModal(true), color: false },
           ].map(item => (
             <button key={item.label} onClick={item.action}
-              className="w-full bg-white rounded-2xl p-5 flex items-center justify-between border border-[#EDD9F5] shadow-card hover:bg-[#EDD9F5]/30 transition">
+              className="w-full bg-white rounded-2xl p-5 flex items-center justify-between border border-sky-100 shadow-card hover:bg-sky-50 transition">
               <div className="flex items-center gap-3">
-                <div className="bg-[#EDD9F5] p-2.5 rounded-xl"><item.icon size={18} className="text-[#8B2C8C]" /></div>
+                <div className="bg-sky-100 p-2.5 rounded-xl"><item.icon size={18} className="text-sky-600" /></div>
                 <div className="text-left">
-                  <p className="font-black text-[#2D1B3D] text-sm">{item.label}</p>
-                  {item.desc && <p className="text-xs text-[#B090C0] font-semibold">{item.desc}</p>}
+                  <p className="font-black text-slate-900 text-sm">{item.label}</p>
+                  {item.desc && <p className="text-xs text-slate-500 font-semibold">{item.desc}</p>}
                 </div>
               </div>
-              <ChevronRight size={16} className="text-[#D4A8E0]" />
+              <ChevronRight size={16} className="text-slate-400" />
             </button>
           ))}
 
           <button onClick={() => setShowLogoutModal(true)}
-            className="w-full bg-red-50 rounded-2xl p-5 flex items-center justify-between border border-red-100 hover:bg-red-100/60 transition">
+            className="w-full bg-red-50 rounded-2xl p-5 flex items-center justify-between border border-red-100 hover:bg-red-100/60 transition shadow-sm">
             <div className="flex items-center gap-3">
               <div className="bg-white p-2.5 rounded-xl border border-red-100"><LogOut size={18} className="text-red-600" /></div>
-              <span className="font-black text-red-700">Keluar Akun</span>
+              <span className="font-black text-red-700">Keluar Sistem</span>
             </div>
             <ChevronRight size={16} className="text-red-300" />
           </button>
@@ -246,33 +246,33 @@ const Profil = () => {
       {/* Logout modal */}
       <Modal isOpen={showLogoutModal} onClose={() => setShowLogoutModal(false)} title="Konfirmasi Keluar"
         footer={<><Button variant="secondary" onClick={() => setShowLogoutModal(false)}>Batal</Button><Button variant="danger" onClick={handleLogout}>Keluar</Button></>}>
-        Apakah Anda yakin ingin keluar dari akun BiLova Anda?
+        Apakah Anda yakin ingin keluar dari akun NutriSea Anda?
       </Modal>
 
       {/* History modal */}
-      <Modal isOpen={showHistoryModal} onClose={() => setShowHistoryModal(false)} title="Riwayat Pengobatan"
-        footer={<Button onClick={() => setShowHistoryModal(false)}>Tutup</Button>}>
+      <Modal isOpen={showHistoryModal} onClose={() => setShowHistoryModal(false)} title="Riwayat Konsumsi"
+        footer={<Button onClick={() => setShowHistoryModal(false)} className="bg-sky-600">Tutup</Button>}>
         <div className="text-left max-h-64 overflow-y-auto space-y-2 scroll-area">
           {recentLogs.length > 0 ? recentLogs.map(log => (
-            <div key={log.id} className="bg-[#EDD9F5]/50 rounded-2xl p-3 border border-[#EDD9F5]">
-              <p className="font-black text-[#2D1B3D] text-sm">{log.medications?.name} {log.medications?.dosage}</p>
-              <p className="text-xs text-[#B090C0] font-semibold mt-0.5">{new Date(log.taken_at).toLocaleString('id-ID')}</p>
+            <div key={log.id} className="bg-sky-50 rounded-2xl p-3 border border-sky-100 shadow-sm">
+              <p className="font-black text-slate-900 text-sm">{log.medications?.name} {log.medications?.dosage}</p>
+              <p className="text-xs text-slate-500 font-semibold mt-0.5">{new Date(log.taken_at).toLocaleString('id-ID')}</p>
             </div>
-          )) : <p className="text-center py-6 text-[#B090C0] text-sm">Belum ada riwayat pengobatan.</p>}
+          )) : <p className="text-center py-6 text-slate-400 text-sm">Belum ada riwayat konsumsi.</p>}
         </div>
       </Modal>
 
       {/* About modal */}
-      <Modal isOpen={showAboutModal} onClose={() => setShowAboutModal(false)} title="Tentang BiLova"
-        footer={<Button onClick={() => setShowAboutModal(false)}>Tutup</Button>}>
+      <Modal isOpen={showAboutModal} onClose={() => setShowAboutModal(false)} title="Tentang NutriSea"
+        footer={<Button onClick={() => setShowAboutModal(false)} className="bg-sky-600">Tutup</Button>}>
         <div className="text-center">
-          <div className="text-5xl mb-3">💊</div>
-          <p className="font-bold text-[#6B4B7B] leading-relaxed text-sm">
-            <strong>BiLova</strong> adalah aplikasi pengingat antibiotik cerdas yang membantu pasien minum obat tepat waktu dan mendukung dokter dalam memantau kepatuhan pengobatan.
+          <div className="text-5xl mb-3">🐠</div>
+          <p className="font-bold text-slate-700 leading-relaxed text-sm">
+            <strong>NutriSea</strong> adalah inovasi sistem intervensi stunting berbasis pangan fungsional dummy dari fauna laut yang membantu pemantauan dan edukasi masyarakat secara real-time.
           </p>
-          <div className="mt-4 bg-[#EDD9F5]/50 rounded-2xl p-3">
-            <p className="text-xs text-[#B090C0] font-bold">Versi 1.0.0 · © 2025 BiLova</p>
-            <p className="text-xs text-[#B090C0] font-semibold">Dikembangkan untuk edukasi resistansi antibiotik (AMR)</p>
+          <div className="mt-4 bg-sky-50 rounded-2xl p-3 border border-sky-100">
+            <p className="text-xs text-slate-500 font-bold">Versi 1.0.0 · © 2026 NutriSea</p>
+            <p className="text-xs text-slate-500 font-semibold">Mengurangi angka stunting Indonesia dengan teknologi & gizi</p>
           </div>
         </div>
       </Modal>

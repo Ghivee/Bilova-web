@@ -1,7 +1,7 @@
 {
-  "name": "bilova",
+  "name": "nutrisea",
   "version": "1.0.0",
-  "homepage": "https://Ghivee.github.io/Bilova-web/",
+  "homepage": "https://Ghivee.github.io/NutriSea-web/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
