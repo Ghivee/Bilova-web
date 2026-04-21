@@ -23,7 +23,7 @@ import AdminEdukasi from './pages/admin/AdminEdukasi';
 import AdminDataBalita from './pages/admin/AdminDataBalita';
 
 export default function App() {
-  // import.meta.env.BASE_URL = '/' in dev, '/NutriSea-web/' in prod build
+  // import.meta.env.BASE_URL = '/' in dev, '/NutriSea-WebApp/' in prod build
   const basename = import.meta.env.BASE_URL.replace(/\/$/, '');
   return (
     <BrowserRouter basename={basename}>
