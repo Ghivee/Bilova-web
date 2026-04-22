@@ -82,19 +82,20 @@ const AdminKuis = () => {
 
   if (loading) return (
     <div className="flex items-center justify-center py-20">
-      <div className="w-10 h-10 border-4 border-[#EDD9F5] border-t-[#8B2C8C] rounded-full animate-spin" />
+      <div className="w-10 h-10 border-4 border-sky-100 border-t-sky-600 rounded-full animate-spin" />
     </div>
   );
 
+
   return (
     <div>
-      <div className="bg-gradient-to-br from-[#EDD9F5] to-[#D4A8E0]/40 rounded-2xl p-8 mb-6 border border-[#EDD9F5] flex justify-between items-center">
+      <div className="bg-gradient-to-br from-sky-50 to-cyan-50/40 rounded-2xl p-8 mb-6 border border-sky-100 flex justify-between items-center">
         <div>
-          <h3 className="text-3xl font-black text-[#8B2C8C] tracking-tight mb-1">Manajemen Kuis</h3>
-          <p className="text-[#6B4B7B] font-semibold text-sm">{questions.length} soal tersedia · {questions.filter(q => q.is_active).length} aktif</p>
+          <h3 className="text-3xl font-black text-sky-800 tracking-tight mb-1">Manajemen Edukasi & Kuis</h3>
+          <p className="text-sky-600 font-semibold text-sm">{questions.length} materi tersedia · {questions.filter(q => q.is_active).length} aktif</p>
         </div>
         <button onClick={() => openForm()}
-          className="flex items-center gap-2 px-5 py-3 bg-[#8B2C8C] text-white rounded-xl font-bold shadow-bilova-sm hover:bg-[#6B1B6C] transition">
+          className="flex items-center gap-2 px-5 py-3 bg-sky-600 text-white rounded-xl font-bold shadow-nutrisea-sm hover:bg-sky-700 transition">
           <Plus size={16} /> Tambah Soal
         </button>
       </div>
@@ -130,13 +131,13 @@ const AdminKuis = () => {
               {form.options.map((opt, i) => (
                 <div key={i} className="flex items-center gap-3 mb-2">
                   <button type="button" onClick={() => setForm(p => ({ ...p, correct: i }))}
-                    className={`w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${form.correct === i ? 'bg-[#8B2C8C] border-[#8B2C8C]' : 'border-[#D4A8E0]'}`}>
+                    className={`w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${form.correct === i ? 'bg-sky-600 border-sky-600' : 'border-sky-200'}`}>
                     {form.correct === i && <div className="w-3 h-3 rounded-full bg-white" />}
                   </button>
                   <input value={opt} onChange={e => handleOptionChange(i, e.target.value)}
                     placeholder={`Pilihan ${String.fromCharCode(65 + i)}`}
-                    className="flex-1 bg-white border-2 border-[#EDD9F5] rounded-xl px-3 py-2 text-[#2D1B3D] font-semibold text-sm focus:outline-none focus:border-[#8B2C8C]" />
-                  <span className={`text-xs font-black px-2 py-1 rounded-full ${form.correct === i ? 'bg-[#EDD9F5] text-[#8B2C8C]' : 'text-[#D4A8E0]'}`}>
+                    className="flex-1 bg-white border-2 border-sky-100 rounded-xl px-3 py-2 text-slate-800 font-semibold text-sm focus:outline-none focus:border-sky-600" />
+                  <span className={`text-xs font-black px-2 py-1 rounded-full ${form.correct === i ? 'bg-sky-100 text-sky-700' : 'text-slate-300'}`}>
                     {form.correct === i ? 'BENAR' : String.fromCharCode(65 + i)}
                   </span>
                 </div>
@@ -155,11 +156,11 @@ const AdminKuis = () => {
 
           <div className="flex gap-3 mt-5">
             <button type="submit" disabled={saving}
-              className="flex items-center gap-2 px-6 py-2.5 bg-[#8B2C8C] text-white rounded-xl font-bold text-sm hover:bg-[#6B1B6C] disabled:opacity-50 transition">
+              className="flex items-center gap-2 px-6 py-2.5 bg-sky-600 text-white rounded-xl font-bold text-sm hover:bg-sky-700 disabled:opacity-50 transition">
               <Save size={14} /> {saving ? 'Menyimpan...' : editId ? 'Simpan Perubahan' : 'Tambah Soal'}
             </button>
             <button type="button" onClick={() => { setShowForm(false); setEditId(null); setError(''); }}
-              className="px-6 py-2.5 bg-[#EDD9F5] text-[#8B2C8C] rounded-xl font-bold text-sm hover:bg-[#D4A8E0] transition">Batal</button>
+              className="px-6 py-2.5 bg-sky-100 text-sky-700 rounded-xl font-bold text-sm hover:bg-sky-200 transition">Batal</button>
           </div>
         </form>
       )}

@@ -110,12 +110,14 @@ export function AuthProvider({ children }) {
 
   const resetPassword = async (email) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/Bilova-web/reset-password`
+      redirectTo: `${window.location.origin}/NutriSea-WebApp/reset-password`
     });
+
     if (error) {
       if (error.message?.includes('not found')) {
-        throw new Error('Email tidak ditemukan. Pastikan email sudah terdaftar di BiLova.');
+        throw new Error('Email tidak ditemukan. Pastikan email sudah terdaftar di NutriSea.');
       }
+
       throw new Error(error.message || 'Gagal mengirim email reset password. Coba lagi.');
     }
   };

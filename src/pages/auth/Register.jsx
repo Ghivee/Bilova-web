@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowRight, Phone } from 'lucide-react';
-import { Button, InputField, Alert, FloatingPills } from '../../components/UIComponents';
+import { Button, InputField, Alert, FloatingPills, NutriSeaLogoImg } from '../../components/UIComponents';
+
 import { useAuth } from '../../contexts/AuthContext';
-import logoSrc from '../../assets/Bilova_Logo.png';
+import logoSrc from '../../assets/Nutrisea_Logo.PNG';
 
 /* ─── Profile Completion Form (shown right after registration is confirmed) ─── */
 const ProfileCompletionStep = ({ userId, onDone }) => {
@@ -33,7 +35,7 @@ const ProfileCompletionStep = ({ userId, onDone }) => {
   return (
     <div className="flex flex-col px-7 py-8 min-h-full">
       <div className="flex justify-center mb-6 mt-2">
-        <img src={logoSrc} alt="BiLova" className="h-14 w-auto object-contain" />
+        <img src={logoSrc} alt="NutriSea" className="h-14 w-auto object-contain" />
       </div>
       <h2 className="text-2xl font-black text-[#2D1B3D] mb-1">Lengkapi Profil</h2>
       <p className="text-sm text-[#B090C0] font-semibold mb-5">Data ini diperlukan agar dokter dapat memantau pengobatan Anda dengan tepat.</p>
@@ -84,7 +86,13 @@ const RegisterScreen = () => {
   const navigate = useNavigate();
   const handle = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
+  useEffect(() => {
+    document.body.classList.add('auth-page');
+    return () => document.body.classList.remove('auth-page');
+  }, []);
+
   const handleRegister = async (e) => {
+
     e.preventDefault();
     setError('');
     if (!form.fullName.trim()) { setError('Nama lengkap wajib diisi.'); return; }
@@ -145,20 +153,38 @@ const RegisterScreen = () => {
       {/* Desktop left panel */}
       <div className="auth-left-panel hidden lg:flex">
         <div className="relative z-10 text-white text-center max-w-sm">
-          <img src={logoSrc} alt="BiLova" className="w-32 h-auto object-contain mx-auto mb-5 brightness-0 invert" />
-          <h1 className="text-3xl font-black mb-3">Bergabunglah<br />dengan BiLova</h1>
-          <p className="text-white/80 text-sm leading-relaxed">Daftarkan diri Anda dan mulai perjalanan pengobatan yang lebih teratur, aman, dan efektif.</p>
+          <NutriSeaLogoImg h="" className="mx-auto mb-6 brightness-0 invert" style={{ height: '100px' }} />
+
+
+
+          <h1 className="text-3xl font-black mb-3">Bergabunglah<br />dengan NutriSea</h1>
+          <p className="text-white/80 text-sm leading-relaxed">Daftarkan si kecil dan mulai perjalanan pemantauan gizi yang lebih teratur, aman, dan efektif.</p>
         </div>
       </div>
 
+
+
+
+
+
       <div className="auth-card">
-        <div className="flex flex-col min-h-full px-7 py-8 relative">
-          <FloatingPills />
-          <div className="flex justify-center mb-5 mt-2">
-            <img src={logoSrc} alt="BiLova" className="h-14 w-auto object-contain" />
-          </div>
-          <h2 className="text-2xl font-black text-[#2D1B3D] mb-1">Buat Akun Baru</h2>
-          <p className="text-sm text-[#B090C0] font-semibold mb-5">Lengkapi data untuk memulai perjalanan sehat Anda.</p>
+        <div className="flex flex-col w-full px-7 py-4 relative h-full justify-center items-center overflow-hidden">
+          <div className="w-full max-w-[420px]">
+            <FloatingPills />
+            <div className="flex justify-center mb-6">
+              <NutriSeaLogoImg h="" style={{ height: '80px' }} />
+            </div>
+
+
+
+
+
+
+
+
+          <h2 className="text-xl font-black text-slate-900 mb-1">Mari Tumbuh Bersama</h2>
+          <p className="text-[11px] text-slate-500 font-semibold mb-4 text-center">Mulai langkah cerdas cegah stunting dengan NutriSea. Pemantauan gizi jadi lebih mudah dan teratur.</p>
+
 
           {error && <div className="mb-4"><Alert type="error" message={error} /></div>}
 
@@ -191,7 +217,7 @@ const RegisterScreen = () => {
                 {agreed && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/></svg>}
               </button>
               <p className="text-xs text-[#6B4B7B] font-semibold leading-relaxed">
-                Saya menyetujui <span className="text-[#8B2C8C] font-black">Syarat & Ketentuan</span> serta <span className="text-[#8B2C8C] font-black">Kebijakan Privasi</span> BiLova.
+                Saya menyetujui <span className="text-sky-600 font-black">Syarat & Ketentuan</span> serta <span className="text-sky-600 font-black">Kebijakan Privasi</span> NutriSea.
               </p>
             </div>
             <div className="mt-auto pt-1">
@@ -208,7 +234,9 @@ const RegisterScreen = () => {
         </div>
       </div>
     </div>
+  </div>
   );
 };
+
 
 export default RegisterScreen;

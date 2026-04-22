@@ -2,16 +2,14 @@ import React from 'react';
 import logoSrc from '../assets/Nutrisea_Logo.PNG';
 
 /* ─── NutriSea Official Logo Mark ─── */
-export const NutriSeaLogoImg = ({ size = 48, className = '' }) => (
+export const NutriSeaLogoImg = ({ h = 'h-12', className = '' }) => (
   <img 
     src={logoSrc} 
     alt="NutriSea" 
-    width={size} 
-    height={size}
-    className={`object-contain ${className}`}
-    style={{ maxWidth: size, maxHeight: size }}
+    className={`${h} w-auto object-contain ${className}`}
   />
 );
+
 
 
 export const PillShape = ({ color = '#0284c7', className = '' }) => (

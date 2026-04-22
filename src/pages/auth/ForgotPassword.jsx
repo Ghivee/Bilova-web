@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, ArrowRight, ChevronLeft, ShieldCheck, HelpCircle } from 'lucide-react';
-import { Button, InputField, Alert, FloatingPills } from '../../components/UIComponents';
+import { Button, InputField, Alert, FloatingPills, NutriSeaLogoImg } from '../../components/UIComponents';
+
 import { useAuth } from '../../contexts/AuthContext';
-import logoSrc from '../../assets/Bilova_Logo.png';
+import logoSrc from '../../assets/Nutrisea_Logo.PNG';
 
 const WHATSAPP_SUPPORT = '6289690815134';
 
@@ -13,8 +15,15 @@ const ForgotPasswordScreen = () => {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const { resetPassword } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    document.body.classList.add('auth-page');
+    return () => document.body.classList.remove('auth-page');
+  }, []);
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
     if (!email.trim()) { setError('Email wajib diisi.'); return; }
     if (!email.includes('@')) { setError('Format email tidak valid.'); return; }
@@ -26,7 +35,7 @@ const ForgotPasswordScreen = () => {
   };
 
   const handleWASupport = () => {
-    const msg = `Halo Admin BiLova, mau tanya soal [ganti dengan masalahmu]. Bisa bantu?`;
+    const msg = `Halo Admin NutriSea, mau tanya soal [ganti dengan masalahmu]. Bisa bantu?`;
     window.open(`https://wa.me/${WHATSAPP_SUPPORT}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
@@ -35,27 +44,36 @@ const ForgotPasswordScreen = () => {
       {/* Desktop left panel */}
       <div className="auth-left-panel hidden lg:flex">
         <div className="relative z-10 text-white text-center max-w-sm">
-          <img src={logoSrc} alt="BiLova" className="w-32 h-auto object-contain mx-auto mb-5 brightness-0 invert" />
+          <NutriSeaLogoImg h="" className="mx-auto mb-6 brightness-0 invert" style={{ height: '100px' }} />
           <h1 className="text-3xl font-black mb-3">Lupa Password?</h1>
           <p className="text-white/80 text-sm leading-relaxed">
-            Tenang, kami akan membantu Anda memulihkan akses ke akun BiLova Anda dengan aman.
+            Tenang, kami akan membantu Anda memulihkan akses ke akun NutriSea Anda dengan aman.
           </p>
+
+
         </div>
       </div>
 
+
+
       {/* Right panel */}
       <div className="auth-card">
-        <div className="flex flex-col min-h-full px-7 py-8 relative">
-          <FloatingPills />
+        <div className="flex flex-col w-full px-7 py-4 relative h-full justify-center items-center overflow-hidden">
+          <div className="w-full max-w-[420px]">
+            <FloatingPills />
+            {/* Back */}
+            <Link to="/login" className="flex items-center gap-1 text-[#8B2C8C] font-bold text-sm mb-4 w-fit hover:text-[#C85CA0]">
+              <ChevronLeft size={18} /> Kembali
+            </Link>
+            <div className="flex justify-center mb-6">
+              <NutriSeaLogoImg h="" style={{ height: '80px' }} />
+            </div>
 
-          {/* Back */}
-          <Link to="/login" className="flex items-center gap-1 text-[#8B2C8C] font-bold text-sm mb-6 w-fit hover:text-[#C85CA0]">
-            <ChevronLeft size={18} /> Kembali
-          </Link>
 
-          <div className="flex justify-center mb-6">
-            <img src={logoSrc} alt="BiLova" className="h-14 w-auto object-contain" />
-          </div>
+
+
+
+
 
           {success ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center gap-4 animate-slideUp">
@@ -64,14 +82,15 @@ const ForgotPasswordScreen = () => {
               <p className="text-sm text-[#6B4B7B] font-semibold leading-relaxed max-w-xs">
                 Instruksi reset password telah dikirim ke <strong>{email}</strong>. Periksa kotak masuk Anda.
               </p>
-              <Button onClick={() => window.location.href = '/Bilova-web/login'}>Kembali ke Halaman Masuk</Button>
+              <Button onClick={() => navigate('/login')}>Kembali ke Halaman Masuk</Button>
             </div>
           ) : (
             <>
-              <h2 className="text-2xl font-black text-[#2D1B3D] mb-1">Atur Ulang Password</h2>
-              <p className="text-sm text-[#B090C0] font-semibold mb-6">
-                Masukkan email terdaftar. Kami akan kirimkan instruksi pemulihan akun.
+              <h2 className="text-xl font-black text-slate-900 mb-1">Pulihkan Akun Anda</h2>
+              <p className="text-[11px] text-slate-500 font-semibold mb-4 text-center">
+                Jangan khawatir, kami akan membantu Anda masuk kembali. Masukkan email Anda untuk menerima tautan pemulihan.
               </p>
+
 
               {error && <div className="mb-4"><Alert type="error" message={error} /></div>}
 
@@ -88,15 +107,15 @@ const ForgotPasswordScreen = () => {
 
               {/* Info cards */}
               <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="bg-[#EDD9F5]/50 rounded-2xl p-4 border border-[#EDD9F5]">
-                  <ShieldCheck size={22} className="text-[#8B2C8C] mb-2" />
-                  <h4 className="font-black text-[#2D1B3D] text-xs mb-1">Aman & Terenkripsi</h4>
-                  <p className="text-[10px] text-[#B090C0] font-semibold">Data medis Anda terlindungi selama proses pemulihan.</p>
+                <div className="bg-sky-50 rounded-2xl p-4 border border-sky-100">
+                  <ShieldCheck size={22} className="text-sky-600 mb-2" />
+                  <h4 className="font-black text-sky-900 text-xs mb-1">Aman & Terenkripsi</h4>
+                  <p className="text-[10px] text-sky-600/70 font-semibold">Data medis Anda terlindungi selama proses pemulihan.</p>
                 </div>
-                <div className="bg-[#EDD9F5]/50 rounded-2xl p-4 border border-[#EDD9F5]">
-                  <HelpCircle size={22} className="text-[#8B2C8C] mb-2" />
-                  <h4 className="font-black text-[#2D1B3D] text-xs mb-1">Butuh Bantuan?</h4>
-                  <p className="text-[10px] text-[#B090C0] font-semibold">Tim kami siap membantu Anda kembali ke akun.</p>
+                <div className="bg-sky-50 rounded-2xl p-4 border border-sky-100">
+                  <HelpCircle size={22} className="text-sky-600 mb-2" />
+                  <h4 className="font-black text-sky-900 text-xs mb-1">Butuh Bantuan?</h4>
+                  <p className="text-[10px] text-sky-600/70 font-semibold">Tim kami siap membantu Anda kembali ke akun.</p>
                 </div>
               </div>
 
@@ -111,10 +130,12 @@ const ForgotPasswordScreen = () => {
               </button>
             </>
           )}
+          </div>
         </div>
       </div>
     </div>
   );
 };
+
 
 export default ForgotPasswordScreen;

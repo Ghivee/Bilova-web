@@ -9,8 +9,9 @@ const NutriSeaLogo = () => (
   <img 
     src={logoSrc} 
     alt="NutriSea" 
-    className="h-10 w-auto object-contain" 
+    className="h-12 w-auto object-contain" 
   />
+
 );
 
 

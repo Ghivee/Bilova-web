@@ -120,9 +120,10 @@ const AdminDataPasien = () => {
 
   if (loading) return (
     <div className="flex items-center justify-center py-20">
-      <div className="w-10 h-10 border-4 border-[#EDD9F5] border-t-[#8B2C8C] rounded-full animate-spin" />
+      <div className="w-10 h-10 border-4 border-sky-100 border-t-sky-600 rounded-full animate-spin" />
     </div>
   );
+
 
   /* ─── Patient Detail View ─── */
   if (selected) {
@@ -130,51 +131,55 @@ const AdminDataPasien = () => {
       <div>
         {/* Back */}
         <button onClick={() => { setSelected(null); setShowMedForm(false); setError(''); }}
-          className="flex items-center gap-2 text-[#8B2C8C] font-bold text-sm mb-6 hover:text-[#C85CA0]">
+          className="flex items-center gap-2 text-sky-600 font-bold text-sm mb-6 hover:text-sky-700">
           <ChevronLeft size={18} /> Kembali ke Daftar
         </button>
 
+
         {/* Patient header */}
-        <div className="bg-gradient-to-br from-[#EDD9F5] to-[#D4A8E0]/40 rounded-2xl p-6 mb-6 border border-[#EDD9F5]">
+        <div className="bg-gradient-to-br from-sky-50 to-cyan-50/40 rounded-2xl p-6 mb-6 border border-sky-100">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#8B2C8C] to-[#C85CA0] flex items-center justify-center text-white font-black text-xl shadow-bilova-sm">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-sky-600 to-cyan-400 flex items-center justify-center text-white font-black text-xl shadow-nutrisea-sm">
               {getInitials(selected.full_name)}
             </div>
+
             <div>
-              <h2 className="text-2xl font-black text-[#8B2C8C]">{selected.full_name || '-'}</h2>
-              <p className="text-[#6B4B7B] font-semibold text-sm">{selected.email}</p>
+              <h2 className="text-2xl font-black text-sky-800">{selected.full_name || '-'}</h2>
+              <p className="text-sky-600 font-semibold text-sm">{selected.email}</p>
               <div className="flex flex-wrap gap-2 mt-2">
-                {selected.gender && <Badge>{selected.gender}</Badge>}
+                {selected.gender && <Badge color="sky">{selected.gender}</Badge>}
                 {selected.phone && <Badge color="slate">{selected.phone}</Badge>}
-                {selected.allergy_info && <Badge color="red">Alergi: {selected.allergy_info}</Badge>}
+                {selected.allergy_info && <Badge color="red">Catatan: {selected.allergy_info}</Badge>}
               </div>
             </div>
             {/* Compliance badge */}
             <div className="ml-auto text-right">
-              <p className="text-xs font-black text-[#B090C0] uppercase mb-1">Kepatuhan</p>
-              <p className={`text-3xl font-black ${patientCompliance >= 80 ? 'text-[#8B2C8C]' : patientCompliance >= 50 ? 'text-amber-600' : 'text-red-600'}`}>
+              <p className="text-xs font-black text-sky-400 uppercase mb-1">Kepatuhan</p>
+              <p className={`text-3xl font-black ${patientCompliance >= 80 ? 'text-sky-600' : patientCompliance >= 50 ? 'text-amber-600' : 'text-red-600'}`}>
                 {patientCompliance}%
               </p>
             </div>
+
           </div>
         </div>
 
         {error && <div className="mb-4"><Alert type="error" message={error} /></div>}
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-[#EDD9F5]/50 p-1 rounded-2xl mb-5 overflow-x-auto hide-scrollbar">
+        <div className="flex gap-1 bg-sky-50 p-1 rounded-2xl mb-5 overflow-x-auto hide-scrollbar">
           {[
-            { key: 'data', label: 'Data Pribadi' },
-            { key: 'obat', label: `Resep Obat (${patientMeds.length})` },
-            { key: 'kepatuhan', label: `Log Kepatuhan (${patientLogs.length})` },
-            { key: 'gejala', label: `Gejala (${patientSymptoms.length})` },
+            { key: 'data', label: 'Data Balita' },
+            { key: 'obat', label: `Jadwal Gummy (${patientMeds.length})` },
+            { key: 'kepatuhan', label: `Log Konsumsi (${patientLogs.length})` },
+            { key: 'gejala', label: `Tumbuh Kembang (${patientSymptoms.length})` },
           ].map(t => (
             <button key={t.key} onClick={() => setActiveTab(t.key)}
-              className={`flex-shrink-0 px-4 py-2 rounded-xl font-bold text-sm transition-all ${activeTab === t.key ? 'bg-white text-[#8B2C8C] shadow-card' : 'text-[#B090C0]'}`}>
+              className={`flex-shrink-0 px-4 py-2 rounded-xl font-bold text-sm transition-all ${activeTab === t.key ? 'bg-white text-sky-600 shadow-card' : 'text-sky-300'}`}>
               {t.label}
             </button>
           ))}
         </div>
+
 
         {/* Tab: Data Pribadi */}
         {activeTab === 'data' && (
@@ -392,45 +397,46 @@ const AdminDataPasien = () => {
       {/* Table */}
       <div className="bg-white rounded-2xl border border-[#EDD9F5] overflow-hidden shadow-card">
         <table className="w-full">
-          <thead className="bg-[#EDD9F5]/40">
+          <thead className="bg-sky-50">
             <tr>
-              {['Pasien', 'Kontak', 'Alergi', 'Bergabung', 'Aksi'].map(h => (
-                <th key={h} className="text-left px-5 py-3.5 text-[10px] font-black text-[#B090C0] uppercase tracking-widest">{h}</th>
+              {['Balita', 'Orang Tua', 'Catatan', 'Bergabung', 'Aksi'].map(h => (
+                <th key={h} className="text-left px-5 py-3.5 text-[10px] font-black text-sky-400 uppercase tracking-widest">{h}</th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#EDD9F5]">
+          <tbody className="divide-y divide-sky-100">
             {filtered.length === 0 ? (
-              <tr><td colSpan={5} className="px-5 py-10 text-center text-[#B090C0] font-bold">
-                {search ? `Tidak ada hasil untuk "${search}"` : 'Belum ada pasien.'}
+              <tr><td colSpan={5} className="px-5 py-10 text-center text-sky-300 font-bold">
+                {search ? `Tidak ada hasil untuk "${search}"` : 'Belum ada balita terdaftar.'}
               </td></tr>
             ) : filtered.map(p => (
-              <tr key={p.id} className="hover:bg-[#EDD9F5]/20 transition">
+              <tr key={p.id} className="hover:bg-sky-50/50 transition">
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-[#EDD9F5] flex items-center justify-center text-[#8B2C8C] font-black text-xs shrink-0">
+                    <div className="w-9 h-9 rounded-full bg-sky-100 flex items-center justify-center text-sky-600 font-black text-xs shrink-0">
                       {getInitials(p.full_name)}
                     </div>
                     <div>
-                      <p className="font-bold text-[#2D1B3D] text-sm">{p.full_name || '-'}</p>
-                      <p className="text-xs text-[#B090C0] font-semibold">{p.gender || '-'}</p>
+                      <p className="font-bold text-sky-900 text-sm">{p.full_name || '-'}</p>
+                      <p className="text-xs text-sky-400 font-semibold">{p.gender || '-'}</p>
                     </div>
                   </div>
                 </td>
-                <td className="px-5 py-4 text-sm text-[#6B4B7B] font-semibold">{p.phone || p.email?.split('@')[0]}</td>
+                <td className="px-5 py-4 text-sm text-sky-600 font-semibold">{p.phone || p.email?.split('@')[0]}</td>
                 <td className="px-5 py-4">
-                  {p.allergy_info ? <Badge color="red">{p.allergy_info}</Badge> : <span className="text-[#D4A8E0] text-xs font-semibold">-</span>}
+                  {p.allergy_info ? <Badge color="red">{p.allergy_info}</Badge> : <span className="text-sky-200 text-xs font-semibold">-</span>}
                 </td>
-                <td className="px-5 py-4 text-xs text-[#B090C0] font-semibold">
+                <td className="px-5 py-4 text-xs text-sky-300 font-semibold">
                   {new Date(p.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </td>
                 <td className="px-5 py-4">
-                  <button onClick={() => selectPatient(p)} className="text-[#8B2C8C] font-bold text-sm hover:text-[#C85CA0] flex items-center gap-1">
+                  <button onClick={() => selectPatient(p)} className="text-sky-600 font-bold text-sm hover:text-sky-700 flex items-center gap-1">
                     Detail <ChevronRight size={14} />
                   </button>
                 </td>
               </tr>
             ))}
+
           </tbody>
         </table>
       </div>

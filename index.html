@@ -21,7 +21,52 @@
         }
       })();
     </script>
+    <style>
+      /* THE UNDERLAY FOUNDATION */
+      * { box-sizing: border-box !important; }
+      html, body { 
+        height: 100dvh !important; 
+        width: 100dvw !important; 
+        margin: 0 !important; 
+        padding: 0 !important; 
+        overflow: hidden !important; 
+        background: #0284c7 !important;
+      }
+      body::before {
+        content: "" !important;
+        position: fixed !important;
+        left: 0 !important; top: 0 !important; bottom: 0 !important; 
+        right: 440px !important;
+        background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%) !important;
+        z-index: 0 !important;
+      }
+      body::after {
+        content: "" !important;
+        position: fixed !important;
+        right: 0 !important; top: 0 !important; bottom: 0 !important; 
+        width: 440px !important;
+        background: white !important;
+        z-index: 0 !important;
+      }
+      @media (max-width: 1023px) {
+        body::before { display: none !important; }
+        body::after { width: 100% !important; left: 0 !important; }
+      }
+      #root { 
+        position: relative !important; 
+        z-index: 10 !important; 
+        background: transparent !important; 
+      }
+      #root *, #root {
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+    </style>
   </head>
+
+
+
+
   <body>
     <div id="root"></div>
     <script type="module" src="./src/main.jsx"></script>

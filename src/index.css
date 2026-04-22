@@ -1,159 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
 
-/* ============ NUTRISEA DESIGN TOKENS ============ */
 :root {
-  --primary: #0284c7;      /* NutriSea blue */
-  --primary-dark: #0369a1;
-  --primary-light: #38bdf8;
-  --accent: #22d3ee;        /* Aqua/Cyan accent */
-  --accent-light: #67e8f9;
-  --ocean-light: #e0f2fe;   /* Background cards & hover */
-  --ocean-mid: #bae6fd;
-  --surf: #f0f9ff;         /* Main background */
-  --text-dark: #0f172a;
-  --text-mid: #334155;
-  --text-light: #64748b;
-}
-
-/* ============ BASE ============ */
-*, *::before, *::after { box-sizing: border-box; }
-
-html, body, #root {
-  height: 100%;
-  margin: 0;
-  padding: 0;
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
 }
 
 body {
-  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: var(--surf);
-  color: var(--text-dark);
-  -webkit-font-smoothing: antialiased;
+  margin: 0;
+  padding: 0;
+  overflow: hidden !important;
 }
 
-/* ============ VIEWPORT FIT (no unwanted scroll) ============ */
-.viewport-fit {
-  height: 100dvh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ============ AUTH SHELL ============ */
-.auth-outer {
-  min-height: 100dvh;
-  width: 100%;
-  display: flex;
-  align-items: stretch;
-  background: linear-gradient(135deg, #0369a1 0%, #0284c7 40%, #22d3ee 100%);
-  font-family: 'Nunito', -apple-system, sans-serif;
-}
-/* Mobile: full screen card */
-.auth-card {
-  width: 100%;
-  background: var(--surf);
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  min-height: 100dvh;
-}
-/* Desktop: side-by-side */
-@media (min-width: 1024px) {
-  .auth-outer {
-    align-items: center;
-    justify-content: center;
-  }
-  .auth-left-panel {
-    display: flex;
-    flex: 1;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem;
-    flex-direction: column;
-    gap: 2rem;
-    min-height: 100dvh;
-  }
-  .auth-card {
-    width: 440px;
-    min-width: 440px;
-    max-height: 100dvh;
-    min-height: 100dvh;
-    border-radius: 0;
-    box-shadow: -20px 0 60px rgba(0,0,0,0.3);
-    overflow-y: auto;
-  }
-}
-
-/* ============ PILL DECORATION SHAPES ============ */
-.pill-shape {
-  border-radius: 50px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.pill-capsule {
-  width: 40px;
-  height: 20px;
-  border-radius: 10px;
-  display: inline-block;
-}
-
-/* ============ SCROLLABLE CONTENT AREAS ============ */
-.scroll-area {
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-.scroll-area::-webkit-scrollbar { width: 3px; }
-.scroll-area::-webkit-scrollbar-track { background: transparent; }
-.scroll-area::-webkit-scrollbar-thumb { background: var(--ocean-mid); border-radius: 10px; }
-
-/* ============ HIDE SCROLLBAR ============ */
-.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-.hide-scrollbar::-webkit-scrollbar { display: none; }
-
-/* ============ RANGE SLIDER ============ */
-input[type=range] {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 8px;
-  border-radius: 4px;
-  background: var(--ocean-light);
-  outline: none;
-  cursor: pointer;
-}
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  height: 26px; width: 26px;
-  border-radius: 50%;
-  background: var(--primary);
-  cursor: pointer;
-  border: 3px solid white;
-  box-shadow: 0 2px 8px rgba(2,132,199,0.4);
-}
-
-/* ============ SHADOW UTILITIES ============ */
-.shadow-nutrisea { box-shadow: 0 8px 32px rgba(2,132,199,0.2); }
-.shadow-nutrisea-sm { box-shadow: 0 2px 12px rgba(2,132,199,0.15); }
-.shadow-card { box-shadow: 0 2px 16px rgba(15,23,42,0.08); }
-
-/* ============ ANIMATIONS ============ */
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-slideUp { animation: slideUp 0.25s ease; }
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-.animate-fadeIn { animation: fadeIn 0.2s ease; }
-
-/* ============ GLASS CARD ============ */
-.glass {
-  background: rgba(240,249,255,0.9);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(186,230,253,0.3);
-}
+/* REMOVE ALL CUSTOM AUTH CSS TO PREVENT CONFLICTS */
+ .auth-page {
+   overflow: hidden !important;
+ }

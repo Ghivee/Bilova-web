@@ -3,7 +3,7 @@ import { Pill, CheckCircle2, Clock, TrendingUp, Bell, Calendar, Lightbulb, Alert
 import { Button, SectionTitle, Alert } from '../../components/UIComponents';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
-import logoSrc from '../../assets/Bilova_Logo.png';
+import logoSrc from '../../assets/Nutrisea_Logo.PNG';
 
 const DAY_NAMES_SHORT = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
