@@ -2,14 +2,16 @@ import React from 'react';
 import logoSrc from '../assets/Nutrisea_Logo.PNG';
 
 /* ─── NutriSea Official Logo Mark ─── */
-export const NutriSeaLogoImg = ({ h = 'h-12', className = '' }) => (
+export const NutriSeaLogoImg = ({ size = 64, className = '' }) => (
   <img 
     src={logoSrc} 
     alt="NutriSea" 
-    className={`${h} w-auto object-contain ${className}`}
+    width={size} 
+    height={size}
+    className={`object-contain ${className}`}
+    style={{ maxWidth: size * 2.5, maxHeight: size }}
   />
 );
-
 
 
 export const PillShape = ({ color = '#0284c7', className = '' }) => (
@@ -24,41 +26,41 @@ export const PillShape = ({ color = '#0284c7', className = '' }) => (
 export const FloatingPills = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
     <div className="absolute top-[8%] left-[12%] rotate-[25deg] opacity-30">
-      <PillShape color="#EDD9F5" />
+      <PillShape color="#e0f2fe" />
     </div>
     <div className="absolute top-[18%] right-[8%] rotate-[-15deg] opacity-25">
       <svg width="28" height="14" viewBox="0 0 28 14" fill="none">
-        <rect width="28" height="14" rx="7" fill="#EDD9F5" />
-        <rect width="14" height="14" rx="7" fill="#D4A8E0" />
+        <rect width="28" height="14" rx="7" fill="#e0f2fe" />
+        <rect width="14" height="14" rx="7" fill="#7dd3fc" />
       </svg>
     </div>
     <div className="absolute top-[35%] left-[5%] rotate-[45deg] opacity-20">
       <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-        <circle cx="11" cy="11" r="10" fill="#EDD9F5" />
-        <circle cx="11" cy="11" r="5" fill="#D4A8E0" />
+        <circle cx="11" cy="11" r="10" fill="#e0f2fe" />
+        <circle cx="11" cy="11" r="5" fill="#7dd3fc" />
       </svg>
     </div>
     <div className="absolute bottom-[25%] right-[5%] rotate-[60deg] opacity-25">
-      <PillShape color="#EDD9F5" />
+      <PillShape color="#e0f2fe" />
     </div>
     <div className="absolute bottom-[12%] left-[18%] rotate-[-30deg] opacity-20">
       <svg width="30" height="15" viewBox="0 0 30 15" fill="none">
-        <rect width="30" height="15" rx="7.5" fill="#EDD9F5" />
-        <rect x="15" width="15" height="15" rx="7.5" fill="#D4A8E0" />
+        <rect width="30" height="15" rx="7.5" fill="#e0f2fe" />
+        <rect x="15" width="15" height="15" rx="7.5" fill="#7dd3fc" />
       </svg>
     </div>
   </div>
 );
 
 /* ─── Circular Progress Ring ─── */
-export const CircularProgress = ({ percentage, size = 100, strokeWidth = 8, color = '#8B2C8C' }) => {
+export const CircularProgress = ({ percentage, size = 100, strokeWidth = 8, color = '#0284c7' }) => {
   const r = (size - strokeWidth) / 2;
   const circ = r * 2 * Math.PI;
   const offset = circ - (Math.min(percentage, 100) / 100) * circ;
   return (
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
       <svg className="transform -rotate-90" width={size} height={size}>
-        <circle cx={size / 2} cy={size / 2} r={r} stroke="#EDD9F5" strokeWidth={strokeWidth} fill="transparent" />
+        <circle cx={size / 2} cy={size / 2} r={r} stroke="#f0f9ff" strokeWidth={strokeWidth} fill="transparent" />
         <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={strokeWidth} fill="transparent"
           strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
           style={{ transition: 'stroke-dashoffset 0.8s ease' }}
@@ -75,13 +77,14 @@ export const CircularProgress = ({ percentage, size = 100, strokeWidth = 8, colo
 export const Button = ({ children, onClick, variant = 'primary', className = '', type = 'button', disabled = false }) => {
   const base = 'w-full py-3.5 rounded-full font-bold transition-all flex items-center justify-center gap-2 text-sm active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed select-none';
   const variants = {
-    primary: 'bg-sky-600 text-white shadow-nutrisea hover:bg-sky-700',
+    primary: 'bg-sky-600 text-white shadow-nutrisea hover:bg-sky-700 hover:shadow-nutrisea-lg',
     secondary: 'bg-sky-100 text-sky-600 hover:bg-sky-200',
     outline: 'border-2 border-sky-600 text-sky-600 hover:bg-sky-50',
     ghost: 'text-sky-600 hover:bg-sky-50',
-    danger: 'bg-red-500 text-white hover:bg-red-600 shadow-sm',
-    white: 'bg-white text-sky-600 shadow-card hover:bg-sky-50',
+    danger: 'bg-red-500 text-white hover:bg-red-600 shadow-md',
+    white: 'bg-white text-sky-600 shadow-nutrisea-sm hover:bg-sky-50',
   };
+
   return (
     <button type={type} onClick={onClick} disabled={disabled} className={`${base} ${variants[variant]} ${className}`}>
       {children}
@@ -140,10 +143,11 @@ export const Alert = ({ type = 'error', message }) => {
   if (!message) return null;
   const styles = {
     error: 'bg-red-50 border-red-200 text-red-700',
-    success: 'bg-[#EDD9F5] border-[#D4A8E0] text-[#6B1B6C]',
+    success: 'bg-sky-50 border-sky-200 text-sky-700',
     warning: 'bg-amber-50 border-amber-200 text-amber-800',
     info: 'bg-blue-50 border-blue-200 text-blue-700',
   };
+
   const icons = { error: '⚠️', success: '✅', warning: '⚠️', info: 'ℹ️' };
   return (
     <div className={`border rounded-2xl px-4 py-3 text-sm font-semibold flex items-start gap-2 ${styles[type]}`}>

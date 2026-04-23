@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
-
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowRight, Phone } from 'lucide-react';
-import { Button, InputField, Alert, FloatingPills, NutriSeaLogoImg } from '../../components/UIComponents';
-
+import { Button, InputField, Alert, FloatingPills } from '../../components/UIComponents';
 import { useAuth } from '../../contexts/AuthContext';
 import logoSrc from '../../assets/Nutrisea_Logo.PNG';
 
@@ -35,33 +33,35 @@ const ProfileCompletionStep = ({ userId, onDone }) => {
   return (
     <div className="flex flex-col px-7 py-8 min-h-full">
       <div className="flex justify-center mb-6 mt-2">
-        <img src={logoSrc} alt="NutriSea" className="h-14 w-auto object-contain" />
+        <img src={logoSrc} alt="NutriSea" className="h-20 w-auto object-contain" />
       </div>
-      <h2 className="text-2xl font-black text-[#2D1B3D] mb-1">Lengkapi Profil</h2>
-      <p className="text-sm text-[#B090C0] font-semibold mb-5">Data ini diperlukan agar dokter dapat memantau pengobatan Anda dengan tepat.</p>
+      <h2 className="text-2xl font-black text-slate-900 mb-1">Lengkapi Profil</h2>
+      <p className="text-sm text-slate-500 font-semibold mb-5">Data ini diperlukan agar NutriSea dapat membantu memantau gizi si kecil dengan tepat.</p>
+
       {error && <div className="mb-4"><Alert type="error" message={error} /></div>}
       <form onSubmit={handleSubmit} className="space-y-4 flex-1 flex flex-col">
         <div>
-          <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-2 block">Nomor Telepon *</label>
+          <label className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2 block">Nomor Telepon *</label>
           <InputField icon={Phone} name="phone" placeholder="08xxxxxxxxx" type="tel" value={form.phone} onChange={handle} />
         </div>
         <div>
-          <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-2 block">Jenis Kelamin *</label>
+          <label className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2 block">Jenis Kelamin *</label>
           <select name="gender" value={form.gender} onChange={handle}
-            className="w-full bg-white border-2 border-[#EDD9F5] rounded-2xl px-4 py-3 text-[#2D1B3D] font-semibold text-sm focus:outline-none focus:border-[#8B2C8C] transition">
+            className="w-full bg-white border-2 border-sky-100 rounded-2xl px-4 py-3 text-slate-800 font-semibold text-sm focus:outline-none focus:border-sky-600 transition">
             <option value="">-- Pilih jenis kelamin --</option>
             <option value="Laki-laki">Laki-laki</option>
             <option value="Perempuan">Perempuan</option>
           </select>
         </div>
         <div>
-          <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-2 block">Tanggal Lahir *</label>
+          <label className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2 block">Tanggal Lahir *</label>
           <input type="date" name="date_of_birth" value={form.date_of_birth} onChange={handle}
-            className="w-full bg-white border-2 border-[#EDD9F5] rounded-2xl px-4 py-3 text-[#2D1B3D] font-semibold text-sm focus:outline-none focus:border-[#8B2C8C] transition" />
+            className="w-full bg-white border-2 border-sky-100 rounded-2xl px-4 py-3 text-slate-800 font-semibold text-sm focus:outline-none focus:border-sky-600 transition" />
         </div>
+
         <div>
-          <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-2 block">Info Alergi <span className="text-[#B090C0] normal-case font-semibold">(opsional)</span></label>
-          <InputField icon={ShieldCheck} name="allergy_info" placeholder="Misal: Penisilin" value={form.allergy_info} onChange={handle} />
+          <label className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2 block">Info Alergi <span className="text-sky-400 normal-case font-semibold">(opsional)</span></label>
+          <InputField icon={ShieldCheck} name="allergy_info" placeholder="Misal: Seafood" value={form.allergy_info} onChange={handle} />
         </div>
         <div className="mt-auto pt-2">
           <Button type="submit" disabled={loading}>
@@ -86,13 +86,7 @@ const RegisterScreen = () => {
   const navigate = useNavigate();
   const handle = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
-  useEffect(() => {
-    document.body.classList.add('auth-page');
-    return () => document.body.classList.remove('auth-page');
-  }, []);
-
   const handleRegister = async (e) => {
-
     e.preventDefault();
     setError('');
     if (!form.fullName.trim()) { setError('Nama lengkap wajib diisi.'); return; }
@@ -101,7 +95,8 @@ const RegisterScreen = () => {
     if (!form.password) { setError('Password wajib diisi.'); return; }
     if (form.password.length < 8) { setError('Password minimal 8 karakter.'); return; }
     if (form.password !== form.confirmPassword) { setError('Password dan konfirmasi tidak cocok.'); return; }
-    if (!agreed) { setError('Anda harus menyetujui Syarat & Ketentuan BiLova.'); return; }
+    if (!agreed) { setError('Anda harus menyetujui Syarat & Ketentuan NutriSea.'); return; }
+
     setLoading(true);
     try {
       const result = await Promise.race([
@@ -151,75 +146,60 @@ const RegisterScreen = () => {
   return (
     <div className="auth-outer">
       {/* Desktop left panel */}
-      <div className="auth-left-panel hidden lg:flex">
+      <div className="auth-left-panel hidden lg:flex" style={{ background: 'linear-gradient(135deg, #0284c7 0%, #0891b2 40%, #06b6d4 100%)' }}>
         <div className="relative z-10 text-white text-center max-w-sm">
-          <NutriSeaLogoImg h="" className="mx-auto mb-6 brightness-0 invert" style={{ height: '100px' }} />
+          <img src={logoSrc} alt="NutriSea" className="w-53 h-auto object-contain mx-auto mb-5 brightness-0 invert" />
+          <h1 className="text-3xl font-black mb-3 leading-tight">Bergabunglah<br />dengan NutriSea</h1>
 
-
-
-          <h1 className="text-3xl font-black mb-3">Bergabunglah<br />dengan NutriSea</h1>
           <p className="text-white/80 text-sm leading-relaxed">Daftarkan si kecil dan mulai perjalanan pemantauan gizi yang lebih teratur, aman, dan efektif.</p>
         </div>
       </div>
 
-
-
-
-
-
       <div className="auth-card">
-        <div className="flex flex-col w-full px-7 py-4 relative h-full justify-center items-center overflow-hidden">
-          <div className="w-full max-w-[420px]">
-            <FloatingPills />
-            <div className="flex justify-center mb-6">
-              <NutriSeaLogoImg h="" style={{ height: '80px' }} />
-            </div>
-
-
-
-
-
-
-
-
-          <h2 className="text-xl font-black text-slate-900 mb-1">Mari Tumbuh Bersama</h2>
-          <p className="text-[11px] text-slate-500 font-semibold mb-4 text-center">Mulai langkah cerdas cegah stunting dengan NutriSea. Pemantauan gizi jadi lebih mudah dan teratur.</p>
+        <div className="flex flex-col min-h-full px-7 py-8 relative">
+          <FloatingPills />
+          <div className="flex justify-center mb-5 mt-2">
+            <img src={logoSrc} alt="NutriSea" className="h-43 w-auto object-contain" />
+          </div>
+          <h2 className="text-2xl font-black text-slate-900 mb-1">Buat Akun Baru</h2>
+          <p className="text-sm text-slate-500 font-semibold mb-5">Lengkapi data si kecil untuk memulai perjalanan sehat.</p>
 
 
           {error && <div className="mb-4"><Alert type="error" message={error} /></div>}
 
           <form onSubmit={handleRegister} className="space-y-4 flex-1 flex flex-col">
             <div>
-              <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-2 block">Nama Lengkap</label>
-              <InputField icon={User} name="fullName" placeholder="Nama lengkap Anda" value={form.fullName} onChange={handle} />
+              <label className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2 block">Nama Lengkap</label>
+              <InputField icon={User} name="fullName" placeholder="Masukkan nama lengkap" value={form.fullName} onChange={handle} />
             </div>
             <div>
-              <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-2 block">Email</label>
+              <label className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2 block">Email</label>
               <InputField icon={Mail} name="email" type="email" placeholder="contoh@email.com" value={form.email} onChange={handle} />
             </div>
             <div>
-              <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-2 block">Password</label>
-              <InputField icon={Lock} name="password" type={showPass ? 'text' : 'password'} placeholder="Min. 8 karakter" value={form.password} onChange={handle}
+              <label className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2 block">Password</label>
+              <InputField icon={Lock} name="password" type={showPass ? 'text' : 'password'} placeholder="Minimal 8 karakter" value={form.password} onChange={handle}
                 rightIcon={
-                  <button type="button" onClick={() => setShowPass(!showPass)} className="text-[#B090C0] hover:text-[#8B2C8C] transition">
+                  <button type="button" onClick={() => setShowPass(!showPass)} className="text-slate-400 hover:text-sky-600 transition">
                     {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 }
               />
             </div>
             <div>
-              <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-2 block">Konfirmasi Password</label>
+              <label className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2 block">Konfirmasi Password</label>
               <InputField icon={ShieldCheck} name="confirmPassword" type="password" placeholder="Ulangi password" value={form.confirmPassword} onChange={handle} />
             </div>
             <div className="flex items-start gap-3">
               <button type="button" onClick={() => setAgreed(!agreed)}
-                className={`w-5 h-5 rounded-md border-2 mt-0.5 flex-shrink-0 flex items-center justify-center transition-all ${agreed ? 'bg-[#8B2C8C] border-[#8B2C8C]' : 'border-[#EDD9F5]'}`}>
-                {agreed && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/></svg>}
+                className={`w-5 h-5 rounded-md border-2 mt-0.5 flex-shrink-0 flex items-center justify-center transition-all ${agreed ? 'bg-sky-600 border-sky-600' : 'border-sky-100'}`}>
+                {agreed && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
               </button>
-              <p className="text-xs text-[#6B4B7B] font-semibold leading-relaxed">
+              <p className="text-xs text-slate-500 font-semibold leading-relaxed">
                 Saya menyetujui <span className="text-sky-600 font-black">Syarat & Ketentuan</span> serta <span className="text-sky-600 font-black">Kebijakan Privasi</span> NutriSea.
               </p>
             </div>
+
             <div className="mt-auto pt-1">
               <Button type="submit" disabled={loading}>
                 {loading ? <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Mendaftar...</>
@@ -227,16 +207,15 @@ const RegisterScreen = () => {
               </Button>
             </div>
           </form>
-          <p className="text-center mt-5 mb-2 text-sm text-[#6B4B7B] font-semibold">
+          <p className="text-center mt-5 mb-2 text-sm text-slate-500 font-semibold">
             Sudah punya akun?{' '}
-            <Link to="/login" className="text-[#8B2C8C] font-black hover:text-[#C85CA0]">Masuk di sini</Link>
+            <Link to="/login" className="text-sky-600 font-black hover:text-sky-700">Masuk di sini</Link>
           </p>
+
         </div>
       </div>
     </div>
-  </div>
   );
 };
-
 
 export default RegisterScreen;

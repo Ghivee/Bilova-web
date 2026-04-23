@@ -41,11 +41,13 @@ const Profil = () => {
       const startOfMonth = new Date(); startOfMonth.setDate(1); startOfMonth.setHours(0, 0, 0, 0);
       const dayOfMonth = new Date().getDate();
 
-      const [medsRes, logsRes] = await Promise.all([
-        supabase.from('medications').select('id').eq('user_id', profile.id).eq('is_active', true),
+      const [medRes, logsRes] = await Promise.all([
+        supabase.from('medications').select('id, name, dosage').eq('is_active', true).eq('user_id', profile.id),
         supabase.from('compliance_logs').select('taken_at').eq('user_id', profile.id).eq('status', 'taken').gte('taken_at', startOfMonth.toISOString())
       ]);
-      const totalMeds = medsRes.data?.length || 0;
+      if (medRes.error) throw new Error('Gagal memuat data gummy: ' + medRes.error.message);
+      
+      const totalMeds = medRes.data?.length || 0;
       const taken = logsRes.data?.length || 0;
       const totalExpected = totalMeds * dayOfMonth;
       const pct = totalExpected > 0 ? Math.min(Math.round((taken / totalExpected) * 100), 100) : 0;
@@ -268,7 +270,7 @@ const Profil = () => {
         <div className="text-center">
           <div className="text-5xl mb-3">🐠</div>
           <p className="font-bold text-slate-700 leading-relaxed text-sm">
-            <strong>NutriSea</strong> adalah inovasi sistem intervensi stunting berbasis pangan fungsional dummy dari fauna laut yang membantu pemantauan dan edukasi masyarakat secara real-time.
+            <strong>NutriSea</strong> adalah inovasi sistem intervensi stunting berbasis pangan fungsional gummy dari fauna laut yang membantu pemantauan dan edukasi masyarakat secara real-time.
           </p>
           <div className="mt-4 bg-sky-50 rounded-2xl p-3 border border-sky-100">
             <p className="text-xs text-slate-500 font-bold">Versi 1.0.0 · © 2026 NutriSea</p>

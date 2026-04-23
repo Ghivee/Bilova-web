@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
-
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Fish, Activity, BookOpen, Bot } from 'lucide-react';
-import { Button, InputField, Alert, NutriSeaLogoImg } from '../../components/UIComponents';
-
+import { Button, InputField, Alert } from '../../components/UIComponents';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import logoSrc from '../../assets/Nutrisea_Logo.PNG';
@@ -14,25 +12,19 @@ const AuthLeftPanel = () => (
     style={{ background: 'linear-gradient(135deg, #0284c7 0%, #0891b2 40%, #06b6d4 100%)' }}>
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {[{ top: '5%', left: '10%', size: 80 }, { top: '30%', right: '5%', size: 60 },
-        { bottom: '15%', left: '8%', size: 50 }, { top: '60%', left: '40%', size: 100 },
+      { bottom: '15%', left: '8%', size: 50 }, { top: '60%', left: '40%', size: 100 },
       ].map((c, i) => (
-        <div key={i} style={{ position: 'absolute', top: c.top, left: c.left, right: c.right, bottom: c.bottom,
-          width: c.size, height: c.size, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+        <div key={i} style={{
+          position: 'absolute', top: c.top, left: c.left, right: c.right, bottom: c.bottom,
+          width: c.size, height: c.size, borderRadius: '50%', background: 'rgba(255,255,255,0.08)'
+        }} />
       ))}
     </div>
-    <div className="relative z-10 text-white text-center max-w-sm">
-      {/* Brand logo - Slightly enlarged and proportional */}
-      <div className="flex items-center justify-center mb-4">
-        <NutriSeaLogoImg h="" className="brightness-0 invert" style={{ height: '96px' }} />
+    <div className="relative z-10 text-white text-center max-w-md mt-6">
+      {/* Wordmark */}
+      <div className="flex items-center gap-3 justify-center mb-8">
+        <img src={logoSrc} alt="NutriSea" className="h-53 w-auto object-contain brightness-0 invert" />
       </div>
-
-
-
-
-
-
-
-
 
       <h1 className="text-3xl font-black mb-3 tracking-tight leading-tight">
         Solusi Intervensi<br />Stunting Modern
@@ -66,13 +58,7 @@ const LoginScreen = () => {
   const { signIn } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    document.body.classList.add('auth-page');
-    return () => document.body.classList.remove('auth-page');
-  }, []);
-
   const handleLogin = async (e) => {
-
     e.preventDefault();
     if (!email.trim()) { setError('Email wajib diisi.'); return; }
     if (!password) { setError('Password wajib diisi.'); return; }
@@ -95,106 +81,78 @@ const LoginScreen = () => {
   };
 
   return (
-    <>
-      <style>{`
-        #root { background: transparent !important; }
-        .nuclear-outer { position: fixed !important; inset: 0 !important; z-index: 100 !important; display: flex !important; align-items: stretch !important; background: transparent !important; }
-        .nuclear-left { flex: 1 !important; display: flex !important; align-items: center !important; justify-content: center !important; background: transparent !important; }
-        .nuclear-right { width: 440px !important; min-width: 440px !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; background: transparent !important; }
-        @media (max-width: 1023px) {
-          .nuclear-left { display: none !important; }
-          .nuclear-right { width: 100% !important; min-width: 100% !important; }
-        }
-      `}</style>
-
-      <div className="nuclear-outer">
-        {/* Left Panel */}
-        <div className="nuclear-left hidden lg:flex">
-          <div style={{ textAlign: 'center', maxWidth: '320px', color: 'white' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
-              <NutriSeaLogoImg h="" className="brightness-0 invert" style={{ height: '96px' }} />
-            </div>
-            <h1 style={{ fontSize: '28px', fontWeight: 900, marginBottom: '0.75rem', lineHeight: 1.2 }}>Solusi Intervensi<br />Stunting Modern</h1>
-            <p style={{ fontSize: '14px', opacity: 0.9, fontWeight: 600, marginBottom: '2rem' }}>
-              Gummy fauna laut bernutrisi tinggi untuk tumbuh kembang si kecil yang optimal.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {[
-                { icon: Activity, text: 'Pantau Tumbuh Kembang 24/7' },
-                { icon: Fish, text: 'Ekstrak Fauna Laut Organik' },
-                { icon: Bot, text: 'Konsultasi Nutri-Bot AI' },
-              ].map(({ icon: Icon, text }) => (
-                <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(255,255,255,0.1)', padding: '1rem', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  <Icon size={16} />
-                  <span style={{ fontSize: '12px', fontWeight: 700 }}>{text}</span>
-                </div>
-              ))}
-            </div>
+    <div className="auth-outer">
+      <AuthLeftPanel />
+      <div className="auth-card" style={{ background: 'linear-gradient(180deg, #f0f9ff 0%, #ffffff 100%)' }}>
+        <div className="flex flex-col min-h-full px-7 py-8 lg:py-10 relative">
+          {/* Desktop logo for right panel */}
+          <div className="hidden lg:flex justify-center mb-8">
+            <img src={logoSrc} alt="NutriSea" className="h-43 w-auto object-contain" />
           </div>
-        </div>
 
-        {/* Right Panel */}
-        <div className="nuclear-right">
-          <div style={{ width: '100%', maxWidth: '360px', padding: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <NutriSeaLogoImg h="" style={{ height: '72px' }} />
+          {/* Mobile brand */}
+          <div className="flex justify-center mb-8 mt-2 lg:hidden">
+            <img src={logoSrc} alt="NutriSea" className="h-43 w-auto object-contain" />
+          </div>
+
+          <h2 className="text-3xl font-black text-slate-900 mb-1">Masuk ke Akun</h2>
+          <p className="text-sm text-slate-500 font-semibold mb-8">Pantau tumbuh kembang si kecil bersama NutriSea 🐠</p>
+
+
+          {error && <div className="mb-4"><Alert type="error" message={error} /></div>}
+
+          <form onSubmit={handleLogin} className="space-y-4 flex-1 flex flex-col">
+            <div>
+              <label className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2 block">Email</label>
+              <InputField icon={Mail} placeholder="nama@email.com" type="email" value={email} onChange={e => setEmail(e.target.value)} />
+            </div>
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-xs font-black text-slate-500 uppercase tracking-wider">Kata Sandi</label>
+                <Link to="/forgot-password" className="text-xs font-bold text-sky-600 hover:text-sky-700">Lupa password?</Link>
               </div>
-              <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', marginBottom: '0.25rem' }}>Kembali Pantau Nutrisi</h2>
-              <p style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, marginBottom: '2rem' }}>Masuk untuk melanjutkan perjalanan tumbuh kembang si kecil 🐠</p>
+              <InputField icon={Lock} type={showPassword ? 'text' : 'password'} placeholder="••••••••" value={password}
+                onChange={e => setPassword(e.target.value)}
+                rightIcon={
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-slate-400 hover:text-sky-600 transition">
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                }
+              />
+            </div>
+            <div className="mt-auto pt-2">
+              <Button type="submit" disabled={loading}>
+                {loading ? <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Memproses...</>
+                  : <><span>Masuk</span><ArrowRight size={16} /></>}
+              </Button>
+            </div>
+          </form>
 
-              {error && <div style={{ width: '100%', padding: '0.75rem', background: '#fef2f2', border: '1px solid #fee2e2', color: '#b91c1c', fontSize: '12px', marginBottom: '1.5rem', fontWeight: 700 }}>{error}</div>}
-
-              <form onSubmit={handleLogin} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div style={{ width: '100%' }}>
-                  <label style={{ fontSize: '11px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '0.5rem' }}>Email</label>
-                  <input 
-                    style={{ width: '100%', padding: '0.75rem 1.25rem', border: '2px solid #f1f5f9', fontWeight: 700, fontSize: '14px', outline: 'none' }}
-                    placeholder="nama@email.com" type="email" value={email} onChange={e => setEmail(e.target.value)} 
-                  />
-                </div>
-                <div style={{ width: '100%' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                    <label style={{ fontSize: '11px', fontWeight: 900, color: '#64748b', textTransform: 'uppercase' }}>Password</label>
-                    <Link to="/forgot-password" style={{ fontSize: '11px', fontWeight: 700, color: '#0284c7' }}>Lupa?</Link>
-                  </div>
-                  <input 
-                     style={{ width: '100%', padding: '0.75rem 1.25rem', border: '2px solid #f1f5f9', fontWeight: 700, fontSize: '14px', outline: 'none' }}
-                     type={showPassword ? 'text' : 'password'} placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} 
-                  />
-                </div>
-                
-                <button type="submit" disabled={loading} 
-                  style={{ width: '100%', background: '#0284c7', color: 'white', fontWeight: 900, padding: '1rem', border: 'none', cursor: 'pointer', marginTop: '1rem', fontSize: '14px' }}>
-                  {loading ? 'MEMPROSES...' : 'MASUK'}
-                </button>
-              </form>
-
-              <div style={{ marginTop: '2rem', border: '2px dashed #e0f2fe', padding: '1rem', width: '100%' }}>
-                <p style={{ fontSize: '10px', fontWeight: 900, color: '#0284c7', textTransform: 'uppercase', marginBottom: '0.75rem' }}>🔑 Akun Demo</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                  <div style={{ background: '#f0f9ff', padding: '0.75rem' }}>
-                    <p style={{ fontSize: '10px', fontWeight: 900, color: '#0369a1', margin: '0 0 0.25rem 0' }}>BUNDA</p>
-                    <p style={{ fontSize: '11px', fontWeight: 700, color: '#334155', margin: 0, wordBreak: 'break-all' }}>user@bilova.com</p>
-                  </div>
-                  <div style={{ background: '#f0f9ff', padding: '0.75rem' }}>
-                    <p style={{ fontSize: '10px', fontWeight: 900, color: '#0369a1', margin: '0 0 0.25rem 0' }}>ADMIN</p>
-                    <p style={{ fontSize: '11px', fontWeight: 700, color: '#334155', margin: 0, wordBreak: 'break-all' }}>admin@bilova.com</p>
-                  </div>
-                </div>
+          <div className="mt-4 border-2 border-dashed border-sky-100 rounded-2xl p-4">
+            <p className="text-[10px] font-black text-sky-600 uppercase tracking-widest mb-2">🔑 Akun Demo</p>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-sky-50 rounded-xl p-2.5">
+                <p className="font-black text-sky-700 text-[10px] uppercase mb-1">Bunda</p>
+                <p className="text-slate-600 font-bold break-all">user@nutrisea.id</p>
+                <p className="text-slate-400 font-semibold">Pass: 12345678</p>
+              </div>
+              <div className="bg-sky-50 rounded-xl p-2.5">
+                <p className="font-black text-sky-700 text-[10px] uppercase mb-1">Kader</p>
+                <p className="text-slate-600 font-bold break-all">admin@nutrisea.id</p>
+                <p className="text-slate-400 font-semibold">Pass: 12345678</p>
               </div>
 
-              <p style={{ marginTop: '2rem', fontSize: '13px', fontWeight: 700, color: '#64748b' }}>
-                Belum punya akun? <Link to="/register" style={{ color: '#0284c7', fontWeight: 900 }}>Daftar Sekarang</Link>
-              </p>
+            </div>
           </div>
+
+          <p className="text-center mt-5 mb-2 text-sm text-slate-500 font-semibold">
+            Belum punya akun?{' '}
+            <Link to="/register" className="text-sky-600 font-black hover:text-sky-700">Daftar Sekarang</Link>
+          </p>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
-
-
-
-
-export default LoginScreen;
+export default LoginScreen;

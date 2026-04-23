@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
-
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Mail, ArrowRight, ChevronLeft, ShieldCheck, HelpCircle } from 'lucide-react';
-import { Button, InputField, Alert, FloatingPills, NutriSeaLogoImg } from '../../components/UIComponents';
-
+import { Button, InputField, Alert, FloatingPills } from '../../components/UIComponents';
 import { useAuth } from '../../contexts/AuthContext';
 import logoSrc from '../../assets/Nutrisea_Logo.PNG';
 
@@ -15,15 +13,8 @@ const ForgotPasswordScreen = () => {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const { resetPassword } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    document.body.classList.add('auth-page');
-    return () => document.body.classList.remove('auth-page');
-  }, []);
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
     if (!email.trim()) { setError('Email wajib diisi.'); return; }
     if (!email.includes('@')) { setError('Format email tidak valid.'); return; }
@@ -42,37 +33,29 @@ const ForgotPasswordScreen = () => {
   return (
     <div className="auth-outer">
       {/* Desktop left panel */}
-      <div className="auth-left-panel hidden lg:flex">
+      <div className="auth-left-panel hidden lg:flex" style={{ background: 'linear-gradient(135deg, #0284c7 0%, #0891b2 40%, #06b6d4 100%)' }}>
         <div className="relative z-10 text-white text-center max-w-sm">
-          <NutriSeaLogoImg h="" className="mx-auto mb-6 brightness-0 invert" style={{ height: '100px' }} />
-          <h1 className="text-3xl font-black mb-3">Lupa Password?</h1>
+          <img src={logoSrc} alt="NutriSea" className="w-53 h-auto object-contain mx-auto mb-5 brightness-0 invert" />
+          <h1 className="text-3xl font-black mb-3 leading-tight">Lupa Password?</h1>
           <p className="text-white/80 text-sm leading-relaxed">
             Tenang, kami akan membantu Anda memulihkan akses ke akun NutriSea Anda dengan aman.
           </p>
-
-
         </div>
       </div>
 
-
-
       {/* Right panel */}
       <div className="auth-card">
-        <div className="flex flex-col w-full px-7 py-4 relative h-full justify-center items-center overflow-hidden">
-          <div className="w-full max-w-[420px]">
-            <FloatingPills />
-            {/* Back */}
-            <Link to="/login" className="flex items-center gap-1 text-[#8B2C8C] font-bold text-sm mb-4 w-fit hover:text-[#C85CA0]">
-              <ChevronLeft size={18} /> Kembali
-            </Link>
-            <div className="flex justify-center mb-6">
-              <NutriSeaLogoImg h="" style={{ height: '80px' }} />
-            </div>
+        <div className="flex flex-col min-h-full px-7 py-8 relative">
+          <FloatingPills />
 
+          {/* Back */}
+          <Link to="/login" className="flex items-center gap-1 text-sky-600 font-bold text-sm mb-6 w-fit hover:text-sky-700">
+            <ChevronLeft size={18} /> Kembali
+          </Link>
 
-
-
-
+          <div className="flex justify-center mb-6">
+            <img src={logoSrc} alt="NutriSea" className="h-43 w-auto object-contain" />
+          </div>
 
 
           {success ? (
@@ -82,23 +65,23 @@ const ForgotPasswordScreen = () => {
               <p className="text-sm text-[#6B4B7B] font-semibold leading-relaxed max-w-xs">
                 Instruksi reset password telah dikirim ke <strong>{email}</strong>. Periksa kotak masuk Anda.
               </p>
-              <Button onClick={() => navigate('/login')}>Kembali ke Halaman Masuk</Button>
+              <Button onClick={() => window.location.href = `${import.meta.env.BASE_URL}login`}>Kembali ke Halaman Masuk</Button>
             </div>
           ) : (
             <>
-              <h2 className="text-xl font-black text-slate-900 mb-1">Pulihkan Akun Anda</h2>
-              <p className="text-[11px] text-slate-500 font-semibold mb-4 text-center">
-                Jangan khawatir, kami akan membantu Anda masuk kembali. Masukkan email Anda untuk menerima tautan pemulihan.
+              <h2 className="text-2xl font-black text-slate-900 mb-1">Atur Ulang Password</h2>
+              <p className="text-sm text-slate-500 font-semibold mb-6">
+                Masukkan email terdaftar si kecil. Kami akan kirimkan instruksi pemulihan akun.
               </p>
-
 
               {error && <div className="mb-4"><Alert type="error" message={error} /></div>}
 
               <form onSubmit={handleSubmit} className="space-y-4 mb-6">
                 <div>
-                  <label className="text-xs font-black text-[#6B4B7B] uppercase tracking-wider mb-2 block">Alamat Email</label>
+                  <label className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2 block">Alamat Email</label>
                   <InputField icon={Mail} type="email" placeholder="nama@email.com" value={email} onChange={e => setEmail(e.target.value)} />
                 </div>
+
                 <Button type="submit" disabled={loading}>
                   {loading ? <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Mengirim...</>
                     : <><span>Kirim Instruksi Reset</span><ArrowRight size={16} /></>}
@@ -130,12 +113,10 @@ const ForgotPasswordScreen = () => {
               </button>
             </>
           )}
-          </div>
         </div>
       </div>
     </div>
   );
 };
-
 
 export default ForgotPasswordScreen;

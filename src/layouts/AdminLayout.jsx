@@ -16,7 +16,6 @@ const NutriSeaLogo = ({ className = '' }) => (
     alt="NutriSea" 
     className={`h-14 w-auto object-contain ${className}`} 
   />
-
 );
 
 

@@ -100,7 +100,7 @@ const Beranda = () => {
     <div className="min-h-full">
       {/* Header */}
       <div className="sticky top-0 z-20 bg-sky-50/95 backdrop-blur-md border-b border-sky-100 px-5 py-3.5 flex items-center justify-between">
-        <img src={logoSrc} alt="NutriSea" className="h-9 w-auto object-contain" />
+        <img src={logoSrc} alt="NutriSea" className="h-14 w-auto object-contain" />
         <div className="flex items-center gap-2">
           {medications.length > 0 && (
             <div className="relative">
