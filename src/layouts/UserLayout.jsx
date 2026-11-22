@@ -19,10 +19,8 @@ const UserLayout = () => {
       {/* Main scrollable content (flex-1 handles the width correctly when navbar is beside it) */}
       <main className="flex-1 w-full overflow-y-auto relative z-10 scroll-area">
         {/* Page content */}
-        <div className="pb-24 lg:pb-8 flex justify-center w-full" key={location.pathname}>
-          <div className="w-full max-w-lg lg:max-w-2xl xl:max-w-4xl mx-auto">
-            <Outlet />
-          </div>
+        <div className="pb-24 lg:pb-8 w-full px-5 lg:px-8 pt-6" key={location.pathname}>
+          <Outlet />
         </div>
       </main>
     </div>

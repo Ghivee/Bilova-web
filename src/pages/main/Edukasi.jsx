@@ -20,7 +20,8 @@ const Edukasi = () => {
   const [quizQuestions, setQuizQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedArticle, setSelectedArticle] = useState(null);
-  const [showQuiz, setShowQuiz] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(''); // Stores the active quiz folder name
+  const [activeQuizQuestions, setActiveQuizQuestions] = useState([]);
   const [quizStep, setQuizStep] = useState(0);
   const [selected, setSelected] = useState(null);
   const [quizResult, setQuizResult] = useState({ answered: false, score: 0, total: 0 });
@@ -50,29 +51,30 @@ const Edukasi = () => {
 
   const filtered = currentCat === 'semua' ? articles : articles.filter(a => a.category === currentCat);
 
-  const startQuiz = () => {
-    if (quizQuestions.length === 0) return;
+  const startQuiz = (folderName, questionsForFolder) => {
+    if (questionsForFolder.length === 0) return;
+    setActiveQuizQuestions(questionsForFolder);
     setQuizStep(0); setSelected(null); setAnswers([]);
-    setQuizResult({ answered: false, score: 0, total: quizQuestions.length });
-    setShowQuiz(true);
+    setQuizResult({ answered: false, score: 0, total: questionsForFolder.length });
+    setShowQuiz(folderName);
   };
 
   const handleAnswer = (idx) => {
     if (selected !== null) return; // Already answered this question
     setSelected(idx);
-    const isCorrect = idx === quizQuestions[quizStep].correct;
+    const isCorrect = idx === activeQuizQuestions[quizStep].correct;
     const newAnswers = [...answers, { questionIdx: quizStep, selected: idx, correct: isCorrect }];
     setAnswers(newAnswers);
   };
 
   const nextQuestion = () => {
-    if (quizStep < quizQuestions.length - 1) {
+    if (quizStep < activeQuizQuestions.length - 1) {
       setQuizStep(quizStep + 1);
       setSelected(null);
     } else {
       // Quiz finished
       const score = answers.filter(a => a.correct).length;
-      setQuizResult({ answered: true, score, total: quizQuestions.length });
+      setQuizResult({ answered: true, score, total: activeQuizQuestions.length });
     }
   };
 
@@ -117,7 +119,7 @@ const Edukasi = () => {
             {/* Review answers */}
             <div className="text-left space-y-3 mb-6">
               {answers.map((ans, i) => {
-                const q = quizQuestions[ans.questionIdx];
+                const q = activeQuizQuestions[ans.questionIdx];
                 return (
                   <div key={i} className={`p-3 rounded-2xl border-2 text-sm ${ans.correct ? 'bg-[#EDD9F5]/50 border-[#D4A8E0]' : 'bg-red-50 border-red-200'}`}>
                     <p className="font-bold mb-1">{q.question}</p>
@@ -127,21 +129,21 @@ const Edukasi = () => {
                 );
               })}
             </div>
-            <Button onClick={() => setShowQuiz(false)}>Kembali ke Edukasi</Button>
+            <Button onClick={() => setShowQuiz('')}>Kembali ke Edukasi</Button>
           </div>
         </div>
       );
     }
 
-    const q = quizQuestions[quizStep];
+    const q = activeQuizQuestions[quizStep];
     return (
       <div className="px-5 py-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="font-black text-[#2D1B3D]">Kuis: Soal {quizStep + 1}/{quizQuestions.length}</h2>
-          <button onClick={() => setShowQuiz(false)} className="p-2 rounded-xl hover:bg-[#EDD9F5] text-[#B090C0]"><X size={18} /></button>
+          <h2 className="font-black text-[#2D1B3D]">{showQuiz}: Soal {quizStep + 1}/{activeQuizQuestions.length}</h2>
+          <button onClick={() => setShowQuiz('')} className="p-2 rounded-xl hover:bg-[#EDD9F5] text-[#B090C0]"><X size={18} /></button>
         </div>
         <div className="w-full h-2 bg-[#EDD9F5] rounded-full mb-6">
-          <div className="h-full bg-[#8B2C8C] rounded-full transition-all" style={{ width: `${((quizStep + 1) / quizQuestions.length) * 100}%` }} />
+          <div className="h-full bg-[#8B2C8C] rounded-full transition-all" style={{ width: `${((quizStep + 1) / activeQuizQuestions.length) * 100}%` }} />
         </div>
         <div className="bg-white rounded-3xl p-6 border border-[#EDD9F5] shadow-card mb-5">
           <p className="font-black text-[#2D1B3D] text-base leading-relaxed">{q.question}</p>
@@ -178,7 +180,7 @@ const Edukasi = () => {
         {selected !== null && (
           <div className="mt-6 flex justify-end">
             <Button onClick={nextQuestion}>
-              {quizStep < quizQuestions.length - 1 ? 'Lanjut ke Soal Berikutnya' : 'Selesai & Lihat Hasil'}
+              {quizStep < activeQuizQuestions.length - 1 ? 'Lanjut ke Soal Berikutnya' : 'Selesai & Lihat Hasil'}
               <ChevronRight size={18} />
             </Button>
           </div>
@@ -187,6 +189,15 @@ const Edukasi = () => {
     );
   }
 
+  const activeQuizzes = Object.entries(
+    quizQuestions.reduce((acc, q) => {
+      const folder = q.folder_name || 'Kuis Umum';
+      acc[folder] = acc[folder] || [];
+      acc[folder].push(q);
+      return acc;
+    }, {})
+  );
+
   /* ─── Main Edukasi list ─── */
   return (
     <div>
@@ -194,29 +205,40 @@ const Edukasi = () => {
       <div className="px-5 pt-4 pb-10 space-y-5">
         {error && <Alert type="warning" message={error} />}
 
-        {/* Quiz CTA */}
-        <div onClick={startQuiz} className="bg-gradient-to-r from-[#8B2C8C] to-[#C85CA0] rounded-3xl p-5 cursor-pointer shadow-bilova relative overflow-hidden">
-          <div className="absolute right-4 top-2 opacity-20">
-            <HelpCircle size={80} />
+        {/* Quiz Folders CTA */}
+        {activeQuizzes.length > 0 && (
+          <div className="space-y-3">
+            <h3 className="font-black text-[#2D1B3D] flex items-center gap-2">
+              <HelpCircle size={16} className="text-[#8B2C8C]" /> Zona Kuis
+            </h3>
+            <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar">
+              {activeQuizzes.map(([folder, qs]) => (
+                <div key={folder} onClick={() => startQuiz(folder, qs)} className="shrink-0 w-64 bg-gradient-to-br from-[#8B2C8C] to-[#C85CA0] rounded-3xl p-5 cursor-pointer shadow-bilova relative overflow-hidden group">
+                  <div className="absolute -right-4 -top-4 opacity-20 group-hover:scale-110 transition-transform">
+                    <HelpCircle size={100} />
+                  </div>
+                  <div className="relative z-10">
+                    <span className="bg-white/20 text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-widest leading-none">Interaktif</span>
+                    <h3 className="text-xl font-black text-white mt-3 mb-1 leading-tight">{folder}</h3>
+                    <p className="text-white/80 text-sm font-semibold">{qs.length} Soal</p>
+                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center mt-3 backdrop-blur-sm group-hover:bg-white text-white group-hover:text-[#8B2C8C] transition-colors">
+                      <ChevronRight size={16} strokeWidth={3} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="relative z-10">
-            <span className="bg-white/20 text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-widest">Kuis Interaktif</span>
-            <h3 className="text-xl font-black text-white mt-2 mb-1">Seberapa Paham Kamu?</h3>
-            <p className="text-white/80 text-sm font-semibold">{quizQuestions.length} soal tentang antibiotik & AMR · Cek pengetahuanmu!</p>
-            <div className="flex items-center gap-1 mt-3 text-white font-black text-sm">Mulai Kuis <ChevronRight size={16} /></div>
-          </div>
-        </div>
+        )}
 
         {/* Category filter */}
-        <div className="relative w-full -mx-5 px-5">
-          <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-3 pr-5">
-            {categories.map(c => (
-              <button key={c} onClick={() => setCurrentCat(c)}
-                className={`flex-shrink-0 px-5 py-2 rounded-full font-bold text-sm transition-all ${currentCat === c ? 'bg-[#8B2C8C] text-white shadow-bilova-sm border border-[#8B2C8C]' : 'bg-white text-[#6B4B7B] border border-[#EDD9F5] hover:border-[#8B2C8C] hover:bg-[#EDD9F5]/30'}`}>
-                {c === 'semua' ? 'Semua Kategori' : c.charAt(0).toUpperCase() + c.slice(1)}
-              </button>
-            ))}
-          </div>
+        <div className="flex flex-wrap gap-2 pb-1">
+          {categories.map(c => (
+            <button key={c} onClick={() => setCurrentCat(c)}
+              className={`px-4 py-1.5 rounded-full font-bold text-sm transition-all ${currentCat === c ? 'bg-[#8B2C8C] text-white shadow-bilova-sm border border-[#8B2C8C]' : 'bg-white text-[#6B4B7B] border border-[#EDD9F5] hover:border-[#8B2C8C] hover:bg-[#EDD9F5]/30'}`}>
+              {c === 'semua' ? 'Semua Kategori' : c.charAt(0).toUpperCase() + c.slice(1)}
+            </button>
+          ))}
         </div>
 
         {/* Articles */}

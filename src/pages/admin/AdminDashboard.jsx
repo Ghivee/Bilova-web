@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, ClipboardCheck, AlertTriangle, Activity, TrendingUp, Clock } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { Alert } from '../../components/UIComponents';
+import { Alert, Modal, Button } from '../../components/UIComponents';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({ totalUsers: 0, avgCompliance: 0, severeAlerts: 0, activeMeds: 0 });
@@ -9,6 +9,8 @@ const AdminDashboard = () => {
   const [severeSymptoms, setSevereSymptoms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [editAlert, setEditAlert] = useState(null);
+  const [deleteAlertId, setDeleteAlertId] = useState(null);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -61,6 +63,26 @@ const AdminDashboard = () => {
       <div className="w-10 h-10 border-4 border-[#EDD9F5] border-t-[#8B2C8C] rounded-full animate-spin" />
     </div>
   );
+
+  const handleUpdateAlert = async (e) => {
+    e.preventDefault();
+    try {
+      const { error } = await supabase.from('symptom_logs').update({ notes: editAlert.notes, severity: editAlert.severity }).eq('id', editAlert.id);
+      if (error) throw new Error(error.message);
+      setSevereSymptoms(prev => prev.map(s => s.id === editAlert.id ? { ...s, notes: editAlert.notes, severity: editAlert.severity } : s));
+      setEditAlert(null);
+    } catch (err) { alert('Gagal memperbarui: ' + err.message); }
+  };
+
+  const handleDeleteAlert = async () => {
+    try {
+      const { error } = await supabase.from('symptom_logs').delete().eq('id', deleteAlertId);
+      if (error) throw new Error(error.message);
+      setSevereSymptoms(prev => prev.filter(s => s.id !== deleteAlertId));
+      setStats(prev => ({ ...prev, severeAlerts: prev.severeAlerts > 0 ? prev.severeAlerts - 1 : 0 }));
+      setDeleteAlertId(null);
+    } catch (err) { alert('Gagal menghapus: ' + err.message); }
+  };
 
   const cards = [
     {
@@ -124,21 +146,32 @@ const AdminDashboard = () => {
               {severeSymptoms.map(log => {
                 const isEmerg = log.notes?.includes('[EMERGENCY]');
                 return (
-                  <div key={log.id} className="px-6 py-3 flex items-start gap-3">
-                    <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${isEmerg ? 'bg-red-500' : 'bg-amber-500'}`} />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-[#2D1B3D] text-sm">{log.profiles?.full_name || 'Anonim'}</p>
-                      <p className="text-xs text-[#B090C0] font-semibold">{log.symptoms?.slice(0, 3).join(', ')}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${isEmerg ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
-                          {isEmerg ? 'DARURAT' : 'PERHATIAN'}
-                        </span>
-                        <span className="text-[10px] text-[#D4A8E0] font-semibold flex items-center gap-0.5">
-                          <Clock size={9} /> {new Date(log.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                        </span>
+                  <div key={log.id} className="px-6 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="flex items-start gap-3 w-full md:w-auto">
+                      <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${isEmerg ? 'bg-red-500' : 'bg-amber-500'}`} />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-[#2D1B3D] text-sm flex items-center gap-2">
+                          {log.profiles?.full_name || 'Anonim'} 
+                          <span className="font-black text-xs text-red-600 px-1.5 py-0.5 bg-red-50 rounded-md border border-red-100">{log.severity}/10</span>
+                        </p>
+                        <p className="text-xs text-[#B090C0] font-semibold mt-0.5">{log.symptoms?.slice(0, 3).join(', ')}</p>
+                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                          <span className={`text-[9px] font-black px-2 py-0.5 rounded-md border ${isEmerg ? 'bg-red-50 border-red-100 text-red-700' : 'bg-amber-50 border-amber-100 text-amber-700'}`}>
+                            {isEmerg ? '🚨 DARURAT' : '⚠️ PERHATIAN'}
+                          </span>
+                          <span className="text-[10px] text-[#D4A8E0] font-semibold flex items-center gap-0.5">
+                            <Clock size={10} /> {new Date(log.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        {log.notes && <p className="text-xs text-[#6B4B7B] font-semibold mt-2 pl-1 border-l-2 border-[#EDD9F5]">📝 {log.notes}</p>}
                       </div>
                     </div>
-                    <span className="font-black text-base text-red-600">{log.severity}/10</span>
+                    
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-2 self-end md:self-auto">
+                      <button onClick={() => setEditAlert(log)} className="px-3 py-1.5 bg-[#EDD9F5]/50 hover:bg-[#EDD9F5] text-[#8B2C8C] rounded-lg text-xs font-bold transition">Tindak Lanjut</button>
+                      <button onClick={() => setDeleteAlertId(log.id)} className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg></button>
+                    </div>
                   </div>
                 );
               })}
@@ -182,6 +215,29 @@ const AdminDashboard = () => {
           )}
         </div>
       </div>
+
+      {/* Edit Alert Modal */}
+      {editAlert && (
+        <Modal isOpen={!!editAlert} onClose={() => setEditAlert(null)} title="Tindak Lanjut Gejala Berat"
+          footer={<><Button variant="secondary" onClick={() => setEditAlert(null)}>Batal</Button><Button onClick={handleUpdateAlert}>Simpan Perubahan</Button></>}>
+          <div className="space-y-4">
+            <div>
+              <label className="text-xs font-black text-[#6B4B7B] uppercase block mb-1">Catatan Admin</label>
+              <textarea value={editAlert.notes || ''} onChange={(e) => setEditAlert({ ...editAlert, notes: e.target.value })}
+                rows={3} className="w-full bg-white border-2 border-[#EDD9F5] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#8B2C8C]"
+                placeholder="Tambahkan catatan tindak lanjut..." />
+              <p className="text-[10px] text-[#B090C0] mt-1 font-semibold">TIPS: Hapus teks [EMERGENCY] atau [WARNING] dari catatan untuk mencabut status darurat.</p>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Delete Alert Modal */}
+      <Modal isOpen={!!deleteAlertId} onClose={() => setDeleteAlertId(null)} title="Hapus Alert?"
+        footer={<><Button variant="secondary" onClick={() => setDeleteAlertId(null)}>Batal</Button><Button variant="danger" onClick={handleDeleteAlert}>Hapus</Button></>}>
+        Apakah Anda yakin ingin menghapus catatan gejala berat ini dari sistem? Tindakan ini tidak dapat dibatalkan.
+      </Modal>
+
     </div>
   );
 };
