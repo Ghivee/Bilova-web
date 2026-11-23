@@ -7,8 +7,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
-    "push-deploy": "git pull origin main --rebase && git add . && git commit -m \"fix: UI & Admin Data enhancements\" && git push origin main && npm run deploy"
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.103.0",
